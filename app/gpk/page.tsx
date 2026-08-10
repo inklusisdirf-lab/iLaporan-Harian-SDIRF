@@ -620,7 +620,7 @@ export default function GpkDashboard() {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold text-slate-400 uppercase">Tahun Ajaran / Periode</label>
                     <div className="flex gap-2">
-                      <div className="flex-1 flex flex-col gap-1.5"><input type="text" placeholder="2025/2026" value={tahunAjaran} onChange={(e) => setTahunAjaran(e.target.value)} required className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-3 text-white text-sm" /></div>
+                      <div className="flex-1 flex flex-col gap-1.5"><input type="text" placeholder="2026/2027" value={tahunAjaran} onChange={(e) => setTahunAjaran(e.target.value)} required className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-3 text-white text-sm" /></div>
                       <div className="flex-1 flex flex-col gap-1.5"><input type="text" placeholder="Semester 1" value={periodePpi} onChange={(e) => setPeriodePpi(e.target.value)} required className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-3 text-white text-sm" /></div>
                     </div>
                   </div>
