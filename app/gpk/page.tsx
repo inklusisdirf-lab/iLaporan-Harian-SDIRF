@@ -225,17 +225,30 @@ export default function GpkDashboard() {
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans pb-20">
       <div className="max-w-7xl mx-auto flex flex-col gap-8">
         
-        {/* HEADER */}
+        {/* HEADER DENGAN LOGO & TAGLINE */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-xl gap-4 shadow-2xl">
           <div className="flex items-center gap-4">
-            <div className="p-3.5 bg-gradient-to-br from-blue-600/30 to-purple-600/30 border border-blue-500/30 rounded-2xl shadow-inner">
-              <UserCheck className="w-8 h-8 text-blue-400" />
+            <div className="p-2 bg-white rounded-2xl shadow-md flex items-center justify-center w-16 h-16 flex-shrink-0 border border-white/20">
+              <img 
+                src="/images/logo.png" 
+                alt="Logo SD Islam Roushon Fikr" 
+                className="w-12 h-12 object-contain" 
+                onError={(e) => {
+                  // Fallback jika file logo belum ada di public/images/logo.png
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
             </div>
             <div>
-              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-                Dashboard GPK - SD Islam Roushon Fikr
-              </h1>
-              <p className="text-slate-400 text-sm">Pendamping: <strong className="text-white">{gpkName}</strong> • Inklusi & ABK</p>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                  Dashboard GPK - SD Islam Roushon Fikr
+                </h1>
+              </div>
+              <p className="text-xs font-medium tracking-wider text-blue-300 uppercase mt-0.5 mb-1">
+                Future Islamic Leadership School
+              </p>
+              <p className="text-slate-400 text-xs">Pendamping: <strong className="text-white">{gpkName}</strong> • Inklusi & ABK</p>
             </div>
           </div>
           <button onClick={handleLogout} className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 px-4 py-2.5 rounded-xl transition-all text-sm font-semibold">
