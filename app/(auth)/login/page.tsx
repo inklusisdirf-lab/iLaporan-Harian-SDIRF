@@ -97,16 +97,15 @@ export default function LoginPage() {
 const handleForgotPassword = async (e: React.FormEvent) => {
   e.preventDefault();
   setLoading(true);
-  
+
   try {
-    // Kita tambahkan '#' agar Supabase mengirim token sebagai fragmen URL, 
-    // bukan sebagai parameter URL yang salah sasaran ke API.
+    // Kita targetkan ke halaman update-password
     const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
       redirectTo: "https://i-laporan-harian-sdirf.vercel.app/update-password",
     });
 
     if (error) throw error;
-    setSuccessMessage("Tautan pemulihan telah dikirim ke email Anda.");
+    setSuccessMessage("Link reset telah dikirim ke email Anda.");
   } catch (error: any) {
     setErrorMessage(error.message);
   } finally {

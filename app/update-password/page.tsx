@@ -12,14 +12,15 @@ export default function UpdatePasswordPage() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Supabase otomatis mengambil user dari session yang terbawa via link email
+
+    // KUNCI: Supabase SDK secara otomatis akan membaca token dari URL hash
+    // tanpa perlu mengirim apikey manual.
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
       alert("Error: " + error.message);
     } else {
-      alert("Password berhasil diperbarui!");
+      alert("Password berhasil diubah!");
       router.push("/login");
     }
     setLoading(false);
@@ -27,13 +28,13 @@ export default function UpdatePasswordPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-      <form onSubmit={handleUpdate} className="bg-white/10 p-8 rounded-3xl w-full max-w-sm text-center border border-white/10">
-        <h2 className="text-white text-xl font-bold mb-4">Set Password Baru</h2>
+      <form onSubmit={handleUpdate} className="bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full max-w-sm">
+        <h2 className="text-white font-bold mb-4">Set Password Baru</h2>
         <input 
           type="password" 
           value={password} 
           onChange={(e) => setPassword(e.target.value)} 
-          className="w-full p-3 rounded-xl mb-4 bg-slate-900 text-white border border-slate-700"
+          className="w-full p-3 rounded-xl bg-slate-950 text-white border border-slate-700 mb-4"
           placeholder="Password baru"
           required 
         />
