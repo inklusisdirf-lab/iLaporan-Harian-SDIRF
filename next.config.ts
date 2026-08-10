@@ -8,8 +8,8 @@ const withPWA = nextPWA({
   disable: process.env.NODE_ENV === "development",
 });
 
-const nextConfig: NextConfig = {
-  /* config options di sini jika ada */
+const nextConfig = {
+  turbopack: {},
 };
 
 export default withPWA(nextConfig);
