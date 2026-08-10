@@ -85,11 +85,9 @@ export default function GpkDashboard() {
       setGpkId(profile.id); 
       setGpkName(profile.full_name);
 
-      // Ambil seluruh data siswa
       const { data: allStudentsData } = await supabase.from("students").select("*");
       if (allStudentsData) {
         setAllStudents(allStudentsData);
-        // Filter siswa yang ditautkan ke GPK ini
         const mine = allStudentsData.filter(s => s.gpk_id === profile.id);
         setAssignedStudents(mine);
       }
@@ -111,7 +109,6 @@ export default function GpkDashboard() {
 
   const handleLogout = async () => { await supabase.auth.signOut(); router.push("/login"); };
 
-  // --- HANDLER BARIS DINAMIS EVALUASI ---
   const addEvaluasiRow = () => setRencanaEvaluasi([...rencanaEvaluasi, { periode: "", kegiatan: "", status: "Aktif" }]);
   const removeEvaluasiRow = (index: number) => setRencanaEvaluasi(rencanaEvaluasi.filter((_, i) => i !== index));
   const updateEvaluasiRow = (index: number, field: string, value: string) => {
@@ -120,7 +117,6 @@ export default function GpkDashboard() {
     setRencanaEvaluasi(newEvaluasi);
   };
 
-  // --- CRUD LAPORAN HARIAN ---
   const handleSubmitReport = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedStudentId) return alert("Pilih siswa terlebih dahulu!");
@@ -149,7 +145,6 @@ export default function GpkDashboard() {
 
   const resetReportForm = () => { setMataPelajaran(""); setMateri(""); setTargetCapaian(""); setHasilPembelajaran(""); setCatatanPerilaku(""); setIntervensi(""); setSelectedStudentId(""); };
 
-  // --- CRUD ASESMEN AWAL ---
   const handleSubmitAssessment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedStudentId) return alert("Pilih siswa terlebih dahulu!");
@@ -190,7 +185,6 @@ export default function GpkDashboard() {
 
   const resetAssessmentForm = () => { setTglAssessment(""); setPermasalahan(""); setSelectedStudentId(""); };
 
-  // --- CRUD PPI ---
   const handleSubmitPpi = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedStudentId) return alert("Pilih siswa terlebih dahulu!");
@@ -256,8 +250,8 @@ export default function GpkDashboard() {
           </div>
         )}
 
-        {/* TAB UTAMA */}
-        <div className="flex flex-wrap gap-3 border-b border-white/10 pb-4">
+        {/* TAB UTAMA (Diperbaiki agar bisa scroll horizontal & tidak melebihi margin) */}
+        <div className="flex items-center gap-3 border-b border-white/10 pb-4 overflow-x-auto max-w-full scrollbar-thin">
           {[
             { id: "laporan-harian", label: "Laporan Harian PDBK", icon: BookOpen },
             { id: "ppi-asesmen", label: "Asesmen & PPI Detail", icon: FileText },
@@ -268,7 +262,7 @@ export default function GpkDashboard() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold text-sm transition-all shadow-lg ${
+                className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold text-sm transition-all shadow-lg whitespace-nowrap flex-shrink-0 ${
                   isActive 
                     ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white border border-white/25 shadow-blue-500/20" 
                     : "bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10 hover:text-white"
@@ -284,11 +278,11 @@ export default function GpkDashboard() {
         {/* === TAB 1: LAPORAN HARIAN === */}
         {activeTab === "laporan-harian" && (
           <div className="flex flex-col gap-6">
-            <div className="flex gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-fit">
-              <button onClick={() => { setEditReportId(null); resetReportForm(); setLaporanSubTab("tambah"); }} className={`px-5 py-2 rounded-xl text-xs font-semibold ${laporanSubTab === "tambah" ? "bg-blue-600 text-white" : "text-slate-400"}`}>
+            <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-fit overflow-x-auto max-w-full">
+              <button onClick={() => { setEditReportId(null); resetReportForm(); setLaporanSubTab("tambah"); }} className={`px-5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${laporanSubTab === "tambah" ? "bg-blue-600 text-white" : "text-slate-400"}`}>
                 {editReportId ? "✏️ Edit Laporan" : "+ Tambah Laporan"}
               </button>
-              <button onClick={() => setLaporanSubTab("riwayat")} className={`px-5 py-2 rounded-xl text-xs font-semibold ${laporanSubTab === "riwayat" ? "bg-blue-600 text-white" : "text-slate-400"}`}>📜 Riwayat ({myReports.length})</button>
+              <button onClick={() => setLaporanSubTab("riwayat")} className={`px-5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${laporanSubTab === "riwayat" ? "bg-blue-600 text-white" : "text-slate-400"}`}>📜 Riwayat ({myReports.length})</button>
             </div>
 
             {laporanSubTab === "tambah" && (
@@ -298,7 +292,6 @@ export default function GpkDashboard() {
                     <PlusCircle className="w-5 h-5 text-blue-400" /> {editReportId ? "Edit Laporan Harian Pendampingan" : "Form Input Laporan Harian Pendampingan"}
                   </h3>
                   
-                  {/* Ceklis Mode Rolling Siswa */}
                   <label className="flex items-center gap-2 bg-slate-900 border border-blue-500/40 px-4 py-2 rounded-xl cursor-pointer shadow-md">
                     <input 
                       type="checkbox" 
@@ -414,11 +407,11 @@ export default function GpkDashboard() {
         {/* === TAB 2: ASESMEN & PPI DETAIL === */}
         {activeTab === "ppi-asesmen" && (
           <div className="flex flex-col gap-6">
-            <div className="flex gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-fit overflow-x-auto">
-              <button onClick={() => setPpiSubTab("form-asesmen")} className={`px-5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${ppiSubTab === "form-asesmen" ? "bg-purple-600 text-white" : "text-slate-400"}`}>📝 Form Asesmen</button>
-              <button onClick={() => setPpiSubTab("riwayat-asesmen")} className={`px-5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${ppiSubTab === "riwayat-asesmen" ? "bg-purple-600 text-white" : "text-slate-400"}`}>📚 Riwayat Asesmen ({myAssessments.length})</button>
-              <button onClick={() => setPpiSubTab("form-ppi")} className={`px-5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${ppiSubTab === "form-ppi" ? "bg-purple-600 text-white" : "text-slate-400"}`}>📋 Form PPI</button>
-              <button onClick={() => setPpiSubTab("riwayat-ppi")} className={`px-5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${ppiSubTab === "riwayat-ppi" ? "bg-purple-600 text-white" : "text-slate-400"}`}>📑 Riwayat PPI ({myPpi.length})</button>
+            <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-fit overflow-x-auto max-w-full scrollbar-thin">
+              <button onClick={() => setPpiSubTab("form-asesmen")} className={`px-5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex-shrink-0 ${ppiSubTab === "form-asesmen" ? "bg-purple-600 text-white" : "text-slate-400"}`}>📝 Form Asesmen</button>
+              <button onClick={() => setPpiSubTab("riwayat-asesmen")} className={`px-5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex-shrink-0 ${ppiSubTab === "riwayat-asesmen" ? "bg-purple-600 text-white" : "text-slate-400"}`}>📚 Riwayat Asesmen ({myAssessments.length})</button>
+              <button onClick={() => setPpiSubTab("form-ppi")} className={`px-5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex-shrink-0 ${ppiSubTab === "form-ppi" ? "bg-purple-600 text-white" : "text-slate-400"}`}>📋 Form PPI</button>
+              <button onClick={() => setPpiSubTab("riwayat-ppi")} className={`px-5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex-shrink-0 ${ppiSubTab === "riwayat-ppi" ? "bg-purple-600 text-white" : "text-slate-400"}`}>📑 Riwayat PPI ({myPpi.length})</button>
             </div>
 
             {/* FORM ASESMEN AWAL */}
@@ -663,7 +656,7 @@ export default function GpkDashboard() {
                     <button 
                       type="button" 
                       onClick={addEvaluasiRow}
-                      className="text-xs bg-amber-500/20 px-3 py-1.5 rounded-xl text-amber-300 hover:bg-amber-500/40 flex items-center gap-1 font-semibold"
+                      className="text-xs bg-amber-500/25 px-3.5 py-2 rounded-xl text-amber-300 hover:bg-amber-500/40 flex items-center gap-1.5 font-semibold transition-all"
                     >
                       <Plus className="w-3.5 h-3.5" /> Tambah Baris
                     </button>
