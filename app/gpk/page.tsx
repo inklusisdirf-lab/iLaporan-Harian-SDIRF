@@ -24,7 +24,7 @@ export default function GpkDashboard() {
 
   const [assignedStudents, setAssignedStudents] = useState<any[]>([]);
   const [allStudents, setAllStudents] = useState<any[]>([]);
-  const [isRollingMode, setIsRollingMode] = useState(false); // Ceklis Rolling Siswa
+  const [isRollingMode, setIsRollingMode] = useState(false); 
   const [selectedStudentId, setSelectedStudentId] = useState("");
 
   // State Form Laporan Harian
@@ -60,7 +60,6 @@ export default function GpkDashboard() {
   const [tujuanSmart, setTujuanSmart] = useState({ jangka_panjang: "", jangka_pendek_1: "", jangka_pendek_2: "", jangka_pendek_3: "" });
   const [layananAkomodasi, setLayananAkomodasi] = useState({ modifikasi: "", media: "", komunikasi: "", tugas: "", pendamping: "", kolaborasi: "" });
   
-  // Rencana Evaluasi Dinamis (Array)
   const [rencanaEvaluasi, setRencanaEvaluasi] = useState<{ periode: string, kegiatan: string, status: string }[]>([
     { periode: "", kegiatan: "", status: "Aktif" }
   ]);
@@ -414,7 +413,7 @@ export default function GpkDashboard() {
               <button onClick={() => setPpiSubTab("riwayat-ppi")} className={`px-5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex-shrink-0 ${ppiSubTab === "riwayat-ppi" ? "bg-purple-600 text-white" : "text-slate-400"}`}>📑 Riwayat PPI ({myPpi.length})</button>
             </div>
 
-            {/* FORM ASESMEN AWAL (UTUH & LENGKAP) */}
+            {/* FORM ASESMEN AWAL */}
             {ppiSubTab === "form-asesmen" && (
               <form onSubmit={handleSubmitAssessment} className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-3xl backdrop-blur-xl flex flex-col gap-6 shadow-2xl">
                 <div className="flex justify-between items-center">
@@ -568,7 +567,7 @@ export default function GpkDashboard() {
               </div>
             )}
 
-            {/* FORM PPI (UTUH & LENGKAP) */}
+            {/* FORM PPI */}
             {ppiSubTab === "form-ppi" && (
               <form onSubmit={handleSubmitPpi} className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-3xl backdrop-blur-xl flex flex-col gap-6 shadow-2xl">
                 <div className="flex justify-between items-center">
