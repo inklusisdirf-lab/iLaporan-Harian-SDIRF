@@ -217,12 +217,12 @@ export default function GpkDashboard() {
     else { setMessage("Dokumen PPI berhasil dihapus."); fetchGpkHistory(gpkId); setTimeout(() => setMessage(""), 3000); }
   };
 
-  if (loading) return ( <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white"><div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" /></div> );
+  if (loading) return ( <div translate="no" className="notranslate min-h-screen bg-slate-950 flex items-center justify-center text-white"><div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" /></div> );
 
   const studentOptionsList = isRollingMode ? allStudents : assignedStudents;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 md:p-8 font-sans pb-24 overflow-x-hidden">
+    <div translate="no" className="notranslate min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 md:p-8 font-sans pb-24 overflow-x-hidden">
       <div className="max-w-7xl mx-auto flex flex-col gap-6 w-full">
         
         {/* HEADER DENGAN LOGO & TAGLINE */}
