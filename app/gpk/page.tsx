@@ -250,7 +250,7 @@ export default function GpkDashboard() {
           </div>
         )}
 
-        {/* TAB UTAMA (Diperbaiki agar bisa scroll horizontal & tidak melebihi margin) */}
+        {/* TAB UTAMA (Scrollable & Responsive) */}
         <div className="flex items-center gap-3 border-b border-white/10 pb-4 overflow-x-auto max-w-full scrollbar-thin">
           {[
             { id: "laporan-harian", label: "Laporan Harian PDBK", icon: BookOpen },
@@ -414,7 +414,7 @@ export default function GpkDashboard() {
               <button onClick={() => setPpiSubTab("riwayat-ppi")} className={`px-5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex-shrink-0 ${ppiSubTab === "riwayat-ppi" ? "bg-purple-600 text-white" : "text-slate-400"}`}>📑 Riwayat PPI ({myPpi.length})</button>
             </div>
 
-            {/* FORM ASESMEN AWAL */}
+            {/* FORM ASESMEN AWAL (UTUH & LENGKAP) */}
             {ppiSubTab === "form-asesmen" && (
               <form onSubmit={handleSubmitAssessment} className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-3xl backdrop-blur-xl flex flex-col gap-6 shadow-2xl">
                 <div className="flex justify-between items-center">
@@ -483,7 +483,7 @@ export default function GpkDashboard() {
                   </div>
                 </div>
 
-                {/* 5 Aspek Temuan Lapangan */}
+                {/* 5 Aspek Temuan Lapangan Lengkap */}
                 <div className="border border-white/10 p-5 rounded-2xl bg-white/5 space-y-6">
                   <h4 className="font-bold text-emerald-400 text-sm uppercase">Data Temuan di Lapangan (5 Aspek)</h4>
                    
@@ -568,7 +568,7 @@ export default function GpkDashboard() {
               </div>
             )}
 
-            {/* FORM PPI */}
+            {/* FORM PPI (UTUH & LENGKAP) */}
             {ppiSubTab === "form-ppi" && (
               <form onSubmit={handleSubmitPpi} className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-3xl backdrop-blur-xl flex flex-col gap-6 shadow-2xl">
                 <div className="flex justify-between items-center">
