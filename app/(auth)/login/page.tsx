@@ -94,26 +94,25 @@ export default function LoginPage() {
     }
   };
 
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMessage("");
-    setSuccessMessage("");
+const handleForgotPassword = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  
+  try {
+    // Kita tambahkan '#' agar Supabase mengirim token sebagai fragmen URL, 
+    // bukan sebagai parameter URL yang salah sasaran ke API.
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo: "https://i-laporan-harian-sdirf.vercel.app/update-password",
+    });
 
-    try {
-      // Pastikan URL redirect menggunakan format yang tepat untuk Supabase
-      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-        redirectTo: `https://i-laporan-harian-sdirf.vercel.app/update-password`,
-      });
-
-      if (error) throw error;
-      setSuccessMessage("Tautan pemulihan telah dikirim ke email Anda.");
-    } catch (error: any) {
-      setErrorMessage(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    if (error) throw error;
+    setSuccessMessage("Tautan pemulihan telah dikirim ke email Anda.");
+  } catch (error: any) {
+    setErrorMessage(error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div translate="no" className="notranslate min-h-screen bg-slate-950 flex items-center justify-center p-4">
