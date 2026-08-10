@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, User, ArrowRight, ShieldCheck, BookOpen, BrainCircuit, Phone, Users } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, ShieldCheck, BookOpen, BrainCircuit, Phone, Users, KeyRound } from "lucide-react";
 import { supabase } from "@/app/utils/supabase/client";
 
 export default function LoginPage() {
@@ -22,6 +22,9 @@ export default function LoginPage() {
   // State Form Login
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+
+  // State Form Lupa Password
+  const [forgotEmail, setForgotEmail] = useState("");
   
   // State Loading & Error Message
   const [loading, setLoading] = useState(false);
@@ -36,7 +39,6 @@ export default function LoginPage() {
     setSuccessMessage("");
 
     try {
-      // 1. Daftarkan akun ke Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -45,7 +47,6 @@ export default function LoginPage() {
       if (authError) throw authError;
 
       if (authData.user) {
-        // 2. Masukkan data profil tambahan ke tabel 'profiles'
         const { error: profileError } = await supabase.from("profiles").insert([
           {
             id: authData.user.id,
@@ -83,7 +84,6 @@ export default function LoginPage() {
       if (error) throw error;
 
       if (data.user) {
-        // Ambil role pengguna dari tabel profiles untuk diarahkan ke dashboard masing-masing
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select("role")
@@ -94,7 +94,6 @@ export default function LoginPage() {
 
         const role = profileData?.role;
 
-        // Arahkan ke dashboard sesuai role masing-masing (tanpa kurung siku rute)
         if (role === "admin") router.push("/admin");
         else if (role === "gpk") router.push("/gpk");
         else if (role === "psikolog") router.push("/psikolog");
@@ -102,6 +101,30 @@ export default function LoginPage() {
       }
     } catch (error: any) {
       setErrorMessage(error.message || "Email atau password salah.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fungsi Lupa Password (Kirim Link Pemulihan via Brevo)
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    try {
+      const redirectTo = `${window.location.origin}/update-password`;
+
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+        redirectTo: redirectTo,
+      });
+
+      if (error) throw error;
+
+      setSuccessMessage("Tautan pemulihan kata sandi telah dikirim ke email Anda. Silakan cek inbox atau folder spam.");
+    } catch (error: any) {
+      setErrorMessage(error.message || "Gagal mengirim link pemulihan password.");
     } finally {
       setLoading(false);
     }
@@ -165,12 +188,12 @@ export default function LoginPage() {
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-500/20 blur-[50px] rounded-full" />
             
             {errorMessage && (
-              <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-xl text-red-200 text-xs">
+              <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-xl text-red-200 text-xs text-center font-semibold">
                 {errorMessage}
               </div>
             )}
             {successMessage && (
-              <div className="mb-4 p-3 bg-emerald-500/20 border border-emerald-500/50 rounded-xl text-emerald-200 text-xs">
+              <div className="mb-4 p-3 bg-emerald-500/20 border border-emerald-500/50 rounded-xl text-emerald-200 text-xs text-center font-semibold">
                 {successMessage}
               </div>
             )}
@@ -208,7 +231,13 @@ export default function LoginPage() {
                       />
                     </div>
                     <div className="flex justify-end">
-                      <button type="button" onClick={() => setView("forgot")} className="text-sm text-blue-400 hover:text-blue-300 transition-colors">Lupa Password?</button>
+                      <button 
+                        type="button" 
+                        onClick={() => { setView("forgot"); setErrorMessage(""); setSuccessMessage(""); }} 
+                        className="text-sm text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
+                      >
+                        <KeyRound className="w-3.5 h-3.5" /> Lupa Password?
+                      </button>
                     </div>
                   </div>
 
@@ -221,7 +250,7 @@ export default function LoginPage() {
                   </button>
 
                   <div className="text-center mt-4 text-sm text-slate-400">
-                    Belum punya akun? <button type="button" onClick={() => setView("register")} className="text-blue-400 font-semibold hover:underline">Daftar sekarang</button>
+                    Belum punya akun? <button type="button" onClick={() => { setView("register"); setErrorMessage(""); setSuccessMessage(""); }} className="text-blue-400 font-semibold hover:underline">Daftar sekarang</button>
                   </div>
                 </motion.form>
               )}
@@ -311,6 +340,7 @@ export default function LoginPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        minLength={6}
                         className="w-full bg-slate-900/50 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-500 text-sm" 
                       />
                     </div>
@@ -325,34 +355,45 @@ export default function LoginPage() {
                   </button>
 
                   <div className="text-center text-sm text-slate-400">
-                    Sudah punya akun? <button type="button" onClick={() => setView("login")} className="text-blue-400 font-semibold hover:underline">Masuk di sini</button>
+                    Sudah punya akun? <button type="button" onClick={() => { setView("login"); setErrorMessage(""); setSuccessMessage(""); }} className="text-blue-400 font-semibold hover:underline">Masuk di sini</button>
                   </div>
                 </motion.form>
               )}
 
-              {/* === FORGOT PASSWORD FORM === */}
+              {/* === FORGOT PASSWORD FORM (TERHUBUNG KE BREVO/SUPABASE) === */}
               {view === "forgot" && (
-                <motion.div key="forgot" variants={fadeIn} initial="hidden" animate="visible" exit="exit" className="flex flex-col gap-6">
+                <motion.form key="forgot" onSubmit={handleForgotPassword} variants={fadeIn} initial="hidden" animate="visible" exit="exit" className="flex flex-col gap-6">
                   <div className="text-center">
                     <h3 className="text-2xl font-bold text-white mb-2">Lupa Password?</h3>
-                    <p className="text-slate-400 text-sm">Masukkan email Anda untuk menerima link reset</p>
+                    <p className="text-slate-400 text-sm">Masukkan email terdaftar untuk menerima tautan pemulihan</p>
                   </div>
                   
                   <div className="flex flex-col gap-4">
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-                      <input type="email" placeholder="Email Terdaftar" className="w-full bg-slate-900/50 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-500" />
+                      <input 
+                        type="email" 
+                        placeholder="Email Terdaftar" 
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        required
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-500 text-sm" 
+                      />
                     </div>
                   </div>
 
-                  <button className="w-full bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transform transition hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-sm">
-                    Kirim Link Reset <ArrowRight className="w-4 h-4" />
+                  <button 
+                    type="submit" 
+                    disabled={loading}
+                    className="w-full bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transform transition hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                  >
+                    {loading ? "Mengirim..." : <>Kirim Link Reset <ArrowRight className="w-4 h-4" /></>}
                   </button>
 
                   <div className="text-center mt-4 text-sm text-slate-400">
-                    Ingat password Anda? <button onClick={() => setView("login")} className="text-blue-400 font-semibold hover:underline">Kembali ke Login</button>
+                    Ingat password Anda? <button type="button" onClick={() => { setView("login"); setErrorMessage(""); setSuccessMessage(""); }} className="text-blue-400 font-semibold hover:underline">Kembali ke Login</button>
                   </div>
-                </motion.div>
+                </motion.form>
               )}
             </AnimatePresence>
           </div>
