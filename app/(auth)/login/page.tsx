@@ -106,7 +106,7 @@ export default function LoginPage() {
     }
   };
 
-  // Fungsi Lupa Password (Kirim Link Pemulihan via Brevo)
+  // Fungsi Lupa Password (Kirim Link Pemulihan via Brevo / Supabase)
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -137,7 +137,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center relative overflow-hidden font-sans text-slate-100 py-12">
+    <div translate="no" className="notranslate min-h-screen bg-slate-950 flex items-center justify-center relative overflow-hidden font-sans text-slate-100 py-12">
       {/* Efek Latar Belakang Futuristik */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/30 blur-[120px] rounded-full" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/30 blur-[120px] rounded-full" />
@@ -147,8 +147,8 @@ export default function LoginPage() {
         {/* Sisi Kiri: Deskripsi Sekolah & Logo */}
         <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="w-full lg:w-1/2 flex flex-col gap-6">
           <div className="flex items-center gap-4">
-            <div className="relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 bg-white/10 p-2 rounded-xl border border-white/20 backdrop-blur-sm shadow-lg">
-              <Image src="/logo.png" alt="Logo SD Islam Roushon Fikr" fill className="object-contain p-1" />
+            <div className="relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 bg-white/10 p-2 rounded-xl border border-white/20 backdrop-blur-sm shadow-lg flex items-center justify-center">
+              <Image src="/images/logo.png" alt="Logo SD Islam Roushon Fikr" width={64} height={64} className="object-contain p-1" />
             </div>
             <div>
               <h2 className="text-xl md:text-2xl font-bold text-blue-400 tracking-wider uppercase mb-1">SD Islam Roushon Fikr</h2>
@@ -234,7 +234,7 @@ export default function LoginPage() {
                       <button 
                         type="button" 
                         onClick={() => { setView("forgot"); setErrorMessage(""); setSuccessMessage(""); }} 
-                        className="text-sm text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
+                        className="text-sm text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1 cursor-pointer"
                       >
                         <KeyRound className="w-3.5 h-3.5" /> Lupa Password?
                       </button>
@@ -244,13 +244,13 @@ export default function LoginPage() {
                   <button 
                     type="submit" 
                     disabled={loading}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transform transition hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transform transition hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-sm disabled:opacity-50 cursor-pointer"
                   >
                     {loading ? "Memproses..." : <>Masuk <ArrowRight className="w-4 h-4" /></>}
                   </button>
 
                   <div className="text-center mt-4 text-sm text-slate-400">
-                    Belum punya akun? <button type="button" onClick={() => { setView("register"); setErrorMessage(""); setSuccessMessage(""); }} className="text-blue-400 font-semibold hover:underline">Daftar sekarang</button>
+                    Belum punya akun? <button type="button" onClick={() => { setView("register"); setErrorMessage(""); setSuccessMessage(""); }} className="text-blue-400 font-semibold hover:underline cursor-pointer">Daftar sekarang</button>
                   </div>
                 </motion.form>
               )}
@@ -349,18 +349,18 @@ export default function LoginPage() {
                   <button 
                     type="submit" 
                     disabled={loading}
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transform transition hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-sm disabled:opacity-50 mt-2"
+                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transform transition hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-sm disabled:opacity-50 mt-2 cursor-pointer"
                   >
                     {loading ? "Memproses..." : <>Daftar Akun SDIRF <ArrowRight className="w-4 h-4" /></>}
                   </button>
 
                   <div className="text-center text-sm text-slate-400">
-                    Sudah punya akun? <button type="button" onClick={() => { setView("login"); setErrorMessage(""); setSuccessMessage(""); }} className="text-blue-400 font-semibold hover:underline">Masuk di sini</button>
+                    Sudah punya akun? <button type="button" onClick={() => { setView("login"); setErrorMessage(""); setSuccessMessage(""); }} className="text-blue-400 font-semibold hover:underline cursor-pointer">Masuk di sini</button>
                   </div>
                 </motion.form>
               )}
 
-              {/* === FORGOT PASSWORD FORM (TERHUBUNG KE BREVO/SUPABASE) === */}
+              {/* === FORGOT PASSWORD FORM === */}
               {view === "forgot" && (
                 <motion.form key="forgot" onSubmit={handleForgotPassword} variants={fadeIn} initial="hidden" animate="visible" exit="exit" className="flex flex-col gap-6">
                   <div className="text-center">
@@ -385,13 +385,13 @@ export default function LoginPage() {
                   <button 
                     type="submit" 
                     disabled={loading}
-                    className="w-full bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transform transition hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                    className="w-full bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transform transition hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-sm disabled:opacity-50 cursor-pointer"
                   >
                     {loading ? "Mengirim..." : <>Kirim Link Reset <ArrowRight className="w-4 h-4" /></>}
                   </button>
 
                   <div className="text-center mt-4 text-sm text-slate-400">
-                    Ingat password Anda? <button type="button" onClick={() => { setView("login"); setErrorMessage(""); setSuccessMessage(""); }} className="text-blue-400 font-semibold hover:underline">Kembali ke Login</button>
+                    Ingat password Anda? <button type="button" onClick={() => { setView("login"); setErrorMessage(""); setSuccessMessage(""); }} className="text-blue-400 font-semibold hover:underline cursor-pointer">Kembali ke Login</button>
                   </div>
                 </motion.form>
               )}
