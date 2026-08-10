@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "i-Laporan Harian SDIRF",
   description: "Aplikasi Inklusi & Layanan ABK SD Islam Roushon Fikr",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
