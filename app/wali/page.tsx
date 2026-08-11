@@ -103,8 +103,8 @@ export default function WaliDashboard() {
       setGroupedReports(grouped);
 
       // Otomatis pilih tanggal terbaru jika belum ada yang dipilih
-      const dates = Object.keys(grouped);
-      if (dates.length > 0 && !selectedDate) {
+      const dates = Object.keys(grouped).sort().reverse();
+      if (dates.length > 0) {
         setSelectedDate(dates[0]);
       }
     }
@@ -262,7 +262,7 @@ export default function WaliDashboard() {
               <p className="text-slate-400 text-sm italic">Belum ada laporan harian yang diunggah oleh GPK untuk ananda.</p>
             ) : (
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
-                {Object.keys(groupedReports).map((date) => (
+                {Object.keys(groupedReports).sort().reverse().map((date) => (
                   <button
                     key={date}
                     onClick={() => setSelectedDate(date)}
@@ -475,7 +475,7 @@ export default function WaliDashboard() {
                 <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-xs sm:text-sm">
                   <h4 className="font-bold text-emerald-400 text-xs uppercase">Tujuan SMART (Target Pembelajaran)</h4>
                   <p><strong>Jangka Panjang:</strong> {selectedPpi.tujuan_smart.jangka_panjang || "-"}</p>
-                  <p><strong>Jangka Pendek 1:</strong> {selectedPpi.tujuansmart?.jangka_pendek_1 || selectedPpi.tujuan_smart.jangka_pendek_1 || "-"}</p>
+                  <p><strong>Jangka Pendek 1:</strong> {selectedPpi.tujuan_smart.jangka_pendek_1 || "-"}</p>
                   <p><strong>Jangka Pendek 2:</strong> {selectedPpi.tujuan_smart.jangka_pendek_2 || "-"}</p>
                 </div>
               )}
