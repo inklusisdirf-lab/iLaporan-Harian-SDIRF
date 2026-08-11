@@ -29,6 +29,7 @@ export default function GpkDashboard() {
 
   // State Form Laporan Harian
   const [editReportId, setEditReportId] = useState<string | null>(null);
+  const [tanggalLaporan, setTanggalLaporan] = useState(new Date().toISOString().split("T")[0]); // Default tanggal hari ini
   const [mataPelajaran, setMataPelajaran] = useState("");
   const [materi, setMateri] = useState("");
   const [targetCapaian, setTargetCapaian] = useState("");
@@ -59,11 +60,11 @@ export default function GpkDashboard() {
   const [kemampuanSaatIni, setKemampuanSaatIni] = useState({ kekuatan: "", area_pengembangan: "" });
   const [tujuanSmart, setTujuanSmart] = useState({ jangka_panjang: "", jangka_pendek_1: "", jangka_pendek_2: "", jangka_pendek_3: "" });
   const [layananAkomodasi, setLayananAkomodasi] = useState({ modifikasi: "", media: "", komunikasi: "", tugas: "", pendamping: "", kolaborasi: "" });
-  
+   
   const [rencanaEvaluasi, setRencanaEvaluasi] = useState<{ periode: string, kegiatan: string, status: string }[]>([
     { periode: "", kegiatan: "", status: "Aktif" }
   ]);
-  
+   
   const [ttdGpk, setTtdGpk] = useState(false);
 
   // Riwayat Data
@@ -77,10 +78,10 @@ export default function GpkDashboard() {
     async function checkGpkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/login"); return; }
-      
+       
       const { data: profile } = await supabase.from("profiles").select("id, full_name, role").eq("id", user.id).maybeSingle();
       if (!profile || profile.role !== "gpk") { router.push("/login"); return; }
-      
+       
       setGpkId(profile.id); 
       setGpkName(profile.full_name);
 
@@ -119,7 +120,22 @@ export default function GpkDashboard() {
   const handleSubmitReport = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedStudentId) return alert("Pilih siswa terlebih dahulu!");
-    const payload = { student_id: selectedStudentId, gpk_id: gpkId, mata_pelajaran: mataPelajaran, materi_pembelajaran: materi, target_capaian: targetCapaian, hasil_pembelajaran: hasilPembelajaran, catatan_perilaku: catatanPerilaku, intervensi_pendamping: intervensi, kondisi_mood: kondisiMood };
+    
+    // Menyertakan tanggal, gpk_id, serta gpk_name untuk memudahkan filter admin
+    const payload = { 
+      student_id: selectedStudentId, 
+      gpk_id: gpkId, 
+      gpk_name: gpkName,
+      tanggal: tanggalLaporan, 
+      mata_pelajaran: mataPelajaran, 
+      materi_pembelajaran: materi, 
+      target_capaian: targetCapaian, 
+      hasil_pembelajaran: hasilPembelajaran, 
+      catatan_perilaku: catatanPerilaku, 
+      intervensi_pendamping: intervensi, 
+      kondisi_mood: kondisiMood 
+    };
+
     if (editReportId) {
       const { error } = await supabase.from("daily_reports").update(payload).eq("id", editReportId);
       if (error) alert("Gagal update laporan: " + error.message);
@@ -132,7 +148,17 @@ export default function GpkDashboard() {
   };
 
   const handleEditReport = (r: any) => {
-    setEditReportId(r.id); setSelectedStudentId(r.student_id); setMataPelajaran(r.mata_pelajaran); setMateri(r.materi_pembelajaran); setTargetCapaian(r.target_capaian); setHasilPembelajaran(r.hasil_pembelajaran); setCatatanPerilaku(r.catatan_perilaku || ""); setIntervensi(r.intervensi_pendamping || ""); setKondisiMood(r.kondisi_mood || "Senang / Kooperatif"); setLaporanSubTab("tambah");
+    setEditReportId(r.id); 
+    setSelectedStudentId(r.student_id); 
+    setTanggalLaporan(r.tanggal || new Date().toISOString().split("T")[0]);
+    setMataPelajaran(r.mata_pelajaran); 
+    setMateri(r.materi_pembelajaran); 
+    setTargetCapaian(r.target_capaian); 
+    setHasilPembelajaran(r.hasil_pembelajaran); 
+    setCatatanPerilaku(r.catatan_perilaku || ""); 
+    setIntervensi(r.intervensi_pendamping || ""); 
+    setKondisiMood(r.kondisi_mood || "Senang / Kooperatif"); 
+    setLaporanSubTab("tambah");
   };
 
   const handleDeleteReport = async (id: string) => {
@@ -142,7 +168,16 @@ export default function GpkDashboard() {
     else { setMessage("Laporan berhasil dihapus."); fetchGpkHistory(gpkId); setTimeout(() => setMessage(""), 3000); }
   };
 
-  const resetReportForm = () => { setMataPelajaran(""); setMateri(""); setTargetCapaian(""); setHasilPembelajaran(""); setCatatanPerilaku(""); setIntervensi(""); setSelectedStudentId(""); };
+  const resetReportForm = () => { 
+    setMataPelajaran(""); 
+    setMateri(""); 
+    setTargetCapaian(""); 
+    setHasilPembelajaran(""); 
+    setCatatanPerilaku(""); 
+    setIntervensi(""); 
+    setSelectedStudentId(""); 
+    setTanggalLaporan(new Date().toISOString().split("T")[0]);
+  };
 
   const handleSubmitAssessment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -311,7 +346,7 @@ export default function GpkDashboard() {
                     <PlusCircle className="w-5 h-5 text-blue-400 flex-shrink-0" /> 
                     <span>{editReportId ? "Edit Laporan Harian Pendampingan" : "Form Input Laporan Harian"}</span>
                   </h3>
-                  
+                   
                   <label className="flex items-center gap-2 bg-slate-900 border border-blue-500/40 px-3.5 py-2 rounded-xl cursor-pointer shadow-md w-full sm:w-auto">
                     <input 
                       type="checkbox" 
@@ -325,7 +360,30 @@ export default function GpkDashboard() {
                   </label>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* INFORMASI GPK & TANGGAL (READONLY & TANGGAL PILIH) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-950/60 p-4 rounded-2xl border border-white/5">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold text-slate-400 uppercase">Nama GPK (Login)</label>
+                    <input 
+                      type="text" 
+                      value={gpkName} 
+                      disabled 
+                      className="bg-slate-900 border border-slate-800 rounded-xl py-3 px-4 text-slate-300 text-sm w-full cursor-not-allowed font-semibold" 
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold text-blue-400 uppercase">Tanggal Laporan</label>
+                    <input 
+                      type="date" 
+                      value={tanggalLaporan} 
+                      onChange={(e) => setTanggalLaporan(e.target.value)} 
+                      required 
+                      className="bg-slate-900 border border-blue-500/40 rounded-xl py-3 px-4 text-white text-sm w-full" 
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold text-slate-400 uppercase">Nama Siswa PDBK</label>
                     <select value={selectedStudentId} onChange={(e) => setSelectedStudentId(e.target.value)} required className="bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white text-sm w-full">
@@ -338,14 +396,6 @@ export default function GpkDashboard() {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold text-slate-400 uppercase">Mata Pelajaran</label>
                     <input type="text" placeholder="Contoh: Matematika" value={mataPelajaran} onChange={(e) => setMataPelajaran(e.target.value)} required className="bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white text-sm w-full" />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-400 uppercase">Kondisi Mood</label>
-                    <select value={kondisiMood} onChange={(e) => setKondisiMood(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white text-sm w-full">
-                      <option value="Senang / Kooperatif">Senang / Kooperatif</option>
-                      <option value="Kurang Fokus / Bad Mood">Kurang Fokus / Bad Mood</option>
-                      <option value="Butuh Pendampingan Ekstra">Butuh Pendampingan Ekstra</option>
-                    </select>
                   </div>
                 </div>
 
@@ -375,6 +425,15 @@ export default function GpkDashboard() {
                   </div>
                 </div>
 
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-slate-400 uppercase">Kondisi Mood Siswa</label>
+                  <select value={kondisiMood} onChange={(e) => setKondisiMood(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white text-sm w-full">
+                    <option value="Senang / Kooperatif">Senang / Kooperatif</option>
+                    <option value="Kurang Fokus / Bad Mood">Kurang Fokus / Bad Mood</option>
+                    <option value="Butuh Pendampingan Ekstra">Butuh Pendampingan Ekstra</option>
+                  </select>
+                </div>
+
                 <div className="flex gap-4 pt-2">
                   <button type="submit" className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2">
                     <Save className="w-5 h-5" /> {editReportId ? "Perbarui Laporan Harian" : "Simpan Laporan Harian"}
@@ -401,6 +460,7 @@ export default function GpkDashboard() {
                           <span className="text-xs text-slate-400">{r.tanggal}</span>
                         </div>
                         <h4 className="text-lg font-bold text-white mb-1">{r.students?.full_name}</h4>
+                        <p className="text-xs text-slate-400 mb-2">GPK: {r.gpk_name || gpkName}</p>
                         <p className="text-xs text-slate-300 bg-white/5 p-3 rounded-xl mb-3 line-clamp-2"><strong>Materi:</strong> {r.materi_pembelajaran}</p>
                       </div>
                       <div className="flex gap-2 pt-2 border-t border-white/10">
@@ -817,7 +877,7 @@ export default function GpkDashboard() {
               >
                 <X className="w-5 h-5" />
               </button>
-              
+               
               <h3 className="text-lg sm:text-xl font-bold text-white mb-6 uppercase flex items-center gap-2 border-b border-white/10 pb-4 pr-8">
                 {modalType === "report" ? ( <><BookOpen className="text-blue-400 flex-shrink-0"/> Detail Laporan Harian</> ) : 
                  modalType === "assessment" ? ( <><BrainCircuit className="text-purple-400 flex-shrink-0"/> Detail Asesmen Awal</> ) : 
@@ -830,9 +890,11 @@ export default function GpkDashboard() {
                     <div className="bg-white/5 p-4 rounded-xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div><span className="block text-xs text-slate-500">Siswa</span><strong className="text-white">{selectedItem.students?.full_name}</strong></div>
                       <div><span className="block text-xs text-slate-500">Mata Pelajaran</span><strong className="text-blue-400">{selectedItem.mata_pelajaran}</strong></div>
+                      <div><span className="block text-xs text-slate-500">Tanggal</span><span className="text-white">{selectedItem.tanggal}</span></div>
+                      <div><span className="block text-xs text-slate-500">Pendamping (GPK)</span><span className="text-purple-400 font-semibold">{selectedItem.gpk_name || "-"}</span></div>
                       <div><span className="block text-xs text-slate-500">Kondisi Mood</span><span className="px-2 py-1 bg-white/10 rounded-md text-xs mt-1 inline-block">{selectedItem.kondisi_mood}</span></div>
                     </div>
-                    
+                     
                     <div className="space-y-3">
                       <div><h4 className="text-xs font-bold text-slate-400 uppercase">Materi & Target</h4>
                         <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 mt-1">
