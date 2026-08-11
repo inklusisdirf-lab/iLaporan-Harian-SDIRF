@@ -47,10 +47,7 @@ export default function PsikologDashboard() {
     const { data: p } = await supabase.from("ppi").select("*, students(full_name)").order("created_at", { ascending: false });
     
     if (r) {
-      console.log("Data Daily Reports:", r);
       setReports(r);
-      
-      // Grouping Laporan Berdasarkan Tanggal (dengan fallback ke created_at jika tanggal kosong)
       const grouped = r.reduce((acc: any, report: any) => {
         const dateVal = report.tanggal || (report.created_at ? report.created_at.split('T')[0] : null);
         const dateKey = dateVal || "Tanpa Tanggal";
@@ -71,7 +68,6 @@ export default function PsikologDashboard() {
     if (p) setPpiList(p);
   };
 
-  // Fungsi Tombol Keluar / Log Out
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push("/login");
@@ -92,7 +88,6 @@ export default function PsikologDashboard() {
     }
   };
 
-  // Fungsi Respon Status PPI (ACC, Revisi, Butuh Respon) oleh Psikolog
   const handleUpdatePpiStatus = async (newStatus: string) => {
     const { error } = await supabase
       .from("ppi")
@@ -144,7 +139,6 @@ export default function PsikologDashboard() {
 
   const displayedData = getFilteredData();
 
-  // Helper cerdas untuk memformat nilai objek/array tanpa kurung kurawal mentah
   const formatValue = (val: any): React.ReactNode => {
     if (val === null || val === undefined) return "-";
     if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') {
@@ -203,7 +197,7 @@ export default function PsikologDashboard() {
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans">
       <div className="max-w-7xl mx-auto space-y-6">
         
-        {/* HEADER DENGAN LOGO SEKOLAH & TAGLINE */}
+        {/* HEADER DENGAN LOGO SEKOLAH, NAMA, & TAGLINE */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white/5 border border-white/10 p-5 md:p-6 rounded-3xl backdrop-blur-xl gap-4 shadow-2xl">
           <div className="flex items-center gap-4 w-full sm:w-auto">
             <div className="p-2.5 bg-white rounded-2xl shadow-md flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 border border-white/20">
