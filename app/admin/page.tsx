@@ -237,23 +237,39 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans">
       <div className="max-w-7xl mx-auto flex flex-col gap-8">
         
-        {/* HEADER UTAMA */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-xl gap-4 shadow-2xl">
-          <div className="flex items-center gap-4">
-            <div className="p-3.5 bg-gradient-to-br from-blue-600/30 to-purple-600/30 border border-blue-500/30 rounded-2xl shadow-inner">
-              <ShieldCheck className="w-8 h-8 text-blue-400" />
+        {/* HEADER UTAMA DENGAN LOGO SEKOLAH & TAGLINE */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white/5 border border-white/10 p-5 md:p-6 rounded-3xl backdrop-blur-xl gap-4 shadow-2xl">
+          <div className="flex items-center gap-4 w-full sm:w-auto">
+            <div className="p-2.5 bg-white rounded-2xl shadow-md flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 border border-white/20">
+              <img 
+                src="/images/logo.png" 
+                alt="Logo SD Islam Roushon Fikr" 
+                className="w-12 h-12 sm:w-16 sm:h-16 object-contain" 
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  target.style.display = 'none';
+                  if (target.parentElement) {
+                    target.parentElement.innerHTML = '<span class="text-xs font-bold text-slate-900 text-center">SD IRF</span>';
+                  }
+                }}
+              />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-                Dashboard Admin - SD Islam Roushon Fikr
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 truncate">
+                Dashboard Admin
               </h1>
-              <p className="text-slate-400 text-sm">Future Islamic Leadership School • Bidang Inklusi & Layanan ABK</p>
+              <p className="text-[11px] sm:text-xs font-extrabold tracking-wider text-blue-400 uppercase mt-0.5 mb-1 truncate">
+                Future Islamic Leadership School
+              </p>
+              <p className="text-slate-300 text-xs truncate">
+                Bidang Inklusi & Layanan ABK • Kelola Sistem, Siswa & Pengguna
+              </p>
             </div>
           </div>
           
           <button 
             onClick={handleLogout}
-            className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 px-4 py-2.5 rounded-xl transition-all text-sm font-semibold shadow-lg"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 px-4 py-2.5 rounded-xl transition-all text-sm font-semibold flex-shrink-0 shadow-lg"
           >
             <LogOut className="w-4 h-4" /> Keluar
           </button>
