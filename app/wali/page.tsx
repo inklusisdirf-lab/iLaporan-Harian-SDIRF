@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/app/utils/supabase/client";
-import { Users, LogOut, BookOpen, FileText, CheckCircle, Eye, MessageCircle, X } from "lucide-react";
+import { Users, LogOut, BookOpen, FileText, CheckCircle, Eye, MessageCircle, X, Calendar } from "lucide-react";
 
 export default function WaliDashboard() {
   const router = useRouter();
@@ -15,6 +15,8 @@ export default function WaliDashboard() {
 
   // State Data untuk Wali
   const [reports, setReports] = useState<any[]>([]);
+  const [groupedReports, setGroupedReports] = useState<{ [key: string]: any[] }>({});
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [ppiList, setPpiList] = useState<any[]>([]);
   
   // State untuk Modal Detail
@@ -81,13 +83,31 @@ export default function WaliDashboard() {
   }, [router]);
 
   const fetchWaliData = async (sId: string) => {
-    // Menggunakan left join eksplisit atau tabel profiles melalui gpk_id
     const { data: reportData } = await supabase
       .from("daily_reports")
       .select("*, students(full_name), profiles:gpk_id(full_name)")
       .eq("student_id", sId)
-      .order("created_at", { ascending: false });
-    if (reportData) setReports(reportData);
+      .order("tanggal", { ascending: false });
+
+    if (reportData) {
+      setReports(reportData);
+
+      // Mengelompokkan laporan berdasarkan tanggal
+      const grouped = reportData.reduce((acc: any, report: any) => {
+        const dateKey = report.tanggal || "Tanpa Tanggal";
+        if (!acc[dateKey]) acc[dateKey] = [];
+        acc[dateKey].push(report);
+        return acc;
+      }, {});
+
+      setGroupedReports(grouped);
+
+      // Otomatis pilih tanggal terbaru jika belum ada yang dipilih
+      const dates = Object.keys(grouped);
+      if (dates.length > 0 && !selectedDate) {
+        setSelectedDate(dates[0]);
+      }
+    }
 
     const { data: ppiData } = await supabase
       .from("ppi")
@@ -227,75 +247,104 @@ export default function WaliDashboard() {
           </div>
         </div>
 
-        {/* KONTEN TAB: LAPORAN HARIAN */}
+        {/* KONTEN TAB: LAPORAN HARIAN (DIKELOMPOKKAN BERDASARKAN TANGGAL) */}
         {activeTab === "laporan" && (
           <div className="flex flex-col gap-6">
-            <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-emerald-400 flex-shrink-0" /> Riwayat Laporan Pembelajaran Harian & Tanggapan Orang Tua
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {reports.length === 0 ? (
-                <p className="text-slate-400 text-sm italic col-span-full">Belum ada laporan harian yang diunggah oleh GPK untuk ananda.</p>
-              ) : (
-                reports.map((r) => (
-                  <div 
-                    key={r.id} 
-                    onClick={() => setSelectedReport(r)}
-                    className="bg-white/5 border border-white/10 hover:border-blue-500/50 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl cursor-pointer transition-all group"
-                  >
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-semibold">{r.mata_pelajaran}</span>
-                        <span className="text-xs text-slate-400">{r.tanggal}</span>
-                      </div>
-                      <h4 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">Ananda: {r.students?.full_name || childInfo}</h4>
-                      
-                      {/* Menampilkan Nama Pendamping (GPK) dengan pengecekan ganda */}
-                      <p className="text-xs text-slate-300">
-                        Pendamping: <strong className="text-purple-400">
-                          {r.profiles?.full_name || r.gpk_name || "-"}
-                        </strong>
-                      </p>
-                      
-                      <p className="text-xs text-purple-300">Mood Ananda: {r.kondisi_mood || "Stabil"}</p>
-                      
-                      <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
-                        <p className="line-clamp-1"><strong className="text-blue-400">Materi:</strong> {r.materi_pembelajaran}</p>
-                        <p className="line-clamp-2"><strong className="text-emerald-400">Hasil:</strong> {r.hasil_pembelajaran}</p>
-                      </div>
-                    </div>
-
-                    <div className="pt-3 border-t border-white/10 space-y-2" onClick={(e) => e.stopPropagation()}>
-                      <label className="text-xs text-slate-400 flex items-center gap-1 font-semibold">
-                        <MessageCircle className="w-3.5 h-3.5 text-blue-400" /> Feedback / Tanggapan Anda:
-                      </label>
-                      {r.feedback_wali ? (
-                        <div className="bg-blue-500/10 border border-blue-500/30 p-3 rounded-xl text-blue-200 text-xs italic">
-                          "{r.feedback_wali}"
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <input 
-                            type="text"
-                            placeholder="Tulis tanggapan untuk GPK..."
-                            value={feedbackInput[r.id] || ""}
-                            onChange={(e) => setFeedbackInput({ ...feedbackInput, [r.id]: e.target.value })}
-                            className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white"
-                          />
-                          <button 
-                            onClick={(e) => handleSendFeedback(r.id, e)}
-                            className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-xl text-xs font-semibold shadow-lg transition-all"
-                          >
-                            Kirim Feedback
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))
-              )}
+            <div className="flex flex-col gap-2">
+              <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-emerald-400 flex-shrink-0" /> Pilih Tanggal Laporan Harian
+              </h3>
+              <p className="text-xs text-slate-400">Klik salah satu tanggal di bawah untuk melihat laporan harian ananda pada hari tersebut.</p>
             </div>
+
+            {/* Daftar Pilihan Tanggal */}
+            {Object.keys(groupedReports).length === 0 ? (
+              <p className="text-slate-400 text-sm italic">Belum ada laporan harian yang diunggah oleh GPK untuk ananda.</p>
+            ) : (
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+                {Object.keys(groupedReports).map((date) => (
+                  <button
+                    key={date}
+                    onClick={() => setSelectedDate(date)}
+                    className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-md whitespace-nowrap flex items-center gap-2 ${
+                      selectedDate === date
+                        ? "bg-gradient-to-r from-emerald-600 to-blue-600 text-white border border-white/30"
+                        : "bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10"
+                    }`}
+                  >
+                    <span>📅</span> {date} <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">({groupedReports[date].length})</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Grid Kartu Laporan Berdasarkan Tanggal yang Dipilih */}
+            {selectedDate && groupedReports[selectedDate] && (
+              <div className="mt-2">
+                <h4 className="text-sm font-semibold text-emerald-400 mb-4 flex items-center gap-2">
+                  <span>✨</span> Menampilkan Laporan Tanggal: <strong className="text-white underline">{selectedDate}</strong>
+                </h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {groupedReports[selectedDate].map((r) => (
+                    <div 
+                      key={r.id} 
+                      onClick={() => setSelectedReport(r)}
+                      className="bg-white/5 border border-white/10 hover:border-blue-500/50 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl cursor-pointer transition-all group"
+                    >
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-semibold">{r.mata_pelajaran}</span>
+                          <span className="text-xs text-slate-400">{r.tanggal}</span>
+                        </div>
+                        <h4 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">Ananda: {r.students?.full_name || childInfo}</h4>
+                        
+                        {/* Menampilkan Nama Pendamping (GPK) dengan pengecekan ganda */}
+                        <p className="text-xs text-slate-300">
+                          Pendamping: <strong className="text-purple-400">
+                            {r.profiles?.full_name || r.gpk_name || "-"}
+                          </strong>
+                        </p>
+                        
+                        <p className="text-xs text-purple-300">Mood Ananda: {r.kondisi_mood || "Stabil"}</p>
+                        
+                        <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
+                          <p className="line-clamp-1"><strong className="text-blue-400">Materi:</strong> {r.materi_pembelajaran}</p>
+                          <p className="line-clamp-2"><strong className="text-emerald-400">Hasil:</strong> {r.hasil_pembelajaran}</p>
+                        </div>
+                      </div>
+
+                      <div className="pt-3 border-t border-white/10 space-y-2" onClick={(e) => e.stopPropagation()}>
+                        <label className="text-xs text-slate-400 flex items-center gap-1 font-semibold">
+                          <MessageCircle className="w-3.5 h-3.5 text-blue-400" /> Feedback / Tanggapan Anda:
+                        </label>
+                        {r.feedback_wali ? (
+                          <div className="bg-blue-500/10 border border-blue-500/30 p-3 rounded-xl text-blue-200 text-xs italic">
+                            "{r.feedback_wali}"
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <input 
+                              type="text"
+                              placeholder="Tulis tanggapan untuk GPK..."
+                              value={feedbackInput[r.id] || ""}
+                              onChange={(e) => setFeedbackInput({ ...feedbackInput, [r.id]: e.target.value })}
+                              className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white"
+                            />
+                            <button 
+                              onClick={(e) => handleSendFeedback(r.id, e)}
+                              className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-xl text-xs font-semibold shadow-lg transition-all"
+                            >
+                              Kirim Feedback
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -426,7 +475,7 @@ export default function WaliDashboard() {
                 <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-xs sm:text-sm">
                   <h4 className="font-bold text-emerald-400 text-xs uppercase">Tujuan SMART (Target Pembelajaran)</h4>
                   <p><strong>Jangka Panjang:</strong> {selectedPpi.tujuan_smart.jangka_panjang || "-"}</p>
-                  <p><strong>Jangka Pendek 1:</strong> {selectedPpi.tujuan_smart.jangka_pendek_1 || "-"}</p>
+                  <p><strong>Jangka Pendek 1:</strong> {selectedPpi.tujuansmart?.jangka_pendek_1 || selectedPpi.tujuan_smart.jangka_pendek_1 || "-"}</p>
                   <p><strong>Jangka Pendek 2:</strong> {selectedPpi.tujuan_smart.jangka_pendek_2 || "-"}</p>
                 </div>
               )}
