@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,6 +27,33 @@ export default function LoginPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  // Penangkap token_hash dari link email konfirmasi secara otomatis
+  useEffect(() => {
+    async function handleEmailVerification() {
+      if (typeof window === "undefined") return;
+      const queryParams = new URLSearchParams(window.location.search);
+      const tokenHash = queryParams.get("token_hash");
+      const type = queryParams.get("type");
+
+      if (tokenHash && type) {
+        setLoading(true);
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: type as any,
+        });
+
+        if (error) {
+          setErrorMessage("Verifikasi gagal: " + error.message);
+        } else {
+          setSuccessMessage("Email berhasil diverifikasi! Silakan masuk.");
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        setLoading(false);
+      }
+    }
+    handleEmailVerification();
+  }, []);
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -38,7 +65,6 @@ export default function LoginPage() {
         email,
         password,
         options: {
-          // Memastikan link konfirmasi email diarahkan kembali ke halaman login website Anda
           emailRedirectTo: "https://i-laporan-harian-sdirf.vercel.app/login",
         },
       });
