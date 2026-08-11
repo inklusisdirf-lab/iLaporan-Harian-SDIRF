@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/app/utils/supabase/client";
 import { 
   ShieldCheck, LogOut, Users, BookOpen, FileText, 
-  UserCheck, Printer, Plus, Trash2, Edit3, X, Eye, Save, BrainCircuit
+  UserCheck, Printer, Plus, Trash2, Edit3, X, Eye, Save, BrainCircuit, Calendar
 } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 
@@ -29,6 +29,9 @@ export default function AdminDashboard() {
   const [students, setStudents] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [reports, setReports] = useState<any[]>([]);
+  const [groupedReports, setGroupedReports] = useState<{ [key: string]: any[] }>({});
+  const [selectedReportDate, setSelectedReportDate] = useState<string | null>(null);
+
   const [assessments, setAssessments] = useState<any[]>([]);
   const [ppiList, setPpiList] = useState<any[]>([]);
 
@@ -96,8 +99,27 @@ export default function AdminDashboard() {
     const { data: reportData } = await supabase
       .from("daily_reports")
       .select("*, students(full_name)")
-      .order("created_at", { ascending: false });
-    if (reportData) setReports(reportData);
+      .order("tanggal", { ascending: false });
+    
+    if (reportData) {
+      setReports(reportData);
+
+      // Grouping Laporan Berdasarkan Tanggal
+      const grouped = reportData.reduce((acc: any, report: any) => {
+        const dateVal = report.tanggal || (report.created_at ? report.created_at.split('T')[0] : null);
+        const dateKey = dateVal || "Tanpa Tanggal";
+        if (!acc[dateKey]) acc[dateKey] = [];
+        acc[dateKey].push(report);
+        return acc;
+      }, {});
+
+      setGroupedReports(grouped);
+
+      const dates = Object.keys(grouped).sort().reverse();
+      if (dates.length > 0) {
+        setSelectedReportDate(dates[0]);
+      }
+    }
 
     const { data: assessData } = await supabase
       .from("assessments")
@@ -117,15 +139,19 @@ export default function AdminDashboard() {
     router.push("/login");
   };
 
-  // --- FILTERED REPORTS ---
-  const filteredReports = reports.filter(r => {
-    const matchNama = filterNama ? r.students?.full_name.toLowerCase().includes(filterNama.toLowerCase()) : true;
-    const matchMapel = filterMapel ? r.mata_pelajaran.toLowerCase().includes(filterMapel.toLowerCase()) : true;
-    const matchTanggal = (tglMulai && tglSelesai) ? (r.tanggal >= tglMulai && r.tanggal <= tglSelesai) : true;
-    return matchNama && matchMapel && matchTanggal;
-  });
+  // --- FILTERED REPORTS (Berdasarkan Tanggal Terpilih & Pencarian) ---
+  const getFilteredReports = () => {
+    const currentList = (selectedReportDate && groupedReports[selectedReportDate]) ? groupedReports[selectedReportDate] : reports;
+    return currentList.filter(r => {
+      const matchNama = filterNama ? r.students?.full_name?.toLowerCase().includes(filterNama.toLowerCase()) : true;
+      const matchMapel = filterMapel ? r.mata_pelajaran?.toLowerCase().includes(filterMapel.toLowerCase()) : true;
+      const matchTglMulai = tglMulai ? r.tanggal >= tglMulai : true;
+      const matchTglSelesai = tglSelesai ? r.tanggal <= tglSelesai : true;
+      return matchNama && matchMapel && matchTglMulai && matchTglSelesai;
+    });
+  };
 
-  // --- CRUD SISWA & PLOTTING GPK/WALI (DENGAN PENANGANAN UUID NULL) ---
+  // --- CRUD SISWA & PLOTTING GPK/WALI ---
   const handleSaveStudent = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -232,6 +258,8 @@ export default function AdminDashboard() {
       </div>
     );
   }
+
+  const displayedReports = getFilteredReports();
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans">
@@ -399,63 +427,72 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* === TAB 3: REKAPITULASI LAPORAN HARIAN === */}
+          {/* === TAB 3: REKAPITULASI LAPORAN HARIAN (DENGAN GROUPING TANGGAL) === */}
           {activeTab === "laporan" && (
             <div className="flex flex-col gap-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-emerald-400" /> Rekapitulasi Laporan Harian GPK ({filteredReports.length})
+                  <BookOpen className="w-5 h-5 text-emerald-400" /> Rekapitulasi Laporan Harian GPK ({reports.length})
                 </h3>
               </div>
 
-              {/* Panel Filter & Tombol Print */}
-              <div className="flex flex-wrap gap-3 bg-white/5 p-4 rounded-2xl border border-white/10 items-center">
-                <input 
-                  type="text" 
-                  placeholder="Filter Nama Siswa..." 
-                  value={filterNama} 
-                  onChange={(e) => setFilterNama(e.target.value)} 
-                  className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white w-full sm:w-48" 
-                />
-                <input 
-                  type="text" 
-                  placeholder="Filter Mata Pelajaran..." 
-                  value={filterMapel} 
-                  onChange={(e) => setFilterMapel(e.target.value)} 
-                  className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white w-full sm:w-48" 
-                />
-                <div className="flex items-center gap-2 text-xs text-slate-400">
-                  <span>Dari:</span>
-                  <input 
-                    type="date" 
-                    value={tglMulai} 
-                    onChange={(e) => setTglMulai(e.target.value)} 
-                    className="bg-slate-900 border border-slate-700 rounded-xl p-2 text-xs text-white" 
-                  />
+              {/* Panel Grouping Tanggal & Filter */}
+              <div className="bg-white/5 p-4 rounded-2xl border border-white/10 space-y-4">
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Calendar className="w-4 h-4" /> Pilih Tanggal Laporan:
+                  </span>
+                  {Object.keys(groupedReports).length === 0 ? (
+                    <p className="text-slate-400 text-xs italic">Belum ada data tanggal laporan harian.</p>
+                  ) : (
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                      {Object.keys(groupedReports).sort().reverse().map((date) => (
+                        <button
+                          key={date}
+                          onClick={() => setSelectedReportDate(date)}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md whitespace-nowrap flex items-center gap-1.5 ${
+                            selectedReportDate === date
+                              ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white border border-white/30"
+                              : "bg-slate-900 border border-slate-700 text-slate-300 hover:bg-slate-800"
+                          }`}
+                        >
+                          <span>📅</span> {date} <span className="text-[10px] bg-white/20 px-1.5 py-0.2 rounded-full">({groupedReports[date].length})</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-slate-400">
-                  <span>Sampai:</span>
+
+                <div className="flex flex-wrap gap-3 items-center pt-2 border-t border-white/10">
                   <input 
-                    type="date" 
-                    value={tglSelesai} 
-                    onChange={(e) => setTglSelesai(e.target.value)} 
-                    className="bg-slate-900 border border-slate-700 rounded-xl p-2 text-xs text-white" 
+                    type="text" 
+                    placeholder="Filter Nama Siswa..." 
+                    value={filterNama} 
+                    onChange={(e) => setFilterNama(e.target.value)} 
+                    className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white w-full sm:w-48" 
                   />
+                  <input 
+                    type="text" 
+                    placeholder="Filter Mata Pelajaran..." 
+                    value={filterMapel} 
+                    onChange={(e) => setFilterMapel(e.target.value)} 
+                    className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white w-full sm:w-48" 
+                  />
+                  <button 
+                    onClick={() => handlePrint()}
+                    className="ml-auto bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition-all"
+                  >
+                    <Printer className="w-4 h-4" /> Print PDF / Cetak Semua
+                  </button>
                 </div>
-                <button 
-                  onClick={() => handlePrint()}
-                  className="ml-auto bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition-all"
-                >
-                  <Printer className="w-4 h-4" /> Print PDF / Cetak
-                </button>
               </div>
 
-              {/* Grid Laporan Harian */}
+              {/* Grid Laporan Harian Berdasarkan Tanggal Terpilih */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredReports.length === 0 ? (
-                  <p className="text-slate-400 text-sm italic col-span-full">Tidak ada laporan harian yang sesuai dengan filter.</p>
+                {displayedReports.length === 0 ? (
+                  <p className="text-slate-400 text-sm italic col-span-full">Tidak ada laporan harian pada tanggal atau filter yang dipilih.</p>
                 ) : (
-                  filteredReports.map((r) => (
+                  displayedReports.map((r) => (
                     <div key={r.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
                       <div>
                         <div className="flex justify-between items-center mb-3">
@@ -500,7 +537,7 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredReports.map((r, idx) => (
+                      {reports.map((r, idx) => (
                         <tr key={idx}>
                           <td className="border border-black p-2 text-center">{r.tanggal}</td>
                           <td className="border border-black p-2">{r.students?.full_name}</td>
