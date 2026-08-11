@@ -12,6 +12,9 @@ export default function PsikologDashboard() {
   
   // State Data
   const [reports, setReports] = useState<any[]>([]);
+  const [groupedReports, setGroupedReports] = useState<{ [key: string]: any[] }>({});
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  
   const [assessments, setAssessments] = useState<any[]>([]);
   const [ppiList, setPpiList] = useState<any[]>([]);
   
@@ -39,11 +42,27 @@ export default function PsikologDashboard() {
   }, [router]);
 
   const fetchAllData = async () => {
-    const { data: r } = await supabase.from("daily_reports").select("*, students(full_name), profiles(full_name)").order("created_at", { ascending: false });
+    const { data: r } = await supabase.from("daily_reports").select("*, students(full_name), profiles(full_name)").order("tanggal", { ascending: false });
     const { data: a } = await supabase.from("assessments").select("*, students(full_name), profiles(full_name)").order("created_at", { ascending: false });
     const { data: p } = await supabase.from("ppi").select("*, students(full_name)").order("created_at", { ascending: false });
     
-    if (r) setReports(r);
+    if (r) {
+      setReports(r);
+      // Grouping Laporan Berdasarkan Tanggal
+      const grouped = r.reduce((acc: any, report: any) => {
+        const dateKey = report.tanggal || "Tanpa Tanggal";
+        if (!acc[dateKey]) acc[dateKey] = [];
+        acc[dateKey].push(report);
+        return acc;
+      }, {});
+      setGroupedReports(grouped);
+
+      const dates = Object.keys(grouped).sort().reverse();
+      if (dates.length > 0 && !selectedDate) {
+        setSelectedDate(dates[0]);
+      }
+    }
+
     if (a) setAssessments(a);
     if (p) setPpiList(p);
   };
@@ -90,7 +109,9 @@ export default function PsikologDashboard() {
 
   const getFilteredData = () => {
     if (activeTab === "laporan") {
-      return reports.filter(item => {
+      // Jika menggunakan tab laporan, kita filter dari group tanggal yang sedang dipilih
+      const currentList = (selectedDate && groupedReports[selectedDate]) ? groupedReports[selectedDate] : reports;
+      return currentList.filter(item => {
         const matchNama = filterNama ? item.students?.full_name?.toLowerCase().includes(filterNama.toLowerCase()) : true;
         const matchMapel = filterMapel ? item.mata_pelajaran?.toLowerCase().includes(filterMapel.toLowerCase()) : true;
         const matchTglMulai = tglMulai ? item.tanggal >= tglMulai : true;
@@ -223,22 +244,47 @@ export default function PsikologDashboard() {
           ))}
         </div>
 
-        {/* FILTER AREA */}
-        <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex flex-wrap gap-4 items-center">
-          <div className="flex items-center gap-2 bg-slate-900 border border-slate-700 px-4 py-2.5 rounded-xl flex-grow lg:flex-grow-0">
-            <Search className="w-4 h-4 text-slate-400" />
-            <input 
-              type="text"
-              placeholder="Cari nama siswa..." 
-              className="bg-transparent outline-none text-sm w-full lg:w-48 text-white"
-              value={filterNama}
-              onChange={e => setFilterNama(e.target.value)} 
-            />
-          </div>
+        {/* FILTER AREA & TANGGAL GROUPING KHUSUS LAPORAN HARIAN */}
+        {activeTab === "laporan" && (
+          <div className="bg-white/5 p-4 rounded-2xl border border-white/10 space-y-4">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Calendar className="w-4 h-4" /> Pilih Tanggal Laporan:
+              </span>
+              {Object.keys(groupedReports).length === 0 ? (
+                <p className="text-slate-400 text-xs italic">Belum ada data tanggal laporan harian.</p>
+              ) : (
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                  {Object.keys(groupedReports).sort().reverse().map((date) => (
+                    <button
+                      key={date}
+                      onClick={() => setSelectedDate(date)}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md whitespace-nowrap flex items-center gap-1.5 ${
+                        selectedDate === date
+                          ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white border border-white/30"
+                          : "bg-slate-900 border border-slate-700 text-slate-300 hover:bg-slate-800"
+                      }`}
+                    >
+                      <span>📅</span> {date} <span className="text-[10px] bg-white/20 px-1.5 py-0.2 rounded-full">({groupedReports[date].length})</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
-          {activeTab === "laporan" && (
-            <>
-              <div className="flex items-center gap-2 bg-slate-900 border border-slate-700 px-4 py-2.5 rounded-xl flex-grow lg:flex-grow-0">
+            <div className="flex flex-wrap gap-4 items-center pt-2 border-t border-white/10">
+              <div className="flex items-center gap-2 bg-slate-900 border border-slate-700 px-4 py-2 rounded-xl flex-grow lg:flex-grow-0">
+                <Search className="w-4 h-4 text-slate-400" />
+                <input 
+                  type="text"
+                  placeholder="Cari nama siswa..." 
+                  className="bg-transparent outline-none text-sm w-full lg:w-48 text-white"
+                  value={filterNama}
+                  onChange={e => setFilterNama(e.target.value)} 
+                />
+              </div>
+
+              <div className="flex items-center gap-2 bg-slate-900 border border-slate-700 px-4 py-2 rounded-xl flex-grow lg:flex-grow-0">
                 <BookOpen className="w-4 h-4 text-slate-400" />
                 <input 
                   type="text"
@@ -248,30 +294,29 @@ export default function PsikologDashboard() {
                   onChange={e => setFilterMapel(e.target.value)} 
                 />
               </div>
-              <div className="flex items-center gap-2 bg-slate-900 border border-slate-700 px-4 py-2.5 rounded-xl flex-grow lg:flex-grow-0">
-                <Calendar className="w-4 h-4 text-slate-400" />
-                <input 
-                  type="date"
-                  className="bg-transparent outline-none text-sm text-slate-300 cursor-text"
-                  value={tglMulai}
-                  onChange={e => setTglMulai(e.target.value)} 
-                />
-                <span className="text-slate-500 font-bold">-</span>
-                <input 
-                  type="date"
-                  className="bg-transparent outline-none text-sm text-slate-300 cursor-text"
-                  value={tglSelesai}
-                  onChange={e => setTglSelesai(e.target.value)} 
-                />
-              </div>
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab !== "laporan" && (
+          <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex flex-wrap gap-4 items-center">
+            <div className="flex items-center gap-2 bg-slate-900 border border-slate-700 px-4 py-2.5 rounded-xl flex-grow lg:flex-grow-0">
+              <Search className="w-4 h-4 text-slate-400" />
+              <input 
+                type="text"
+                placeholder="Cari nama siswa..." 
+                className="bg-transparent outline-none text-sm w-full lg:w-48 text-white"
+                value={filterNama}
+                onChange={e => setFilterNama(e.target.value)} 
+              />
+            </div>
+          </div>
+        )}
 
         {/* LIST KARTU */}
         {displayedData.length === 0 ? (
           <div className="text-center p-12 bg-white/5 border border-white/10 rounded-3xl">
-            <p className="text-slate-400 italic">Tidak ada data yang sesuai dengan pencarian atau belum ada data tersedia.</p>
+            <p className="text-slate-400 italic">Tidak ada data yang sesuai dengan pencarian atau tanggal yang dipilih.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -284,7 +329,7 @@ export default function PsikologDashboard() {
                 <div>
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-xs px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 font-semibold uppercase">
-                      {activeTab}
+                      {item.mata_pelajaran || activeTab}
                     </span>
                     <span className="text-xs text-slate-400">{item.tanggal || item.tanggal_assessment || item.periode_ppi}</span>
                   </div>
@@ -311,8 +356,8 @@ export default function PsikologDashboard() {
 
       {/* MODAL DETAIL LENGKAP */}
       {selectedItem && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-white/20 rounded-[2.5rem] p-6 md:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl space-y-6">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-white/20 rounded-[2.5rem] p-6 md:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl space-y-6 my-auto">
             
             <button onClick={() => setSelectedItem(null)} className="absolute top-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all">
               <X className="w-5 h-5" />
