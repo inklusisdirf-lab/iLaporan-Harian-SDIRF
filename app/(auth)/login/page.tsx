@@ -37,6 +37,10 @@ export default function LoginPage() {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          // Memastikan link konfirmasi email diarahkan kembali ke halaman login website Anda
+          emailRedirectTo: "https://i-laporan-harian-sdirf.vercel.app/login",
+        },
       });
 
       if (authError) throw authError;
@@ -53,8 +57,7 @@ export default function LoginPage() {
         ]);
 
         if (profileError) throw profileError;
-        setSuccessMessage("Registrasi berhasil! Silakan masuk.");
-        setTimeout(() => setView("login"), 3000);
+        setSuccessMessage("Registrasi berhasil! Silakan cek email Anda untuk verifikasi.");
       }
     } catch (error: any) {
       setErrorMessage(error.message);
