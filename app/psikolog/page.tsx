@@ -47,18 +47,22 @@ export default function PsikologDashboard() {
     const { data: p } = await supabase.from("ppi").select("*, students(full_name)").order("created_at", { ascending: false });
     
     if (r) {
+      console.log("Data Daily Reports:", r); // Cek F12 Console browser untuk pastikan data masuk
       setReports(r);
-      // Grouping Laporan Berdasarkan Tanggal
+      
+      // Grouping Laporan Berdasarkan Tanggal (dengan fallback ke created_at jika tanggal kosong)
       const grouped = r.reduce((acc: any, report: any) => {
-        const dateKey = report.tanggal || "Tanpa Tanggal";
+        const dateVal = report.tanggal || (report.created_at ? report.created_at.split('T')[0] : null);
+        const dateKey = dateVal || "Tanpa Tanggal";
         if (!acc[dateKey]) acc[dateKey] = [];
         acc[dateKey].push(report);
         return acc;
       }, {});
+      
       setGroupedReports(grouped);
 
       const dates = Object.keys(grouped).sort().reverse();
-      if (dates.length > 0 && !selectedDate) {
+      if (dates.length > 0) {
         setSelectedDate(dates[0]);
       }
     }
@@ -109,7 +113,6 @@ export default function PsikologDashboard() {
 
   const getFilteredData = () => {
     if (activeTab === "laporan") {
-      // Jika menggunakan tab laporan, kita filter dari group tanggal yang sedang dipilih
       const currentList = (selectedDate && groupedReports[selectedDate]) ? groupedReports[selectedDate] : reports;
       return currentList.filter(item => {
         const matchNama = filterNama ? item.students?.full_name?.toLowerCase().includes(filterNama.toLowerCase()) : true;
