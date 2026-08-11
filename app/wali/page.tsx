@@ -81,9 +81,10 @@ export default function WaliDashboard() {
   }, [router]);
 
   const fetchWaliData = async (sId: string) => {
+    // Mengambil relasi profiles:gpk_id agar nama GPK dapat ditampilkan
     const { data: reportData } = await supabase
       .from("daily_reports")
-      .select("*, students(full_name), profiles(full_name)")
+      .select("*, students(full_name), profiles:gpk_id(full_name)")
       .eq("student_id", sId)
       .order("created_at", { ascending: false });
     if (reportData) setReports(reportData);
@@ -249,6 +250,12 @@ export default function WaliDashboard() {
                         <span className="text-xs text-slate-400">{r.tanggal}</span>
                       </div>
                       <h4 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">Ananda: {r.students?.full_name || childInfo}</h4>
+                      
+                      {/* Menampilkan Nama Pendamping (GPK) */}
+                      <p className="text-xs text-slate-300">
+                        Pendamping: <strong className="text-purple-400">{r.profiles?.full_name || r.gpk_name || "-"}</strong>
+                      </p>
+                      
                       <p className="text-xs text-purple-300">Mood Ananda: {r.kondisi_mood || "Stabil"}</p>
                       
                       <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
@@ -348,6 +355,7 @@ export default function WaliDashboard() {
                 <div><span className="text-xs text-slate-500 block">Mata Pelajaran</span><strong className="text-blue-400">{selectedReport.mata_pelajaran}</strong></div>
                 <div><span className="text-xs text-slate-500 block">Tanggal</span><strong className="text-white">{selectedReport.tanggal}</strong></div>
                 <div><span className="text-xs text-slate-500 block">Siswa</span><strong className="text-white">{selectedReport.students?.full_name || childInfo}</strong></div>
+                <div><span className="text-xs text-slate-500 block">Pendamping (GPK)</span><strong className="text-purple-400">{selectedReport.profiles?.full_name || selectedReport.gpk_name || "-"}</strong></div>
                 <div><span className="text-xs text-slate-500 block">Kondisi Mood</span><strong className="text-purple-300">{selectedReport.kondisi_mood || "Stabil"}</strong></div>
               </div>
 
