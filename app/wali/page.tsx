@@ -81,7 +81,7 @@ export default function WaliDashboard() {
   }, [router]);
 
   const fetchWaliData = async (sId: string) => {
-    // Mengambil relasi profiles:gpk_id agar nama GPK dapat ditampilkan
+    // Menggunakan left join eksplisit atau tabel profiles melalui gpk_id
     const { data: reportData } = await supabase
       .from("daily_reports")
       .select("*, students(full_name), profiles:gpk_id(full_name)")
@@ -251,9 +251,11 @@ export default function WaliDashboard() {
                       </div>
                       <h4 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">Ananda: {r.students?.full_name || childInfo}</h4>
                       
-                      {/* Menampilkan Nama Pendamping (GPK) */}
+                      {/* Menampilkan Nama Pendamping (GPK) dengan pengecekan ganda */}
                       <p className="text-xs text-slate-300">
-                        Pendamping: <strong className="text-purple-400">{r.profiles?.full_name || r.gpk_name || "-"}</strong>
+                        Pendamping: <strong className="text-purple-400">
+                          {r.profiles?.full_name || r.gpk_name || "-"}
+                        </strong>
                       </p>
                       
                       <p className="text-xs text-purple-300">Mood Ananda: {r.kondisi_mood || "Stabil"}</p>
