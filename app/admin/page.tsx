@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/app/utils/supabase/client";
 import { 
   ShieldCheck, LogOut, Users, BookOpen, FileText, 
-  UserCheck, Printer, Plus, Trash2, Edit3, X, Eye, Save, BrainCircuit, Calendar
+  UserCheck, Printer, Plus, Trash2, Edit3, X, Eye, Save, BrainCircuit, Calendar, Filter
 } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 
@@ -19,7 +19,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("siswa");
   const [ppiSubTab, setPpiSubTab] = useState("asesmen"); // Sub-menu untuk tab PPI & Asesmen
 
-  // State Filter Laporan Harian
+  // State Filter Laporan Harian (Ditempatkan paling atas sesuai permintaan)
   const [filterNama, setFilterNama] = useState("");
   const [filterMapel, setFilterMapel] = useState("");
   const [tglMulai, setTglMulai] = useState("");
@@ -58,7 +58,7 @@ export default function AdminDashboard() {
 
   const [message, setMessage] = useState("");
 
-  // Handler Print PDF Laporan
+  // Handler Print PDF Laporan (Mencetak sesuai filter yang aktif)
   const handlePrint = useReactToPrint({
     contentRef: componentRef,
   });
@@ -139,15 +139,20 @@ export default function AdminDashboard() {
     router.push("/login");
   };
 
-  // --- FILTERED REPORTS (Berdasarkan Tanggal Terpilih & Pencarian) ---
+  // --- FILTERED REPORTS (Mendukung filter Nama, Mapel, Rentang Waktu, & Tanggal Tab Terpilih) ---
   const getFilteredReports = () => {
-    const currentList = (selectedReportDate && groupedReports[selectedReportDate]) ? groupedReports[selectedReportDate] : reports;
-    return currentList.filter(r => {
+    return reports.filter(r => {
       const matchNama = filterNama ? r.students?.full_name?.toLowerCase().includes(filterNama.toLowerCase()) : true;
       const matchMapel = filterMapel ? r.mata_pelajaran?.toLowerCase().includes(filterMapel.toLowerCase()) : true;
       const matchTglMulai = tglMulai ? r.tanggal >= tglMulai : true;
       const matchTglSelesai = tglSelesai ? r.tanggal <= tglSelesai : true;
-      return matchNama && matchMapel && matchTglMulai && matchTglSelesai;
+      
+      // Jika tab tanggal diklik di bawah, sinkronkan juga jika tidak ada rentang tgl yang dipilih
+      const matchTabDate = (!tglMulai && !tglSelesai && selectedReportDate) 
+        ? (r.tanggal === selectedReportDate || (!r.tanggal && selectedReportDate === "Tanpa Tanggal")) 
+        : true;
+
+      return matchNama && matchMapel && matchTglMulai && matchTglSelesai && matchTabDate;
     });
   };
 
@@ -427,7 +432,7 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* === TAB 3: REKAPITULASI LAPORAN HARIAN (DENGAN GROUPING TANGGAL) === */}
+          {/* === TAB 3: REKAPITULASI LAPORAN HARIAN (FILTER DI ATAS, GROUPING TANGGAL DI BAWAH) === */}
           {activeTab === "laporan" && (
             <div className="flex flex-col gap-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -436,61 +441,99 @@ export default function AdminDashboard() {
                 </h3>
               </div>
 
-              {/* Panel Grouping Tanggal & Filter */}
-              <div className="bg-white/5 p-4 rounded-2xl border border-white/10 space-y-4">
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4" /> Pilih Tanggal Laporan:
-                  </span>
-                  {Object.keys(groupedReports).length === 0 ? (
-                    <p className="text-slate-400 text-xs italic">Belum ada data tanggal laporan harian.</p>
-                  ) : (
-                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
-                      {Object.keys(groupedReports).sort().reverse().map((date) => (
-                        <button
-                          key={date}
-                          onClick={() => setSelectedReportDate(date)}
-                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md whitespace-nowrap flex items-center gap-1.5 ${
-                            selectedReportDate === date
-                              ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white border border-white/30"
-                              : "bg-slate-900 border border-slate-700 text-slate-300 hover:bg-slate-800"
-                          }`}
-                        >
-                          <span>📅</span> {date} <span className="text-[10px] bg-white/20 px-1.5 py-0.2 rounded-full">({groupedReports[date].length})</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
+              {/* Panel Filter Laporan Harian (Paling Atas Sesuai Permintaan) */}
+              <div className="bg-white/5 p-5 rounded-2xl border border-white/10 space-y-4 shadow-xl">
+                <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                  <Filter className="w-4 h-4" /> Filter Laporan Harian & Cetak
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div>
+                    <label className="text-[11px] text-slate-400 block mb-1">Nama Siswa</label>
+                    <input 
+                      type="text" 
+                      placeholder="Cari Nama Siswa..." 
+                      value={filterNama} 
+                      onChange={(e) => setFilterNama(e.target.value)} 
+                      className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white w-full" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-400 block mb-1">Mata Pelajaran</label>
+                    <input 
+                      type="text" 
+                      placeholder="Cari Mata Pelajaran..." 
+                      value={filterMapel} 
+                      onChange={(e) => setFilterMapel(e.target.value)} 
+                      className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white w-full" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-400 block mb-1">Dari Tanggal (Mulai)</label>
+                    <input 
+                      type="date" 
+                      value={tglMulai} 
+                      onChange={(e) => setTglMulai(e.target.value)} 
+                      className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white w-full" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-400 block mb-1">Sampai Tanggal (Selesai)</label>
+                    <input 
+                      type="date" 
+                      value={tglSelesai} 
+                      onChange={(e) => setTglSelesai(e.target.value)} 
+                      className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white w-full" 
+                    />
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap gap-3 items-center pt-2 border-t border-white/10">
-                  <input 
-                    type="text" 
-                    placeholder="Filter Nama Siswa..." 
-                    value={filterNama} 
-                    onChange={(e) => setFilterNama(e.target.value)} 
-                    className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white w-full sm:w-48" 
-                  />
-                  <input 
-                    type="text" 
-                    placeholder="Filter Mata Pelajaran..." 
-                    value={filterMapel} 
-                    onChange={(e) => setFilterMapel(e.target.value)} 
-                    className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white w-full sm:w-48" 
-                  />
+                <div className="flex flex-wrap justify-between items-center pt-3 border-t border-white/10 gap-2">
+                  <button 
+                    onClick={() => { setFilterNama(""); setFilterMapel(""); setTglMulai(""); setTglSelesai(""); }}
+                    className="text-xs text-slate-400 hover:text-white underline transition-all"
+                  >
+                    Reset Filter
+                  </button>
                   <button 
                     onClick={() => handlePrint()}
-                    className="ml-auto bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition-all"
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition-all"
                   >
-                    <Printer className="w-4 h-4" /> Print PDF / Cetak Semua
+                    <Printer className="w-4 h-4" /> Print PDF Sesuai Filter ({displayedReports.length})
                   </button>
                 </div>
               </div>
 
-              {/* Grid Laporan Harian Berdasarkan Tanggal Terpilih */}
+              {/* Panel Grouping Tanggal (Di Bawah Filter) */}
+              <div className="flex flex-col gap-2">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-emerald-400" /> Pengelompokan Berdasarkan Tanggal:
+                </span>
+                {Object.keys(groupedReports).length === 0 ? (
+                  <p className="text-slate-400 text-xs italic">Belum ada data tanggal laporan harian.</p>
+                ) : (
+                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                    {Object.keys(groupedReports).sort().reverse().map((date) => (
+                      <button
+                        key={date}
+                        onClick={() => setSelectedReportDate(date)}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md whitespace-nowrap flex items-center gap-1.5 ${
+                          selectedReportDate === date && !tglMulai && !tglSelesai
+                            ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white border border-white/30"
+                            : "bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10"
+                        }`}
+                      >
+                        <span>📅</span> {date} <span className="text-[10px] bg-white/20 px-1.5 py-0.2 rounded-full">({groupedReports[date].length})</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Grid Laporan Harian Berdasarkan Hasil Filter */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {displayedReports.length === 0 ? (
-                  <p className="text-slate-400 text-sm italic col-span-full">Tidak ada laporan harian pada tanggal atau filter yang dipilih.</p>
+                  <p className="text-slate-400 text-sm italic col-span-full">Tidak ada laporan harian pada filter yang dipilih.</p>
                 ) : (
                   displayedReports.map((r) => (
                     <div key={r.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
@@ -518,12 +561,17 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              {/* AREA TERSEMBUNYI UNTUK CETAK PDF/PRINT */}
+              {/* AREA TERSEMBUNYI UNTUK CETAK PDF/PRINT SESUAI FILTER */}
               <div className="hidden">
                 <div ref={componentRef} className="p-8 bg-white text-black font-sans">
                   <div className="text-center border-b-2 border-black pb-4 mb-6">
                     <h2 className="text-2xl font-bold uppercase">SD Islam Roushon Fikr Jombang</h2>
-                    <p className="text-sm">Rekapitulasi Laporan Harian Guru Pendamping Khusus (GPK)</p>
+                    <p className="text-sm font-semibold">Rekapitulasi Laporan Harian Guru Pendamping Khusus (GPK)</p>
+                    <div className="text-xs text-gray-700 mt-1 flex justify-center gap-4">
+                      {filterNama && <span>Siswa: <b>{filterNama}</b></span>}
+                      {filterMapel && <span>Mapel: <b>{filterMapel}</b></span>}
+                      {tglMulai && tglSelesai && <span>Periode: <b>{tglMulai} s.d {tglSelesai}</b></span>}
+                    </div>
                     <p className="text-xs text-gray-600 mt-1">Dicetak pada: {new Date().toLocaleDateString("id-ID")}</p>
                   </div>
                   <table className="w-full border-collapse border border-black text-xs">
@@ -537,15 +585,21 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {reports.map((r, idx) => (
-                        <tr key={idx}>
-                          <td className="border border-black p-2 text-center">{r.tanggal}</td>
-                          <td className="border border-black p-2">{r.students?.full_name}</td>
-                          <td className="border border-black p-2">{r.mata_pelajaran}</td>
-                          <td className="border border-black p-2">{r.materi_pembelajaran}</td>
-                          <td className="border border-black p-2">{r.hasil_pembelajaran}</td>
+                      {displayedReports.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="border border-black p-4 text-center italic">Tidak ada laporan yang sesuai dengan filter.</td>
                         </tr>
-                      ))}
+                      ) : (
+                        displayedReports.map((r, idx) => (
+                          <tr key={idx}>
+                            <td className="border border-black p-2 text-center">{r.tanggal}</td>
+                            <td className="border border-black p-2">{r.students?.full_name}</td>
+                            <td className="border border-black p-2">{r.mata_pelajaran}</td>
+                            <td className="border border-black p-2">{r.materi_pembelajaran}</td>
+                            <td className="border border-black p-2">{r.hasil_pembelajaran}</td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -732,7 +786,7 @@ export default function AdminDashboard() {
               <label className="text-xs text-slate-300 uppercase font-bold">Pilih Peran (Role)</label>
               <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white mt-2">
                 <option value="wali">Wali Siswa (Orang Tua)</option>
-                <option value="gpk">Guru Pembimbing Khusus (GPK)</option>
+                <option value="gpk">Guru Pendamping Khusus (GPK)</option>
                 <option value="psikolog">Psikolog</option>
                 <option value="admin">Admin Sekolah</option>
               </select>
