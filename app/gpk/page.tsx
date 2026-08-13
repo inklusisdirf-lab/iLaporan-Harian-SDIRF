@@ -635,7 +635,7 @@ export default function GpkDashboard() {
               </form>
             )}
 
-            {/* RIWAYAT ASESMEN */}
+            {/* RIWAYAT ASESMEN - DIPERBAIKI AGAR MEMUAT SELuruh INFORMASI / KARTU LENGKAP */}
             {ppiSubTab === "riwayat-asesmen" && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {myAssessments.length === 0 ? (
@@ -643,11 +643,41 @@ export default function GpkDashboard() {
                 ) : (
                   myAssessments.map((a) => (
                     <div key={a.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
-                      <div>
-                        <span className="text-xs px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 font-semibold mb-2 inline-block">Tanggal: {a.tanggal_assessment}</span>
-                        <h4 className="text-lg font-bold text-white mb-1">{a.students?.full_name}</h4>
-                        <p className="text-xs text-slate-300 bg-white/5 p-3 rounded-xl mb-3 line-clamp-2"><strong>Permasalahan:</strong> {a.permasalahan}</p>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 font-semibold">Asesmen Awal</span>
+                          <span className="text-xs text-slate-400">{a.tanggal_assessment || "-"}</span>
+                        </div>
+                        <h4 className="text-lg font-bold text-white mb-1">{a.students?.full_name || "Siswa PDBK"}</h4>
+                        
+                        <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
+                          <p className="line-clamp-2"><strong>Permasalahan:</strong> {a.permasalahan || "-"}</p>
+                          {a.identitas?.kelas && <p><strong>Kelas:</strong> {a.identitas.kelas}</p>}
+                        </div>
+
+                        {/* Ringkasan Profiling & Temuan di Kartu Riwayat */}
+                        <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-400 pt-1">
+                          <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                            <span className="text-emerald-400 font-bold block">Kelebihan:</span>
+                            <span className="line-clamp-1">{a.profiling?.kelebihan || "-"}</span>
+                          </div>
+                          <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                            <span className="text-red-400 font-bold block">Kekurangan:</span>
+                            <span className="line-clamp-1">{a.profiling?.kekurangan || "-"}</span>
+                          </div>
+                        </div>
+
+                        {/* Catatan Psikolog di Kartu Riwayat */}
+                        {a.catatan_psikolog && (
+                          <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 shadow-inner">
+                            <p className="font-bold flex items-center gap-1 text-purple-300">
+                              <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Psikolog:
+                            </p>
+                            <p className="italic text-slate-200">"{a.catatan_psikolog}"</p>
+                          </div>
+                        )}
                       </div>
+
                       <div className="flex gap-2 pt-2 border-t border-white/10">
                         <button onClick={() => { setSelectedItem(a); setModalType("assessment"); }} className="flex-1 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
                           <Eye className="w-4 h-4" /> Detail
@@ -863,6 +893,14 @@ export default function GpkDashboard() {
                           <p>TTD Psikolog: {p.ttd_psikolog ? "✅ Disetujui" : "⏳ Menunggu"}</p>
                           <p>TTD Orang Tua: {p.ttd_orangtua ? "✅ Selesai" : "⏳ Menunggu"}</p>
                         </div>
+                        {p.catatan_psikolog && (
+                          <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 mt-3 shadow-inner">
+                            <p className="font-bold flex items-center gap-1 text-purple-300">
+                              <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Psikolog:
+                            </p>
+                            <p className="italic text-slate-200">"{p.catatan_psikolog}"</p>
+                          </div>
+                        )}
                       </div>
                       <div className="flex gap-2 pt-2 border-t border-white/10 mt-4">
                         <button onClick={() => { setSelectedItem(p); setModalType("ppi"); }} className="flex-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
@@ -939,7 +977,6 @@ export default function GpkDashboard() {
                       </div>
                     </div>
 
-                    {/* Tanggapan/Feedback Wali di dalam Modal Detail */}
                     <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-2xl space-y-2">
                       <h4 className="text-xs font-bold text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
                         <MessageCircle className="w-4 h-4 text-blue-400" /> Tanggapan / Feedback Wali Siswa
@@ -1047,6 +1084,15 @@ export default function GpkDashboard() {
                         </div>
                       </div>
                     )}
+
+                    {selectedItem.catatan_psikolog && (
+                      <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-2xl space-y-2">
+                        <h4 className="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+                          <BrainCircuit className="w-4 h-4 text-purple-400" /> Catatan Profesional Psikolog
+                        </h4>
+                        <p className="italic text-slate-100">"{selectedItem.catatan_psikolog}"</p>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1135,6 +1181,15 @@ export default function GpkDashboard() {
                         <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">Orang Tua: <span className={selectedItem.ttd_orangtua ? "text-emerald-400 font-bold" : "text-amber-400"}>{selectedItem.ttd_orangtua ? "✅ Disetujui" : "⏳ Menunggu"}</span></div>
                       </div>
                     </div>
+
+                    {selectedItem.catatan_psikolog && (
+                      <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-2xl space-y-2">
+                        <h4 className="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+                          <BrainCircuit className="w-4 h-4 text-purple-400" /> Catatan Profesional Psikolog
+                        </h4>
+                        <p className="italic text-slate-100">"{selectedItem.catatan_psikolog}"</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
