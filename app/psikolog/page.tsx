@@ -296,39 +296,51 @@ export default function PsikologDashboard() {
               {filteredPpi.length === 0 ? (
                 <p className="text-slate-400 text-sm italic col-span-full">Belum ada dokumen PPI.</p>
               ) : (
-                filteredPpi.map((p) => (
-                  <div key={p.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
-                    <div>
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 font-semibold uppercase">{p.status}</span>
-                        <span className="text-xs text-slate-400">{p.periode_ppi}</span>
-                      </div>
-                      <h4 className="text-lg font-bold text-white mb-1">{p.students?.full_name || "Siswa"}</h4>
-                      
-                      <div className="space-y-1.5 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5 mt-3">
-                        <p>TTD GPK: {p.ttd_gpk ? "✅ Selesai" : "⏳ Menunggu"}</p>
-                        <p>TTD Psikolog: {p.ttd_psikolog ? "✅ Disetujui" : "⏳ Menunggu"}</p>
-                        <p>TTD Orang Tua: {p.ttd_orangtua ? "✅ Selesai" : "⏳ Menunggu"}</p>
-                      </div>
-
-                      {p.catatan_psikolog && (
-                        <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 mt-3 shadow-inner">
-                          <p className="font-bold flex items-center gap-1 text-purple-300">
-                            <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Anda:
-                          </p>
-                          <p className="italic text-slate-200">"{p.catatan_psikolog}"</p>
+                filteredPpi.map((p) => {
+                  const parentFeedback = p.catatan_orangtua || p.feedback_orangtua || p.catatan_wali || p.feedback_wali;
+                  return (
+                    <div key={p.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
+                      <div>
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 font-semibold uppercase">{p.status}</span>
+                          <span className="text-xs text-slate-400">{p.periode_ppi}</span>
                         </div>
-                      )}
-                    </div>
+                        <h4 className="text-lg font-bold text-white mb-1">{p.students?.full_name || "Siswa"}</h4>
+                        
+                        <div className="space-y-1.5 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5 mt-3">
+                          <p>TTD GPK: {p.ttd_gpk ? "✅ Selesai" : "⏳ Menunggu"}</p>
+                          <p>TTD Psikolog: {p.ttd_psikolog ? "✅ Disetujui" : "⏳ Menunggu"}</p>
+                          <p>TTD Orang Tua: {p.ttd_orangtua ? "✅ Selesai" : "⏳ Menunggu"}</p>
+                        </div>
 
-                    <button 
-                      onClick={() => { setSelectedItem(p); setModalType("ppi"); setCatatanPsikologInput(p.catatan_psikolog || ""); }}
-                      className="w-full bg-blue-600/20 border border-blue-500/30 hover:bg-blue-600/30 text-blue-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-4"
-                    >
-                      <Eye className="w-4 h-4" /> Periksa Dokumen PPI Lengkap
-                    </button>
-                  </div>
-                ))
+                        {parentFeedback && (
+                          <div className="bg-blue-500/15 border border-blue-500/40 p-3 rounded-xl text-blue-200 text-xs space-y-1 mt-3 shadow-inner">
+                            <p className="font-bold flex items-center gap-1 text-blue-300">
+                              <MessageCircle className="w-3.5 h-3.5 text-blue-400" /> Tanggapan Orang Tua:
+                            </p>
+                            <p className="italic text-slate-200">"{parentFeedback}"</p>
+                          </div>
+                        )}
+
+                        {p.catatan_psikolog && (
+                          <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 mt-3 shadow-inner">
+                            <p className="font-bold flex items-center gap-1 text-purple-300">
+                              <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Anda:
+                            </p>
+                            <p className="italic text-slate-200">"{p.catatan_psikolog}"</p>
+                          </div>
+                        )}
+                      </div>
+
+                      <button 
+                        onClick={() => { setSelectedItem(p); setModalType("ppi"); setCatatanPsikologInput(p.catatan_psikolog || ""); }}
+                        className="w-full bg-blue-600/20 border border-blue-500/30 hover:bg-blue-600/30 text-blue-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-4"
+                      >
+                        <Eye className="w-4 h-4" /> Periksa Dokumen PPI Lengkap
+                      </button>
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>
@@ -641,7 +653,7 @@ export default function PsikologDashboard() {
                 </div>
               )}
 
-              {/* DOKUMEN PPI 100% LENGKAP + VALIDASI */}
+              {/* DOKUMEN PPI 100% LENGKAP + FEEDBACK WALI + VALIDASI */}
               {modalType === "ppi" && (
                 <div className="space-y-4">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -684,7 +696,7 @@ export default function PsikologDashboard() {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
                           <div><strong className="text-slate-400 block">Jangka Pendek 1:</strong> {selectedItem.tujuan_smart.jangka_pendek_1 || "-"}</div>
                           <div><strong className="text-slate-400 block">Jangka Pendek 2:</strong> {selectedItem.tujuan_smart.jangka_pendek_2 || "-"}</div>
-                          <div><strong className="text-slate-400 block">Jangka Pendek 3:</strong> {selectedItem.tujuan_smart.jangka_pendek_3 || "-"}</div>
+                          <div><strong className="text-slate-400 block">Jangka Pendek 3:</strong> {selectedItem.tujukan_smart?.jangka_pendek_3 || selectedItem.tujuan_smart.jangka_pendek_3 || "-"}</div>
                         </div>
                       </div>
                     </div>
@@ -715,6 +727,16 @@ export default function PsikologDashboard() {
                           </div>
                         ))}
                       </div>
+                    </div>
+                  )}
+
+                  {/* TANGGAPAN / FEEDBACK ORANG TUA PADA PPI */}
+                  {(selectedItem.catatan_orangtua || selectedItem.feedback_orangtua || selectedItem.catatan_wali || selectedItem.feedback_wali) && (
+                    <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-2xl space-y-2">
+                      <h4 className="text-xs font-bold text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <MessageCircle className="w-4 h-4 text-blue-400" /> Tanggapan / Feedback Orang Tua / Wali
+                      </h4>
+                      <p className="italic text-slate-100">"{selectedItem.catatan_orangtua || selectedItem.feedback_orangtua || selectedItem.catatan_wali || selectedItem.feedback_wali}"</p>
                     </div>
                   )}
 
