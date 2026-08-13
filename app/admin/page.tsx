@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/app/utils/supabase/client";
 import { 
   ShieldCheck, LogOut, Users, BookOpen, FileText, 
-  UserCheck, Printer, Plus, Trash2, Edit3, X, Eye, Save, BrainCircuit, Calendar, Filter
+  UserCheck, Printer, Plus, Trash2, Edit3, X, Eye, Save, BrainCircuit, Calendar, Filter, MessageCircle
 } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 
@@ -147,7 +147,6 @@ export default function AdminDashboard() {
       const matchTglMulai = tglMulai ? r.tanggal >= tglMulai : true;
       const matchTglSelesai = tglSelesai ? r.tanggal <= tglSelesai : true;
       
-      // Jika tab tanggal diklik di bawah, sinkronkan juga jika tidak ada rentang tgl yang dipilih
       const matchTabDate = (!tglMulai && !tglSelesai && selectedReportDate) 
         ? (r.tanggal === selectedReportDate || (!r.tanggal && selectedReportDate === "Tanpa Tanggal")) 
         : true;
@@ -432,7 +431,7 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* === TAB 3: REKAPITULASI LAPORAN HARIAN (FILTER DI ATAS, GROUPING TANGGAL DI BAWAH) === */}
+          {/* === TAB 3: REKAPITULASI LAPORAN HARIAN === */}
           {activeTab === "laporan" && (
             <div className="flex flex-col gap-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -441,7 +440,7 @@ export default function AdminDashboard() {
                 </h3>
               </div>
 
-              {/* Panel Filter Laporan Harian (Paling Atas Sesuai Permintaan) */}
+              {/* Panel Filter Laporan Harian */}
               <div className="bg-white/5 p-5 rounded-2xl border border-white/10 space-y-4 shadow-xl">
                 <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
                   <Filter className="w-4 h-4" /> Filter Laporan Harian & Cetak
@@ -504,7 +503,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Panel Grouping Tanggal (Di Bawah Filter) */}
+              {/* Panel Grouping Tanggal */}
               <div className="flex flex-col gap-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                   <Calendar className="w-4 h-4 text-emerald-400" /> Pengelompokan Berdasarkan Tanggal:
@@ -537,17 +536,31 @@ export default function AdminDashboard() {
                 ) : (
                   displayedReports.map((r) => (
                     <div key={r.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
-                      <div>
-                        <div className="flex justify-between items-center mb-3">
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
                           <span className="text-xs px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-semibold">{r.mata_pelajaran}</span>
                           <span className="text-xs text-slate-400">{r.tanggal}</span>
                         </div>
                         <h4 className="text-lg font-bold text-white mb-1">{r.students?.full_name || "Siswa"}</h4>
                         
-                        <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5 mt-3">
+                        <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
                           <p><strong className="text-blue-400">Materi:</strong> {r.materi_pembelajaran}</p>
                           <p className="line-clamp-2"><strong className="text-purple-400">Hasil:</strong> {r.hasil_pembelajaran}</p>
                         </div>
+
+                        {/* Indikator Feedback / Tanggapan Wali pada Kartu Admin */}
+                        {r.feedback_wali ? (
+                          <div className="bg-blue-500/15 border border-blue-500/40 p-3 rounded-xl text-blue-200 text-xs space-y-1 shadow-inner">
+                            <p className="font-bold flex items-center gap-1 text-blue-300">
+                              <MessageCircle className="w-3.5 h-3.5 text-blue-400" /> Tanggapan Wali:
+                            </p>
+                            <p className="italic text-slate-200">"{r.feedback_wali}"</p>
+                          </div>
+                        ) : (
+                          <div className="text-[11px] text-slate-500 italic flex items-center gap-1">
+                            <MessageCircle className="w-3.5 h-3.5 text-slate-600" /> Belum ada tanggapan dari wali.
+                          </div>
+                        )}
                       </div>
 
                       <button 
@@ -561,7 +574,7 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              {/* AREA TERSEMBUNYI UNTUK CETAK PDF/PRINT SESUAI FILTER */}
+              {/* AREA TERSEMBUNYI UNTUK CETAK PDF/PRINT */}
               <div className="hidden">
                 <div ref={componentRef} className="p-8 bg-white text-black font-sans">
                   <div className="text-center border-b-2 border-black pb-4 mb-6">
@@ -582,12 +595,13 @@ export default function AdminDashboard() {
                         <th className="border border-black p-2">Mata Pelajaran</th>
                         <th className="border border-black p-2">Materi</th>
                         <th className="border border-black p-2">Hasil Pembelajaran</th>
+                        <th className="border border-black p-2">Tanggapan Wali</th>
                       </tr>
                     </thead>
                     <tbody>
                       {displayedReports.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className="border border-black p-4 text-center italic">Tidak ada laporan yang sesuai dengan filter.</td>
+                          <td colSpan={6} className="border border-black p-4 text-center italic">Tidak ada laporan yang sesuai dengan filter.</td>
                         </tr>
                       ) : (
                         displayedReports.map((r, idx) => (
@@ -597,6 +611,7 @@ export default function AdminDashboard() {
                             <td className="border border-black p-2">{r.mata_pelajaran}</td>
                             <td className="border border-black p-2">{r.materi_pembelajaran}</td>
                             <td className="border border-black p-2">{r.hasil_pembelajaran}</td>
+                            <td className="border border-black p-2 italic">{r.feedback_wali || "-"}</td>
                           </tr>
                         ))
                       )}
@@ -612,7 +627,6 @@ export default function AdminDashboard() {
           {activeTab === "ppi" && (
             <div className="flex flex-col gap-6">
               
-              {/* Tombol Sub-Menu Asesmen & PPI */}
               <div className="flex gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-fit">
                 <button 
                   onClick={() => setPpiSubTab("asesmen")} 
@@ -632,7 +646,6 @@ export default function AdminDashboard() {
                 </button>
               </div>
 
-              {/* Konten Sub-Menu: Asesmen */}
               {ppiSubTab === "asesmen" && (
                 <div className="flex flex-col gap-6">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -666,7 +679,6 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {/* Konten Sub-Menu: PPI */}
               {ppiSubTab === "ppi" && (
                 <div className="flex flex-col gap-6">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -824,6 +836,18 @@ export default function AdminDashboard() {
                     <p><strong>Catatan Perilaku:</strong><br />{selectedItem.catatan_perilaku || "-"}</p>
                     <p><strong>Intervensi Pendamping:</strong><br />{selectedItem.intervensi_pendamping || "-"}</p>
                   </div>
+
+                  {/* Tanggapan/Feedback Wali di dalam Modal Detail Admin */}
+                  <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl text-blue-200 text-xs sm:text-sm space-y-1">
+                    <p className="font-bold flex items-center gap-1.5 text-blue-300 uppercase tracking-wide">
+                      <MessageCircle className="w-4 h-4 text-blue-400" /> Tanggapan / Feedback Wali Siswa:
+                    </p>
+                    {selectedItem.feedback_wali ? (
+                      <p className="italic mt-1 text-slate-100">"{selectedItem.feedback_wali}"</p>
+                    ) : (
+                      <p className="text-slate-400 italic">Belum ada tanggapan atau feedback dari wali siswa.</p>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -853,31 +877,6 @@ export default function AdminDashboard() {
                     <h4 className="font-bold text-slate-400 text-xs uppercase mb-1">Permasalahan yang Dihadapi</h4>
                     <p>{selectedItem.permasalahan || "-"}</p>
                   </div>
-
-                  {selectedItem.profiling && (
-                    <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                      <h4 className="font-bold text-purple-400 text-xs uppercase">Profiling Anak</h4>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div><strong className="text-emerald-400">Kelebihan:</strong> {selectedItem.profiling.kelebihan || "-"}</div>
-                        <div><strong className="text-red-400">Kekurangan:</strong> {selectedItem.profiling.kekurangan || "-"}</div>
-                        <div><strong className="text-blue-400">Disukai:</strong> {selectedItem.profiling.disukai || "-"}</div>
-                        <div><strong className="text-amber-400">Tidak Disukai:</strong> {selectedItem.profiling.tidak_disukai || "-"}</div>
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedItem.temuan_lapangan && (
-                    <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                      <h4 className="font-bold text-emerald-400 text-xs uppercase">Temuan 5 Aspek di Lapangan</h4>
-                      <div className="space-y-1 text-xs text-slate-300">
-                        <p><strong>1. Kognitif:</strong> Daya tangkap: {selectedItem.temuan_lapangan.kognitif?.daya_tangkap || "-"}, Fokus: {selectedItem.temuan_lapangan.kognitif?.fokus || "-"}</p>
-                        <p><strong>2. Bahasa:</strong> Reseptif: {selectedItem.temuan_lapangan.bahasa?.reseptif || "-"}, Ekspresif: {selectedItem.temuan_lapangan.bahasa?.ekspresif || "-"}</p>
-                        <p><strong>3. Kemandirian:</strong> Motorik kasar: {selectedItem.temuan_lapangan.kemandirian?.motorik_kasar || "-"}, Halus: {selectedItem.temuan_lapangan.kemandirian?.motorik_halus || "-"}</p>
-                        <p><strong>4. Sosial:</strong> Adaptasi: {selectedItem.temuan_lapangan.sosial?.adaptasi || "-"}</p>
-                        <p><strong>5. Emosi:</strong> Kontrol emosi: {selectedItem.temuan_lapangan.emosi?.kontrol_emosi || "-"}</p>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             )}
@@ -894,34 +893,7 @@ export default function AdminDashboard() {
                   <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
                     <p><strong>Wali Kelas:</strong> {selectedItem.wali_kelas || "-"}</p>
                     <p><strong>Periode:</strong> {selectedItem.periode_ppi} ({selectedItem.tahun_ajaran})</p>
-                    <p><strong>Jenis Kebutuhan (Profil):</strong> {selectedItem.profil_pdbk?.jenis_kebutuhan || "-"}</p>
                   </div>
-
-                  {selectedItem.tujuan_smart && (
-                    <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                      <h4 className="font-bold text-emerald-400 text-xs uppercase">Tujuan SMART</h4>
-                      <p><strong>Jangka Panjang:</strong> {selectedItem.tujuan_smart.jangka_panjang || "-"}</p>
-                      <p><strong>Jangka Pendek 1:</strong> {selectedItem.tujuan_smart.jangka_pendek_1 || "-"}</p>
-                    </div>
-                  )}
-
-                  {selectedItem.layanan_akomodasi && (
-                    <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                      <h4 className="font-bold text-amber-400 text-xs uppercase">Layanan & Akomodasi</h4>
-                      <p>{selectedItem.layanan_akomodasi.modifikasi || "-"}</p>
-                    </div>
-                  )}
-
-                  {selectedItem.rencana_evaluasi && (
-                    <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                      <h4 className="font-bold text-purple-400 text-xs uppercase">Rencana Evaluasi</h4>
-                      {selectedItem.rencana_evaluasi.map((ev: any, i: number) => (
-                        <div key={i} className="text-xs bg-white/5 p-2 rounded-lg">
-                          <strong>{ev.periode}:</strong> {ev.kegiatan} ({ev.status})
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </div>
             )}
