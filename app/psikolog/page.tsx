@@ -264,7 +264,7 @@ export default function PsikologDashboard() {
                       onClick={() => { setSelectedItem(a); setModalType("assessment"); setCatatanPsikologInput(a.catatan_psikolog || ""); }}
                       className="w-full bg-purple-600/20 border border-purple-500/30 hover:bg-purple-600/30 text-purple-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-4"
                     >
-                      <Eye className="w-4 h-4" /> Periksa & Beri Catatan Asesmen
+                      <Eye className="w-4 h-4" /> Periksa Asesmen Lengkap
                     </button>
                   </div>
                 ))
@@ -313,7 +313,7 @@ export default function PsikologDashboard() {
                       onClick={() => { setSelectedItem(p); setModalType("ppi"); setCatatanPsikologInput(p.catatan_psikolog || ""); }}
                       className="w-full bg-blue-600/20 border border-blue-500/30 hover:bg-blue-600/30 text-blue-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-4"
                     >
-                      <Eye className="w-4 h-4" /> Periksa & Validasi PPI
+                      <Eye className="w-4 h-4" /> Periksa Dokumen PPI Lengkap
                     </button>
                   </div>
                 ))
@@ -418,7 +418,7 @@ export default function PsikologDashboard() {
 
       </div>
 
-      {/* ================= MODAL DETAIL & FEEDBACK PSIKOLOG ================= */}
+      {/* ================= MODAL DETAIL LENGKAP + FEEDBACK PSIKOLOG ================= */}
       {selectedItem && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-slate-900 border border-white/20 rounded-3xl p-6 md:p-8 max-w-4xl w-full max-h-[85vh] overflow-y-auto relative shadow-2xl my-auto space-y-6">
@@ -427,9 +427,9 @@ export default function PsikologDashboard() {
             </button>
 
             <h3 className="text-lg sm:text-xl font-bold text-white uppercase flex items-center gap-2 border-b border-white/10 pb-4 pr-8">
-              {modalType === "report" ? ( <><BookOpen className="text-emerald-400 flex-shrink-0"/> Rincian Laporan Harian PDBK</> ) : 
-               modalType === "assessment" ? ( <><BrainCircuit className="text-purple-400 flex-shrink-0"/> Review & Catatan Asesmen Awal PDBK</> ) : 
-               ( <><FileText className="text-blue-400 flex-shrink-0"/> Review & Validasi Dokumen PPI</> )}
+              {modalType === "report" ? ( <><BookOpen className="text-emerald-400 flex-shrink-0"/> Rincian Lengkap Laporan Harian PDBK</> ) : 
+               modalType === "assessment" ? ( <><BrainCircuit className="text-purple-400 flex-shrink-0"/> Rincian Lengkap Asesmen Awal PDBK</> ) : 
+               ( <><FileText className="text-blue-400 flex-shrink-0"/> Rincian Lengkap Dokumen PPI</> )}
             </h3>
 
             <div className="space-y-6 text-sm text-slate-300">
@@ -441,6 +441,7 @@ export default function PsikologDashboard() {
                     <div><span className="block text-xs text-slate-500">Nama Siswa</span><strong className="text-white text-base">{selectedItem.students?.full_name}</strong></div>
                     <div><span className="block text-xs text-slate-500">Mata Pelajaran</span><strong className="text-blue-400 text-base">{selectedItem.mata_pelajaran}</strong></div>
                     <div><span className="block text-xs text-slate-500">Tanggal Laporan</span><span className="text-white">{selectedItem.tanggal}</span></div>
+                    <div><span className="block text-xs text-slate-500">Pendamping (GPK)</span><span className="text-purple-400 font-semibold">{selectedItem.gpk_name || "-"}</span></div>
                     <div><span className="block text-xs text-slate-500">Kondisi Mood Siswa</span><span className="px-3 py-1 bg-white/10 rounded-full text-xs mt-1 inline-block text-amber-300 font-semibold">{selectedItem.kondisi_mood}</span></div>
                   </div>
                     
@@ -459,10 +460,30 @@ export default function PsikologDashboard() {
                     <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Hasil Pembelajaran</h4>
                     <p className="text-emerald-100 whitespace-pre-wrap">{selectedItem.hasil_pembelajaran || "-"}</p>
                   </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Catatan Perilaku</h4>
+                      <p className="text-slate-200 whitespace-pre-wrap">{selectedItem.catatan_perilaku || "-"}</p>
+                    </div>
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Intervensi Pendamping</h4>
+                      <p className="text-slate-200 whitespace-pre-wrap">{selectedItem.intervensi_pendamping || "-"}</p>
+                    </div>
+                  </div>
+
+                  {selectedItem.feedback_wali && (
+                    <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-2xl space-y-2">
+                      <h4 className="text-xs font-bold text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <MessageCircle className="w-4 h-4 text-blue-400" /> Tanggapan / Feedback Wali Siswa
+                      </h4>
+                      <p className="italic text-slate-100">"{selectedItem.feedback_wali}"</p>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* ASESMEN AWAL LENGKAP */}
+              {/* ASESMEN AWAL 100% LENGKAP + FORM CATATAN PSIKOLOG */}
               {modalType === "assessment" && (
                 <div className="space-y-4">
                    <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -480,6 +501,7 @@ export default function PsikologDashboard() {
                         <div><span className="text-slate-500 block">Alamat:</span> <span className="text-white font-medium">{selectedItem.identitas.alamat || "-"}</span></div>
                         <div><span className="text-slate-500 block">Nama Ibu:</span> <span className="text-white font-medium">{selectedItem.identitas.nama_ibu || "-"}</span></div>
                         <div><span className="text-slate-500 block">Nama Ayah:</span> <span className="text-white font-medium">{selectedItem.identitas.nama_ayah || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Urutan Kelahiran:</span> <span className="text-white font-medium">{selectedItem.identitas.urutan_kelahiran || "-"}</span></div>
                       </div>
                     </div>
                   )}
@@ -489,12 +511,69 @@ export default function PsikologDashboard() {
                     <p className="text-white whitespace-pre-wrap">{selectedItem.permasalahan || "-"}</p>
                   </div>
 
+                  {selectedItem.metode_hasil && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">Metode & Hasil Assessment</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div><span className="text-slate-500 block">Observasi:</span> <span className="text-white">{selectedItem.metode_hasil.observasi || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Wawancara:</span> <span className="text-white">{selectedItem.metode_hasil.wawancara || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Psikotes:</span> <span className="text-white">{selectedItem.metode_hasil.psikotes || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Data Pendukung:</span> <span className="text-white">{selectedItem.metode_hasil.data_pendukung || "-"}</span></div>
+                      </div>
+                    </div>
+                  )}
+
                   {selectedItem.profiling && (
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
                       <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider">Profiling Anak</h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                         <div><span className="text-emerald-400 font-bold block">Kelebihan:</span> <span className="text-white whitespace-pre-wrap">{selectedItem.profiling.kelebihan || "-"}</span></div>
                         <div><span className="text-red-400 font-bold block">Kekurangan / Tantangan:</span> <span className="text-white whitespace-pre-wrap">{selectedItem.profiling.kekurangan || "-"}</span></div>
+                        <div><span className="text-blue-400 font-bold block">Hal yang Disukai:</span> <span className="text-white whitespace-pre-wrap">{selectedItem.profiling.disukai || "-"}</span></div>
+                        <div><span className="text-amber-400 font-bold block">Hal yang Tidak Disukai:</span> <span className="text-white whitespace-pre-wrap">{selectedItem.profiling.tidak_disukai || "-"}</span></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedItem.temuan_lapangan && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-4">
+                      <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Temuan Lapangan (5 Aspek)</h4>
+                      
+                      <div className="space-y-1.5 text-xs border-b border-white/5 pb-3">
+                        <strong className="text-blue-300 block">1. Kognitif</strong>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          <div><span className="text-slate-500">Daya Tangkap:</span> {selectedItem.temuan_lapangan.kognitif?.daya_tangkap || "-"}</div>
+                          <div><span className="text-slate-500">Fokus:</span> {selectedItem.temuan_lapangan.kognitif?.fokus || "-"}</div>
+                          <div><span className="text-slate-500">Konsentrasi:</span> {selectedItem.temuan_lapangan.kognitif?.konsentrasi || "-"}</div>
+                          <div><span className="text-slate-500">Mengingat:</span> {selectedItem.temuan_lapangan.kognitif?.mengingat || "-"}</div>
+                          <div><span className="text-slate-500">Membaca:</span> {selectedItem.temuan_lapangan.kognitif?.membaca || "-"}</div>
+                          <div><span className="text-slate-500">Menulis:</span> {selectedItem.temuan_lapangan.kognitif?.menulis || "-"}</div>
+                          <div><span className="text-slate-500">Berhitung:</span> {selectedItem.temuan_lapangan.kognitif?.berhitung || "-"}</div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5 text-xs border-b border-white/5 pb-3">
+                        <strong className="text-purple-300 block">2. Bahasa / Komunikasi</strong>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          <div><span className="text-slate-500">Reseptif:</span> {selectedItem.temuan_lapangan.bahasa?.reseptif || "-"}</div>
+                          <div><span className="text-slate-500">Ekspresif:</span> {selectedItem.temuan_lapangan.bahasa?.ekspresif || "-"}</div>
+                          <div><span className="text-slate-500">Fonologi:</span> {selectedItem.temuan_lapangan.bahasa?.fonologi || "-"}</div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5 text-xs border-b border-white/5 pb-3">
+                        <strong className="text-emerald-300 block">3. Kemandirian</strong>
+                        <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
+                          <div><span className="text-slate-500">Motorik Kasar:</span> {selectedItem.temuan_lapangan.kemandirian?.motorik_kasar || "-"}</div>
+                          <div><span className="text-slate-500">Motorik Halus:</span> {selectedItem.temuan_lapangan.kemandirian?.motorik_halus || "-"}</div>
+                          <div><span className="text-slate-500">Keseimbangan:</span> {selectedItem.temuan_lapangan.kemandirian?.keseimbangan || "-"}</div>
+                          <div><span className="text-slate-500">Kontrol Sendi:</span> {selectedItem.temuan_lapangan.kemandirian?.kontrol_sendi || "-"}</div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+                        <div><strong className="text-amber-300 block">4. Sosial</strong> {selectedItem.temuan_lapangan.sosial?.adaptasi || "-"}</div>
+                        <div><strong className="text-pink-300 block">5. Emosi</strong> {selectedItem.temuan_lapangan.emosi?.kontrol_emosi || "-"}</div>
                       </div>
                     </div>
                   )}
@@ -521,7 +600,7 @@ export default function PsikologDashboard() {
                 </div>
               )}
 
-              {/* DOKUMEN PPI LENGKAP + VALIDASI */}
+              {/* DOKUMEN PPI 100% LENGKAP + VALIDASI */}
               {modalType === "ppi" && (
                 <div className="space-y-4">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -535,14 +614,77 @@ export default function PsikologDashboard() {
                     <div><span className="text-slate-500 block">Periode PPI:</span> <span className="text-white font-medium">{selectedItem.periode_ppi || "-"}</span></div>
                   </div>
 
-                  {selectedItem.tujuan_smart && (
-                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
-                      <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Tujuan SMART</h4>
-                      <div className="space-y-2 text-xs">
-                        <div><strong className="text-slate-400 block">Jangka Panjang:</strong> <p className="text-white">{selectedItem.tujuan_smart.jangka_panjang || "-"}</p></div>
+                  {selectedItem.profil_pdbk && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 text-xs">
+                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">1. Profil PDBK</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div><span className="text-slate-500">Nama:</span> {selectedItem.profil_pdbk.nama || "-"}</div>
+                        <div><span className="text-slate-500">Kelas/Usia:</span> {selectedItem.profil_pdbk.kelas_usia || "-"}</div>
+                        <div><span className="text-slate-500">Jenis Kebutuhan:</span> {selectedItem.profil_pdbk.jenis_kebutuhan || "-"}</div>
                       </div>
                     </div>
                   )}
+
+                  {selectedItem.kemampuan_saat_ini && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider">2. Tingkat Kemampuan Saat Ini</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div><strong className="text-emerald-400 block mb-1">Kekuatan / Potensi</strong> <p className="text-white whitespace-pre-wrap">{selectedItem.kemampuan_saat_ini.kekuatan || "-"}</p></div>
+                        <div><strong className="text-amber-400 block mb-1">Area Pengembangan</strong> <p className="text-white whitespace-pre-wrap">{selectedItem.kemampuan_saat_ini.area_pengembangan || "-"}</p></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedItem.tujuan_smart && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">3. Tujuan SMART</h4>
+                      <div className="space-y-2 text-xs">
+                        <div><strong className="text-slate-400 block">Jangka Panjang:</strong> <p className="text-white">{selectedItem.tujuan_smart.jangka_panjang || "-"}</p></div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                          <div><strong className="text-slate-400 block">Jangka Pendek 1:</strong> {selectedItem.tujuan_smart.jangka_pendek_1 || "-"}</div>
+                          <div><strong className="text-slate-400 block">Jangka Pendek 2:</strong> {selectedItem.tujuan_smart.jangka_pendek_2 || "-"}</div>
+                          <div><strong className="text-slate-400 block">Jangka Pendek 3:</strong> {selectedItem.tujuan_smart.jangka_pendek_3 || "-"}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedItem.layanan_akomodasi && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-blue-300 uppercase tracking-wider">4. Layanan & Akomodasi Pembelajaran</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <div><strong className="text-slate-400 block">Modifikasi:</strong> {selectedItem.layanan_akomodasi.modifikasi || "-"}</div>
+                        <div><strong className="text-slate-400 block">Media Belajar:</strong> {selectedItem.layanan_akomodasi.media || "-"}</div>
+                        <div><strong className="text-slate-400 block">Komunikasi:</strong> {selectedItem.layanan_akomodasi.komunikasi || "-"}</div>
+                        <div><strong className="text-slate-400 block">Modifikasi Tugas:</strong> {selectedItem.layanan_akomodasi.tugas || "-"}</div>
+                        <div><strong className="text-slate-400 block">Pendamping GPK:</strong> {selectedItem.layanan_akomodasi.pendamping || "-"}</div>
+                        <div><strong className="text-slate-400 block">Kolaborasi:</strong> {selectedItem.layanan_akomodasi.kolaborasi || "-"}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedItem.rencana_evaluasi && selectedItem.rencana_evaluasi.length > 0 && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider">5. Rencana Evaluasi Berkala</h4>
+                      <div className="space-y-2">
+                        {selectedItem.rencana_evaluasi.map((ev: any, idx: number) => (
+                          <div key={idx} className="bg-slate-900 p-3 rounded-xl border border-slate-800 text-xs flex flex-col sm:flex-row justify-between gap-2">
+                            <div><strong className="text-indigo-300">{ev.periode}</strong>: {ev.kegiatan}</div>
+                            <div className="text-amber-400 font-semibold">{ev.status}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Status Tanda Tangan Digital</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">GPK: <span className={selectedItem.ttd_gpk ? "text-emerald-400 font-bold" : "text-amber-400"}>{selectedItem.ttd_gpk ? "✅ Disetujui" : "⏳ Menunggu"}</span></div>
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">Psikolog: <span className={selectedItem.ttd_psikolog ? "text-emerald-400 font-bold" : "text-amber-400"}>{selectedItem.ttd_psikolog ? "✅ Disetujui" : "⏳ Menunggu"}</span></div>
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">Orang Tua: <span className={selectedItem.ttd_orangtua ? "text-emerald-400 font-bold" : "text-amber-400"}>{selectedItem.ttd_orangtua ? "✅ Disetujui" : "⏳ Menunggu"}</span></div>
+                    </div>
+                  </div>
 
                   {/* FORM VALIDASI & CATATAN PPI PSIKOLOG */}
                   <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-2xl space-y-3">
