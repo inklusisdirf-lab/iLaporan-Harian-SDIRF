@@ -198,7 +198,7 @@ export default function PsikologDashboard() {
           </div>
         )}
 
-        {/* TAB UTAMA */}
+        {/* TAB UTAMA TANPA JUMLAH */}
         <div className="flex flex-wrap gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-fit">
           <button 
             onClick={() => setActiveTab("asesmen")} 
@@ -206,7 +206,7 @@ export default function PsikologDashboard() {
               activeTab === "asesmen" ? "bg-purple-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
             }`}
           >
-            <BrainCircuit className="w-4 h-4" /> Asesmen Awal ({assessments.length})
+            <BrainCircuit className="w-4 h-4" /> Asesmen Awal
           </button>
           <button 
             onClick={() => setActiveTab("ppi")} 
@@ -214,7 +214,7 @@ export default function PsikologDashboard() {
               activeTab === "ppi" ? "bg-blue-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
             }`}
           >
-            <FileText className="w-4 h-4" /> Dokumen PPI ({ppiList.length})
+            <FileText className="w-4 h-4" /> Dokumen PPI
           </button>
           <button 
             onClick={() => setActiveTab("laporan")} 
@@ -222,7 +222,7 @@ export default function PsikologDashboard() {
               activeTab === "laporan" ? "bg-emerald-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
             }`}
           >
-            <BookOpen className="w-4 h-4" /> Laporan Harian GPK ({reports.length})
+            <BookOpen className="w-4 h-4" /> Laporan Harian GPK
           </button>
         </div>
 
@@ -338,7 +338,7 @@ export default function PsikologDashboard() {
         {activeTab === "laporan" && (
           <div className="flex flex-col gap-6">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-emerald-400" /> Rekapitulasi Laporan Harian GPK ({reports.length})
+              <BookOpen className="w-5 h-5 text-emerald-400" /> Rekapitulasi Laporan Harian GPK
             </h3>
 
             <div className="bg-white/5 p-5 rounded-2xl border border-white/10 space-y-4 shadow-xl">
