@@ -361,7 +361,7 @@ export default function WaliDashboard() {
                           <MessageCircle className="w-3.5 h-3.5 text-blue-400" /> Feedback / Tanggapan Anda:
                         </label>
                         
-                        {r.feedback_wali ? (
+                        {r.feedback_wali && r.feedback_wali.trim() !== "" ? (
                           editingFeedbackId === r.id ? (
                             <div className="space-y-2">
                               <input 
@@ -386,29 +386,29 @@ export default function WaliDashboard() {
                               </div>
                             </div>
                           ) : (
-                            <div className="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-emerald-200 text-xs space-y-2 shadow-inner">
+                            <div className="bg-emerald-500/15 border border-emerald-500/40 p-3 rounded-xl text-emerald-200 text-xs space-y-2 shadow-inner">
                               <div className="flex items-start justify-between gap-2">
-                                <p className="font-bold flex items-center gap-1 flex-shrink-0">
+                                <p className="font-bold flex items-center gap-1 text-emerald-300 flex-shrink-0">
                                   <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> Feedback Terkirim:
                                 </p>
                                 <div className="flex gap-1">
                                   <button 
                                     onClick={(e) => { e.stopPropagation(); setEditingFeedbackId(r.id); setEditFeedbackText(r.feedback_wali); }}
-                                    className="p-1 bg-white/10 hover:bg-white/20 text-white rounded-lg"
+                                    className="p-1 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all"
                                     title="Edit Feedback"
                                   >
                                     <Edit3 className="w-3 h-3" />
                                   </button>
                                   <button 
                                     onClick={(e) => handleDeleteFeedback(r.id, e)}
-                                    className="p-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg"
+                                    className="p-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg transition-all"
                                     title="Hapus Feedback"
                                   >
                                     <Trash2 className="w-3 h-3" />
                                   </button>
                                 </div>
                               </div>
-                              <p className="italic">"{r.feedback_wali}"</p>
+                              <p className="italic text-slate-200">"{r.feedback_wali}"</p>
                             </div>
                           )
                         ) : (
