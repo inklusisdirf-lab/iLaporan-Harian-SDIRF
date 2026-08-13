@@ -11,21 +11,18 @@ import { useReactToPrint } from "react-to-print";
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const componentRef = useRef(null); // Ref untuk Print PDF Laporan
+  const componentRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("");
   
-  // Tab Navigation State
   const [activeTab, setActiveTab] = useState("siswa");
-  const [ppiSubTab, setPpiSubTab] = useState("asesmen"); // Sub-menu untuk tab PPI & Asesmen
+  const [ppiSubTab, setPpiSubTab] = useState("asesmen");
 
-  // State Filter Laporan Harian (Ditempatkan paling atas sesuai permintaan)
   const [filterNama, setFilterNama] = useState("");
   const [filterMapel, setFilterMapel] = useState("");
   const [tglMulai, setTglMulai] = useState("");
   const [tglSelesai, setTglSelesai] = useState("");
 
-  // State Data dari Supabase
   const [students, setStudents] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [reports, setReports] = useState<any[]>([]);
@@ -35,11 +32,9 @@ export default function AdminDashboard() {
   const [assessments, setAssessments] = useState<any[]>([]);
   const [ppiList, setPpiList] = useState<any[]>([]);
 
-  // State Modal Detail
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [modalType, setModalType] = useState<string>(""); 
 
-  // State Form Tambah/Edit Siswa
   const [showStudentModal, setShowStudentModal] = useState(false);
   const [editStudentId, setEditStudentId] = useState<string | null>(null);
   const [studentForm, setStudentForm] = useState({
@@ -51,14 +46,12 @@ export default function AdminDashboard() {
     wali_id: null as string | null
   });
 
-  // State Form Edit Role User
   const [showUserModal, setShowUserModal] = useState(false);
   const [editUserId, setEditUserId] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState("wali");
 
   const [message, setMessage] = useState("");
 
-  // Handler Print PDF Laporan (Mencetak sesuai filter yang aktif)
   const handlePrint = useReactToPrint({
     contentRef: componentRef,
   });
@@ -104,7 +97,6 @@ export default function AdminDashboard() {
     if (reportData) {
       setReports(reportData);
 
-      // Grouping Laporan Berdasarkan Tanggal
       const grouped = reportData.reduce((acc: any, report: any) => {
         const dateVal = report.tanggal || (report.created_at ? report.created_at.split('T')[0] : null);
         const dateKey = dateVal || "Tanpa Tanggal";
@@ -139,7 +131,6 @@ export default function AdminDashboard() {
     router.push("/login");
   };
 
-  // --- FILTERED REPORTS (Mendukung filter Nama, Mapel, Rentang Waktu, & Tanggal Tab Terpilih) ---
   const getFilteredReports = () => {
     return reports.filter(r => {
       const matchNama = filterNama ? r.students?.full_name?.toLowerCase().includes(filterNama.toLowerCase()) : true;
@@ -155,7 +146,6 @@ export default function AdminDashboard() {
     });
   };
 
-  // --- CRUD SISWA & PLOTTING GPK/WALI ---
   const handleSaveStudent = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -219,7 +209,6 @@ export default function AdminDashboard() {
     setStudentForm({ full_name: "", nis: "", kelas: "", jenis_kebutuhan_khusus: "", gpk_id: null, wali_id: null });
   };
 
-  // --- EDIT ROLE USER ---
   const handleUpdateRole = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editUserId) return;
@@ -269,7 +258,6 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans">
       <div className="max-w-7xl mx-auto flex flex-col gap-8">
         
-        {/* HEADER UTAMA DENGAN LOGO SEKOLAH & TAGLINE */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white/5 border border-white/10 p-5 md:p-6 rounded-3xl backdrop-blur-xl gap-4 shadow-2xl">
           <div className="flex items-center gap-4 w-full sm:w-auto">
             <div className="p-2.5 bg-white rounded-2xl shadow-md flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 border border-white/20">
@@ -313,7 +301,6 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* TAB NAVIGASI UTAMA */}
         <div className="flex flex-wrap gap-2 border-b border-white/10 pb-4">
           {[
             { id: "siswa", label: "Manajemen Siswa & Plotting", icon: Users },
@@ -340,10 +327,8 @@ export default function AdminDashboard() {
           })}
         </div>
 
-        {/* KONTEN TAB */}
         <div className="transition-all duration-300">
           
-          {/* === TAB 1: MANAJEMEN SISWA & PLOTTING === */}
           {activeTab === "siswa" && (
             <div className="flex flex-col gap-6">
               <div className="flex justify-between items-center">
@@ -398,7 +383,6 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* === TAB 2: MANAJEMEN USER & EDIT ROLE === */}
           {activeTab === "user" && (
             <div className="flex flex-col gap-6">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -431,7 +415,6 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* === TAB 3: REKAPITULASI LAPORAN HARIAN === */}
           {activeTab === "laporan" && (
             <div className="flex flex-col gap-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -440,7 +423,6 @@ export default function AdminDashboard() {
                 </h3>
               </div>
 
-              {/* Panel Filter Laporan Harian */}
               <div className="bg-white/5 p-5 rounded-2xl border border-white/10 space-y-4 shadow-xl">
                 <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
                   <Filter className="w-4 h-4" /> Filter Laporan Harian & Cetak
@@ -503,7 +485,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Panel Grouping Tanggal */}
               <div className="flex flex-col gap-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                   <Calendar className="w-4 h-4 text-emerald-400" /> Pengelompokan Berdasarkan Tanggal:
@@ -529,7 +510,6 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              {/* Grid Laporan Harian Berdasarkan Hasil Filter */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {displayedReports.length === 0 ? (
                   <p className="text-slate-400 text-sm italic col-span-full">Tidak ada laporan harian pada filter yang dipilih.</p>
@@ -548,7 +528,6 @@ export default function AdminDashboard() {
                           <p className="line-clamp-2"><strong className="text-purple-400">Hasil:</strong> {r.hasil_pembelajaran}</p>
                         </div>
 
-                        {/* Indikator Feedback / Tanggapan Wali pada Kartu Admin */}
                         {r.feedback_wali ? (
                           <div className="bg-blue-500/15 border border-blue-500/40 p-3 rounded-xl text-blue-200 text-xs space-y-1 shadow-inner">
                             <p className="font-bold flex items-center gap-1 text-blue-300">
@@ -574,7 +553,6 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              {/* AREA TERSEMBUNYI UNTUK CETAK PDF/PRINT */}
               <div className="hidden">
                 <div ref={componentRef} className="p-8 bg-white text-black font-sans">
                   <div className="text-center border-b-2 border-black pb-4 mb-6">
@@ -623,7 +601,6 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* === TAB 4: MONITORING ASESMEN & PPI === */}
           {activeTab === "ppi" && (
             <div className="flex flex-col gap-6">
               
@@ -646,6 +623,7 @@ export default function AdminDashboard() {
                 </button>
               </div>
 
+              {/* ASESMEN AWAL LENGKAP */}
               {ppiSubTab === "asesmen" && (
                 <div className="flex flex-col gap-6">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -658,19 +636,44 @@ export default function AdminDashboard() {
                     ) : (
                       assessments.map((a) => (
                         <div key={a.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
-                          <div>
-                            <div className="flex justify-between items-center mb-3">
-                              <span className="text-xs px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 font-semibold">Asesmen: {a.tanggal_assessment}</span>
+                          <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 font-semibold">Asesmen Awal</span>
+                              <span className="text-xs text-slate-400">{a.tanggal_assessment || "-"}</span>
                             </div>
-                            <h4 className="text-lg font-bold text-white mb-1">{a.students?.full_name || "Siswa"}</h4>
-                            <p className="text-xs text-slate-400 mb-3 line-clamp-2"><strong>Permasalahan:</strong> {a.permasalahan}</p>
+                            <h4 className="text-lg font-bold text-white mb-1">{a.students?.full_name || "Siswa PDBK"}</h4>
+                            
+                            <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
+                              <p className="line-clamp-2"><strong>Permasalahan:</strong> {a.permasalahan || "-"}</p>
+                              {a.identitas?.kelas && <p><strong>Kelas:</strong> {a.identitas.kelas}</p>}
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-400 pt-1">
+                              <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                                <span className="text-emerald-400 font-bold block">Kelebihan:</span>
+                                <span className="line-clamp-1">{a.profiling?.kelebihan || "-"}</span>
+                              </div>
+                              <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                                <span className="text-red-400 font-bold block">Kekurangan:</span>
+                                <span className="line-clamp-1">{a.profiling?.kekurangan || "-"}</span>
+                              </div>
+                            </div>
+
+                            {a.catatan_psikolog && (
+                              <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 shadow-inner">
+                                <p className="font-bold flex items-center gap-1 text-purple-300">
+                                  <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Psikolog:
+                                </p>
+                                <p className="italic text-slate-200">"{a.catatan_psikolog}"</p>
+                              </div>
+                            )}
                           </div>
 
                           <button 
                             onClick={() => { setSelectedItem(a); setModalType("assessment"); }}
-                            className="w-full bg-purple-600/20 border border-purple-500/30 hover:bg-purple-600/30 text-purple-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all"
+                            className="w-full bg-purple-600/20 border border-purple-500/30 hover:bg-purple-600/30 text-purple-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-4"
                           >
-                            <Eye className="w-4 h-4" /> Periksa Asesmen
+                            <Eye className="w-4 h-4" /> Periksa Asesmen Lengkap
                           </button>
                         </div>
                       ))
@@ -679,6 +682,7 @@ export default function AdminDashboard() {
                 </div>
               )}
 
+              {/* DOKUMEN PPI LENGKAP */}
               {ppiSubTab === "ppi" && (
                 <div className="flex flex-col gap-6">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -693,23 +697,30 @@ export default function AdminDashboard() {
                         <div key={p.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
                           <div>
                             <div className="flex justify-between items-center mb-3">
-                              <span className="text-xs px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-semibold uppercase">{p.status}</span>
+                              <span className="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 font-semibold uppercase">{p.status}</span>
+                              <span className="text-xs text-slate-400">{p.periode_ppi}</span>
                             </div>
                             <h4 className="text-lg font-bold text-white mb-1">{p.students?.full_name || "Siswa"}</h4>
-                            <p className="text-xs text-slate-400 mb-4">Periode: {p.periode_ppi} ({p.tahun_ajaran})</p>
-                            
-                            <div className="space-y-1.5 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
+                            <div className="space-y-1.5 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5 mt-3">
                               <p>TTD GPK: {p.ttd_gpk ? "✅ Selesai" : "⏳ Menunggu"}</p>
                               <p>TTD Psikolog: {p.ttd_psikolog ? "✅ Disetujui" : "⏳ Menunggu"}</p>
                               <p>TTD Orang Tua: {p.ttd_orangtua ? "✅ Selesai" : "⏳ Menunggu"}</p>
                             </div>
+                            {p.catatan_psikolog && (
+                              <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 mt-3 shadow-inner">
+                                <p className="font-bold flex items-center gap-1 text-purple-300">
+                                  <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Psikolog:
+                                </p>
+                                <p className="italic text-slate-200">"{p.catatan_psikolog}"</p>
+                              </div>
+                            )}
                           </div>
 
                           <button 
                             onClick={() => { setSelectedItem(p); setModalType("ppi"); }}
-                            className="w-full bg-blue-600/20 border border-blue-500/30 hover:bg-blue-600/30 text-blue-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all"
+                            className="w-full bg-blue-600/20 border border-blue-500/30 hover:bg-blue-600/30 text-blue-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-4"
                           >
-                            <Eye className="w-4 h-4" /> Periksa Dokumen PPI
+                            <Eye className="w-4 h-4" /> Periksa Dokumen PPI Lengkap
                           </button>
                         </div>
                       ))
@@ -725,7 +736,6 @@ export default function AdminDashboard() {
 
       </div>
 
-      {/* MODAL TAMBAH / EDIT SISWA & PLOTTING */}
       {showStudentModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
           <form onSubmit={handleSaveStudent} className="bg-slate-900 border border-white/20 rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl relative space-y-4">
@@ -755,7 +765,6 @@ export default function AdminDashboard() {
                 <input type="text" value={studentForm.jenis_kebutuhan_khusus} onChange={(e) => setStudentForm({...studentForm, jenis_kebutuhan_khusus: e.target.value})} placeholder="Contoh: Slow Learner / ADHD" className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white mt-1" />
               </div>
 
-              {/* Plotting GPK */}
               <div>
                 <label className="text-xs text-emerald-400 uppercase font-bold">Tautkan Guru Pendamping Khusus (GPK)</label>
                 <select value={studentForm.gpk_id || ""} onChange={(e) => setStudentForm({...studentForm, gpk_id: e.target.value})} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white mt-1">
@@ -766,7 +775,6 @@ export default function AdminDashboard() {
                 </select>
               </div>
 
-              {/* Plotting Wali Siswa */}
               <div>
                 <label className="text-xs text-purple-400 uppercase font-bold">Tautkan Wali Siswa (Orang Tua)</label>
                 <select value={studentForm.wali_id || ""} onChange={(e) => setStudentForm({...studentForm, wali_id: e.target.value})} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white mt-1">
@@ -785,7 +793,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* MODAL EDIT ROLE USER */}
       {showUserModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
           <form onSubmit={handleUpdateRole} className="bg-slate-900 border border-white/20 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl relative space-y-4">
@@ -811,96 +818,274 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* MODAL POPUP DETAIL */}
+      {/* MODAL UNIVERSAL RINCIAN LENGKAP 100% */}
       {selectedItem && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-white/20 rounded-3xl p-6 md:p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
-            <button onClick={() => setSelectedItem(null)} className="absolute top-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-white/20 rounded-3xl p-6 md:p-8 max-w-4xl w-full max-h-[85vh] overflow-y-auto relative shadow-2xl my-auto space-y-6">
+            <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 sm:top-6 sm:right-6 text-slate-400 hover:text-white bg-white/5 p-2 rounded-full hover:bg-red-500/20 hover:text-red-400 transition-all z-10">
               <X className="w-5 h-5" />
             </button>
 
-            {modalType === "report" && (
-              <div className="flex flex-col gap-4">
-                <h3 className="text-xl font-bold text-emerald-400 border-b border-white/10 pb-3">Detail Laporan Harian Pendampingan</h3>
-                <div className="space-y-4 text-sm text-slate-300">
-                  <div className="bg-white/5 p-4 rounded-xl border border-white/5 grid grid-cols-2 gap-3">
-                    <div><span className="text-xs text-slate-500 block">Siswa</span><strong className="text-white">{selectedItem.students?.full_name}</strong></div>
-                    <div><span className="text-xs text-slate-500 block">Mata Pelajaran</span><strong className="text-blue-400">{selectedItem.mata_pelajaran}</strong></div>
-                    <div><span className="text-xs text-slate-500 block">Tanggal</span><span className="text-white">{selectedItem.tanggal}</span></div>
-                    <div><span className="text-xs text-slate-500 block">Kondisi Mood</span><span className="text-emerald-300">{selectedItem.kondisi_mood || "-"}</span></div>
+            <h3 className="text-lg sm:text-xl font-bold text-white uppercase flex items-center gap-2 border-b border-white/10 pb-4 pr-8">
+              {modalType === "report" ? ( <><BookOpen className="text-emerald-400 flex-shrink-0"/> Rincian Lengkap Laporan Harian PDBK</> ) : 
+               modalType === "assessment" ? ( <><BrainCircuit className="text-purple-400 flex-shrink-0"/> Rincian Lengkap Asesmen Awal PDBK</> ) : 
+               ( <><FileText className="text-blue-400 flex-shrink-0"/> Rincian Lengkap Dokumen PPI</> )}
+            </h3>
+
+            <div className="space-y-6 text-sm text-slate-300">
+              {modalType === "report" && (
+                <div className="space-y-4">
+                  <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><span className="block text-xs text-slate-500">Nama Siswa</span><strong className="text-white text-base">{selectedItem.students?.full_name}</strong></div>
+                    <div><span className="block text-xs text-slate-500">Mata Pelajaran</span><strong className="text-blue-400 text-base">{selectedItem.mata_pelajaran}</strong></div>
+                    <div><span className="block text-xs text-slate-500">Tanggal Laporan</span><span className="text-white">{selectedItem.tanggal}</span></div>
+                    <div><span className="block text-xs text-slate-500">Pendamping (GPK)</span><span className="text-purple-400 font-semibold">{selectedItem.gpk_name || "-"}</span></div>
+                    <div><span className="block text-xs text-slate-500">Kondisi Mood Siswa</span><span className="px-3 py-1 bg-white/10 rounded-full text-xs mt-1 inline-block text-amber-300 font-semibold">{selectedItem.kondisi_mood}</span></div>
                   </div>
-                  <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-                    <p><strong>Materi Pembelajaran:</strong><br />{selectedItem.materi_pembelajaran}</p>
-                    <p><strong>Target Capaian:</strong><br />{selectedItem.target_capaian}</p>
-                    <p className="text-emerald-300"><strong>Hasil Pembelajaran:</strong><br />{selectedItem.hasil_pembelajaran}</p>
-                    <p><strong>Catatan Perilaku:</strong><br />{selectedItem.catatan_perilaku || "-"}</p>
-                    <p><strong>Intervensi Pendamping:</strong><br />{selectedItem.intervensi_pendamping || "-"}</p>
+                    
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">Materi Pembelajaran</h4>
+                      <p className="text-white whitespace-pre-wrap">{selectedItem.materi_pembelajaran || "-"}</p>
+                    </div>
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider">Target Capaian</h4>
+                      <p className="text-white whitespace-pre-wrap">{selectedItem.target_capaian || "-"}</p>
+                    </div>
                   </div>
 
-                  {/* Tanggapan/Feedback Wali di dalam Modal Detail Admin */}
-                  <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl text-blue-200 text-xs sm:text-sm space-y-1">
-                    <p className="font-bold flex items-center gap-1.5 text-blue-300 uppercase tracking-wide">
-                      <MessageCircle className="w-4 h-4 text-blue-400" /> Tanggapan / Feedback Wali Siswa:
-                    </p>
+                  <div className="bg-emerald-950/20 p-4 rounded-2xl border border-emerald-900/40 space-y-2">
+                    <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Hasil Pembelajaran</h4>
+                    <p className="text-emerald-100 whitespace-pre-wrap">{selectedItem.hasil_pembelajaran || "-"}</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Catatan Perilaku</h4>
+                      <p className="text-slate-200 whitespace-pre-wrap">{selectedItem.catatan_perilaku || "-"}</p>
+                    </div>
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Intervensi Pendamping</h4>
+                      <p className="text-slate-200 whitespace-pre-wrap">{selectedItem.intervensi_pendamping || "-"}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-2xl space-y-2">
+                    <h4 className="text-xs font-bold text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <MessageCircle className="w-4 h-4 text-blue-400" /> Tanggapan / Feedback Wali Siswa
+                    </h4>
                     {selectedItem.feedback_wali ? (
-                      <p className="italic mt-1 text-slate-100">"{selectedItem.feedback_wali}"</p>
+                      <p className="italic text-slate-100">"{selectedItem.feedback_wali}"</p>
                     ) : (
-                      <p className="text-slate-400 italic">Belum ada tanggapan atau feedback dari wali siswa.</p>
+                      <p className="text-slate-400 italic text-xs">Belum ada tanggapan atau feedback yang dikirimkan oleh wali siswa.</p>
                     )}
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {modalType === "assessment" && (
-              <div className="flex flex-col gap-4">
-                <h3 className="text-xl font-bold text-purple-400 border-b border-white/10 pb-3">Detail Asesmen Awal PDBK</h3>
-                <div className="space-y-4 text-sm text-slate-300">
-                  <div className="bg-white/5 p-4 rounded-xl border border-white/5 grid grid-cols-2 gap-3">
-                    <div><span className="text-xs text-slate-500 block">Siswa</span><strong className="text-white">{selectedItem.students?.full_name}</strong></div>
-                    <div><span className="text-xs text-slate-500 block">Tanggal Asesmen</span><strong className="text-purple-400">{selectedItem.tanggal_assessment}</strong></div>
+              {modalType === "assessment" && (
+                <div className="space-y-4">
+                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><span className="block text-xs text-slate-500">Nama Siswa</span><strong className="text-white text-base">{selectedItem.students?.full_name}</strong></div>
+                    <div><span className="block text-xs text-slate-500">Tanggal Asesmen</span><strong className="text-purple-400 text-base">{selectedItem.tanggal_assessment}</strong></div>
                   </div>
 
                   {selectedItem.identitas && (
-                    <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                      <h4 className="font-bold text-blue-400 text-xs uppercase">1. Identitas Anak</h4>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div>Nama: {selectedItem.identitas.nama_anak || "-"}</div>
-                        <div>Kelas: {selectedItem.identitas.kelas || "-"}</div>
-                        <div>TTL: {selectedItem.identitas.tanggal_lahir || "-"}</div>
-                        <div>Alamat: {selectedItem.identitas.alamat || "-"}</div>
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">1. Identitas Diri Anak</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <div><span className="text-slate-500 block">Nama Anak:</span> <span className="text-white font-medium">{selectedItem.identitas.nama_anak || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Tanggal Lahir:</span> <span className="text-white font-medium">{selectedItem.identitas.tanggal_lahir || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Kelas:</span> <span className="text-white font-medium">{selectedItem.identitas.kelas || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Alamat:</span> <span className="text-white font-medium">{selectedItem.identitas.alamat || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Nama Ibu:</span> <span className="text-white font-medium">{selectedItem.identitas.nama_ibu || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Nama Ayah:</span> <span className="text-white font-medium">{selectedItem.identitas.nama_ayah || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Urutan Kelahiran:</span> <span className="text-white font-medium">{selectedItem.identitas.urutan_kelahiran || "-"}</span></div>
                       </div>
                     </div>
                   )}
 
-                  <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                    <h4 className="font-bold text-slate-400 text-xs uppercase mb-1">Permasalahan yang Dihadapi</h4>
-                    <p>{selectedItem.permasalahan || "-"}</p>
+                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Permasalahan yang Dihadapi Anak</h4>
+                    <p className="text-white whitespace-pre-wrap">{selectedItem.permasalahan || "-"}</p>
                   </div>
+
+                  {selectedItem.metode_hasil && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">Metode & Hasil Assessment</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div><span className="text-slate-500 block">Observasi:</span> <span className="text-white">{selectedItem.metode_hasil.observasi || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Wawancara:</span> <span className="text-white">{selectedItem.metode_hasil.wawancara || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Psikotes:</span> <span className="text-white">{selectedItem.metode_hasil.psikotes || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Data Pendukung:</span> <span className="text-white">{selectedItem.metode_hasil.data_pendukung || "-"}</span></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedItem.profiling && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                      <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider">Profiling Anak</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div><span className="text-emerald-400 font-bold block">Kelebihan:</span> <span className="text-white whitespace-pre-wrap">{selectedItem.profiling.kelebihan || "-"}</span></div>
+                        <div><span className="text-red-400 font-bold block">Kekurangan / Tantangan:</span> <span className="text-white whitespace-pre-wrap">{selectedItem.profiling.kekurangan || "-"}</span></div>
+                        <div><span className="text-blue-400 font-bold block">Hal yang Disukai:</span> <span className="text-white whitespace-pre-wrap">{selectedItem.profiling.disukai || "-"}</span></div>
+                        <div><span className="text-amber-400 font-bold block">Hal yang Tidak Disukai:</span> <span className="text-white whitespace-pre-wrap">{selectedItem.profiling.tidak_disukai || "-"}</span></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedItem.temuan_lapangan && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-4">
+                      <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Temuan Lapangan (5 Aspek)</h4>
+                      
+                      <div className="space-y-1.5 text-xs border-b border-white/5 pb-3">
+                        <strong className="text-blue-300 block">1. Kognitif</strong>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          <div><span className="text-slate-500">Daya Tangkap:</span> {selectedItem.temuan_lapangan.kognitif?.daya_tangkap || "-"}</div>
+                          <div><span className="text-slate-500">Fokus:</span> {selectedItem.temuan_lapangan.kognitif?.fokus || "-"}</div>
+                          <div><span className="text-slate-500">Konsentrasi:</span> {selectedItem.temuan_lapangan.kognitif?.konsentrasi || "-"}</div>
+                          <div><span className="text-slate-500">Mengingat:</span> {selectedItem.temuan_lapangan.kognitif?.mengingat || "-"}</div>
+                          <div><span className="text-slate-500">Membaca:</span> {selectedItem.temuan_lapangan.kognitif?.membaca || "-"}</div>
+                          <div><span className="text-slate-500">Menulis:</span> {selectedItem.temuan_lapangan.kognitif?.menulis || "-"}</div>
+                          <div><span className="text-slate-500">Berhitung:</span> {selectedItem.temuan_lapangan.kognitif?.berhitung || "-"}</div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5 text-xs border-b border-white/5 pb-3">
+                        <strong className="text-purple-300 block">2. Bahasa / Komunikasi</strong>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          <div><span className="text-slate-500">Reseptif:</span> {selectedItem.temuan_lapangan.bahasa?.reseptif || "-"}</div>
+                          <div><span className="text-slate-500">Ekspresif:</span> {selectedItem.temuan_lapangan.bahasa?.ekspresif || "-"}</div>
+                          <div><span className="text-slate-500">Fonologi:</span> {selectedItem.temuan_lapangan.bahasa?.fonologi || "-"}</div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5 text-xs border-b border-white/5 pb-3">
+                        <strong className="text-emerald-300 block">3. Kemandirian</strong>
+                        <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
+                          <div><span className="text-slate-500">Motorik Kasar:</span> {selectedItem.temuan_lapangan.kemandirian?.motorik_kasar || "-"}</div>
+                          <div><span className="text-slate-500">Motorik Halus:</span> {selectedItem.temuan_lapangan.kemandirian?.motorik_halus || "-"}</div>
+                          <div><span className="text-slate-500">Keseimbangan:</span> {selectedItem.temuan_lapangan.kemandirian?.keseimbangan || "-"}</div>
+                          <div><span className="text-slate-500">Kontrol Sendi:</span> {selectedItem.temuan_lapangan.kemandirian?.kontrol_sendi || "-"}</div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+                        <div><strong className="text-amber-300 block">4. Sosial</strong> {selectedItem.temuan_lapangan.sosial?.adaptasi || "-"}</div>
+                        <div><strong className="text-pink-300 block">5. Emosi</strong> {selectedItem.temuan_lapangan.emosi?.kontrol_emosi || "-"}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedItem.catatan_psikolog && (
+                    <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-2xl space-y-2">
+                      <h4 className="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <BrainCircuit className="w-4 h-4 text-purple-400" /> Catatan Profesional Psikolog
+                      </h4>
+                      <p className="italic text-slate-100">"{selectedItem.catatan_psikolog}"</p>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
+              )}
 
-            {modalType === "ppi" && (
-              <div className="flex flex-col gap-4">
-                <h3 className="text-xl font-bold text-blue-400 border-b border-white/10 pb-3">Detail Program Pembelajaran Individual (PPI)</h3>
-                <div className="space-y-4 text-sm text-slate-300">
-                  <div className="bg-white/5 p-4 rounded-xl border border-white/5 flex justify-between items-center">
-                    <div><span className="text-xs text-slate-500 block">Siswa</span><strong className="text-white">{selectedItem.students?.full_name}</strong></div>
-                    <div><span className="text-xs text-slate-500 block">Status Dokumen</span><span className="text-amber-300 font-bold uppercase">{selectedItem.status}</span></div>
+              {modalType === "ppi" && (
+                <div className="space-y-4">
+                  <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div><span className="block text-xs text-slate-500">Nama Siswa</span><strong className="text-white text-base">{selectedItem.students?.full_name}</strong></div>
+                    <div className="text-left sm:text-right"><span className="block text-xs text-slate-500">Status Validasi</span><span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 font-bold rounded-full text-xs uppercase mt-1 inline-block">{selectedItem.status}</span></div>
                   </div>
 
-                  <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                    <p><strong>Wali Kelas:</strong> {selectedItem.wali_kelas || "-"}</p>
-                    <p><strong>Periode:</strong> {selectedItem.periode_ppi} ({selectedItem.tahun_ajaran})</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-xs">
+                    <div><span className="text-slate-500 block">Wali Kelas:</span> <span className="text-white font-medium">{selectedItem.wali_kelas || "-"}</span></div>
+                    <div><span className="text-slate-500 block">Tahun Ajaran:</span> <span className="text-white font-medium">{selectedItem.tahun_ajaran || "-"}</span></div>
+                    <div><span className="text-slate-500 block">Periode PPI:</span> <span className="text-white font-medium">{selectedItem.periode_ppi || "-"}</span></div>
                   </div>
+
+                  {selectedItem.profil_pdbk && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 text-xs">
+                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">1. Profil PDBK</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div><span className="text-slate-500">Nama:</span> {selectedItem.profil_pdbk.nama || "-"}</div>
+                        <div><span className="text-slate-500">Kelas/Usia:</span> {selectedItem.profil_pdbk.kelas_usia || "-"}</div>
+                        <div><span className="text-slate-500">Jenis Kebutuhan:</span> {selectedItem.profil_pdbk.jenis_kebutuhan || "-"}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedItem.kemampuan_saat_ini && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider">2. Tingkat Kemampuan Saat Ini</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div><strong className="text-emerald-400 block mb-1">Kekuatan / Potensi</strong> <p className="text-white whitespace-pre-wrap">{selectedItem.kemampuan_saat_ini.kekuatan || "-"}</p></div>
+                        <div><strong className="text-amber-400 block mb-1">Area Pengembangan</strong> <p className="text-white whitespace-pre-wrap">{selectedItem.kemampuan_saat_ini.area_pengembangan || "-"}</p></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedItem.tujuan_smart && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">3. Tujuan SMART</h4>
+                      <div className="space-y-2 text-xs">
+                        <div><strong className="text-slate-400 block">Jangka Panjang:</strong> <p className="text-white">{selectedItem.tujuan_smart.jangka_panjang || "-"}</p></div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                          <div><strong className="text-slate-400 block">Jangka Pendek 1:</strong> {selectedItem.tujuan_smart.jangka_pendek_1 || "-"}</div>
+                          <div><strong className="text-slate-400 block">Jangka Pendek 2:</strong> {selectedItem.tujuan_smart.jangka_pendek_2 || "-"}</div>
+                          <div><strong className="text-slate-400 block">Jangka Pendek 3:</strong> {selectedItem.tujuan_smart.jangka_pendek_3 || "-"}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedItem.layanan_akomodasi && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-blue-300 uppercase tracking-wider">4. Layanan & Akomodasi Pembelajaran</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <div><strong className="text-slate-400 block">Modifikasi:</strong> {selectedItem.layanan_akomodasi.modifikasi || "-"}</div>
+                        <div><strong className="text-slate-400 block">Media Belajar:</strong> {selectedItem.layanan_akomodasi.media || "-"}</div>
+                        <div><strong className="text-slate-400 block">Komunikasi:</strong> {selectedItem.layanan_akomodasi.komunikasi || "-"}</div>
+                        <div><strong className="text-slate-400 block">Modifikasi Tugas:</strong> {selectedItem.layanan_akomodasi.tugas || "-"}</div>
+                        <div><strong className="text-slate-400 block">Pendamping GPK:</strong> {selectedItem.layanan_akomodasi.pendamping || "-"}</div>
+                        <div><strong className="text-slate-400 block">Kolaborasi:</strong> {selectedItem.layanan_akomodasi.kolaborasi || "-"}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedItem.rencana_evaluasi && selectedItem.rencana_evaluasi.length > 0 && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider">5. Rencana Evaluasi Berkala</h4>
+                      <div className="space-y-2">
+                        {selectedItem.rencana_evaluasi.map((ev: any, idx: number) => (
+                          <div key={idx} className="bg-slate-900 p-3 rounded-xl border border-slate-800 text-xs flex flex-col sm:flex-row justify-between gap-2">
+                            <div><strong className="text-indigo-300">{ev.periode}</strong>: {ev.kegiatan}</div>
+                            <div className="text-amber-400 font-semibold">{ev.status}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Status Tanda Tangan Digital</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">GPK: <span className={selectedItem.ttd_gpk ? "text-emerald-400 font-bold" : "text-amber-400"}>{selectedItem.ttd_gpk ? "✅ Disetujui" : "⏳ Menunggu"}</span></div>
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">Psikolog: <span className={selectedItem.ttd_psikolog ? "text-emerald-400 font-bold" : "text-amber-400"}>{selectedItem.ttd_psikolog ? "✅ Disetujui" : "⏳ Menunggu"}</span></div>
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">Orang Tua: <span className={selectedItem.ttd_orangtua ? "text-emerald-400 font-bold" : "text-amber-400"}>{selectedItem.ttd_orangtua ? "✅ Disetujui" : "⏳ Menunggu"}</span></div>
+                    </div>
+                  </div>
+
+                  {selectedItem.catatan_psikolog && (
+                    <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-2xl space-y-2">
+                      <h4 className="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <BrainCircuit className="w-4 h-4 text-purple-400" /> Catatan Profesional Psikolog
+                      </h4>
+                      <p className="italic text-slate-100">"{selectedItem.catatan_psikolog}"</p>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
-            <button onClick={() => setSelectedItem(null)} className="mt-6 w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-semibold">
-              Tutup Detail
-            </button>
+            <button onClick={() => setSelectedItem(null)} className="mt-6 w-full bg-slate-800 hover:bg-slate-700 transition-colors py-3 rounded-xl font-bold text-white shadow-lg">Tutup Detail</button>
           </div>
         </div>
       )}
