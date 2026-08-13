@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/app/utils/supabase/client";
-import { Users, LogOut, BookOpen, FileText, CheckCircle, Eye, MessageCircle, X, Calendar } from "lucide-react";
+import { Users, LogOut, BookOpen, FileText, CheckCircle, Eye, MessageCircle, X, Calendar, Edit3, Trash2 } from "lucide-react";
 
 export default function WaliDashboard() {
   const router = useRouter();
@@ -23,8 +23,10 @@ export default function WaliDashboard() {
   const [selectedPpi, setSelectedPpi] = useState<any>(null);
   const [selectedReport, setSelectedReport] = useState<any>(null);
   
-  // State untuk Input Feedback Harian
+  // State untuk Input & Edit Feedback Harian
   const [feedbackInput, setFeedbackInput] = useState<{ [key: string]: string }>({});
+  const [editingFeedbackId, setEditingFeedbackId] = useState<string | null>(null);
+  const [editFeedbackText, setEditFeedbackText] = useState("");
 
   useEffect(() => {
     async function checkWaliAuth() {
@@ -139,6 +141,46 @@ export default function WaliDashboard() {
       alert("Gagal mengirim feedback: " + error.message);
     } else {
       alert("Feedback berhasil dikirim ke GPK!");
+      setFeedbackInput({ ...feedbackInput, [reportId]: "" });
+      if (studentId) fetchWaliData(studentId);
+    }
+  };
+
+  const handleUpdateFeedback = async (reportId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!editFeedbackText || editFeedbackText.trim() === "") {
+      alert("Tanggapan tidak boleh kosong.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("daily_reports")
+      .update({ feedback_wali: editFeedbackText })
+      .eq("id", reportId);
+
+    if (error) {
+      alert("Gagal memperbarui feedback: " + error.message);
+    } else {
+      alert("Feedback berhasil diperbarui!");
+      setEditingFeedbackId(null);
+      setEditFeedbackText("");
+      if (studentId) fetchWaliData(studentId);
+    }
+  };
+
+  const handleDeleteFeedback = async (reportId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!confirm("Yakin ingin menghapus tanggapan/feedback ini?")) return;
+
+    const { error } = await supabase
+      .from("daily_reports")
+      .update({ feedback_wali: null })
+      .eq("id", reportId);
+
+    if (error) {
+      alert("Gagal menghapus feedback: " + error.message);
+    } else {
+      alert("Feedback berhasil dihapus.");
       if (studentId) fetchWaliData(studentId);
     }
   };
@@ -318,10 +360,57 @@ export default function WaliDashboard() {
                         <label className="text-xs text-slate-400 flex items-center gap-1 font-semibold">
                           <MessageCircle className="w-3.5 h-3.5 text-blue-400" /> Feedback / Tanggapan Anda:
                         </label>
+                        
                         {r.feedback_wali ? (
-                          <div className="bg-blue-500/10 border border-blue-500/30 p-3 rounded-xl text-blue-200 text-xs italic">
-                            "{r.feedback_wali}"
-                          </div>
+                          editingFeedbackId === r.id ? (
+                            <div className="space-y-2">
+                              <input 
+                                type="text"
+                                value={editFeedbackText}
+                                onChange={(e) => setEditFeedbackText(e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white"
+                              />
+                              <div className="flex gap-2">
+                                <button 
+                                  onClick={(e) => handleUpdateFeedback(r.id, e)}
+                                  className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 rounded-xl text-xs font-semibold shadow-md transition-all"
+                                >
+                                  Simpan
+                                </button>
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); setEditingFeedbackId(null); setEditFeedbackText(""); }}
+                                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-1.5 rounded-xl text-xs font-semibold shadow-md transition-all"
+                                >
+                                  Batal
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-emerald-200 text-xs space-y-2 shadow-inner">
+                              <div className="flex items-start justify-between gap-2">
+                                <p className="font-bold flex items-center gap-1 flex-shrink-0">
+                                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> Feedback Terkirim:
+                                </p>
+                                <div className="flex gap-1">
+                                  <button 
+                                    onClick={(e) => { e.stopPropagation(); setEditingFeedbackId(r.id); setEditFeedbackText(r.feedback_wali); }}
+                                    className="p-1 bg-white/10 hover:bg-white/20 text-white rounded-lg"
+                                    title="Edit Feedback"
+                                  >
+                                    <Edit3 className="w-3 h-3" />
+                                  </button>
+                                  <button 
+                                    onClick={(e) => handleDeleteFeedback(r.id, e)}
+                                    className="p-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg"
+                                    title="Hapus Feedback"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              </div>
+                              <p className="italic">"{r.feedback_wali}"</p>
+                            </div>
+                          )
                         ) : (
                           <div className="space-y-2">
                             <input 
