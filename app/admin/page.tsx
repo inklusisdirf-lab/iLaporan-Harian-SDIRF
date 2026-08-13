@@ -623,7 +623,6 @@ export default function AdminDashboard() {
                 </button>
               </div>
 
-              {/* ASESMEN AWAL LENGKAP */}
               {ppiSubTab === "asesmen" && (
                 <div className="flex flex-col gap-6">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -682,7 +681,6 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {/* DOKUMEN PPI LENGKAP */}
               {ppiSubTab === "ppi" && (
                 <div className="flex flex-col gap-6">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
