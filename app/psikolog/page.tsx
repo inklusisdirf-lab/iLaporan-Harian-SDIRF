@@ -103,6 +103,18 @@ export default function PsikologDashboard() {
     });
   };
 
+  // Aksi Psikolog: Beri/Edit Catatan pada Laporan Harian
+  const handleSaveReportNotes = async (reportId: string) => {
+    const { error } = await supabase.from("daily_reports").update({ catatan_psikolog: catatanPsikologInput }).eq("id", reportId);
+    if (error) alert("Gagal menyimpan catatan: " + error.message);
+    else {
+      setMessage("Catatan psikolog pada laporan harian berhasil disimpan!");
+      fetchPsikologData();
+      setSelectedItem(null);
+      setTimeout(() => setMessage(""), 4000);
+    }
+  };
+
   // Aksi Psikolog: Beri/Edit Catatan pada Asesmen
   const handleSaveAssessmentNotes = async (assessmentId: string) => {
     const { error } = await supabase.from("assessments").update({ catatan_psikolog: catatanPsikologInput }).eq("id", assessmentId);
@@ -393,6 +405,15 @@ export default function PsikologDashboard() {
                         <p className="line-clamp-2"><strong className="text-purple-400">Hasil:</strong> {r.hasil_pembelajaran}</p>
                       </div>
 
+                      {r.catatan_psikolog && (
+                        <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 shadow-inner">
+                          <p className="font-bold flex items-center gap-1 text-purple-300">
+                            <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Anda:
+                          </p>
+                          <p className="italic text-slate-200">"{r.catatan_psikolog}"</p>
+                        </div>
+                      )}
+
                       {r.feedback_wali && (
                         <div className="bg-blue-500/15 border border-blue-500/40 p-3 rounded-xl text-blue-200 text-xs space-y-1 shadow-inner">
                           <p className="font-bold flex items-center gap-1 text-blue-300">
@@ -404,10 +425,10 @@ export default function PsikologDashboard() {
                     </div>
 
                     <button 
-                      onClick={() => { setSelectedItem(r); setModalType("report"); }}
+                      onClick={() => { setSelectedItem(r); setModalType("report"); setCatatanPsikologInput(r.catatan_psikolog || ""); }}
                       className="w-full bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all"
                     >
-                      <Eye className="w-4 h-4 text-emerald-400" /> Lihat Detail Laporan
+                      <Eye className="w-4 h-4 text-emerald-400" /> Periksa & Beri Catatan Laporan
                     </button>
                   </div>
                 ))
@@ -434,7 +455,7 @@ export default function PsikologDashboard() {
 
             <div className="space-y-6 text-sm text-slate-300">
               
-              {/* LAPORAN HARIAN */}
+              {/* LAPORAN HARIAN + FORM CATATAN PSIKOLOG */}
               {modalType === "report" && (
                 <div className="space-y-4">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -480,6 +501,26 @@ export default function PsikologDashboard() {
                       <p className="italic text-slate-100">"{selectedItem.feedback_wali}"</p>
                     </div>
                   )}
+
+                  {/* FORM CATATAN PSIKOLOG UNTUK LAPORAN HARIAN */}
+                  <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-2xl space-y-3">
+                    <h4 className="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <BrainCircuit className="w-4 h-4 text-purple-400" /> Catatan Profesional Psikolog
+                    </h4>
+                    <textarea 
+                      rows={3} 
+                      placeholder="Tuliskan catatan atau masukan klinis terkait laporan harian ini..." 
+                      value={catatanPsikologInput} 
+                      onChange={(e) => setCatatanPsikologInput(e.target.value)} 
+                      className="w-full bg-slate-950 border border-purple-500/40 rounded-xl p-3 text-white text-xs" 
+                    />
+                    <button 
+                      onClick={() => handleSaveReportNotes(selectedItem.id)}
+                      className="bg-purple-600 hover:bg-purple-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2 transition-all"
+                    >
+                      <Save className="w-4 h-4" /> Simpan Catatan Laporan Harian
+                    </button>
+                  </div>
                 </div>
               )}
 
