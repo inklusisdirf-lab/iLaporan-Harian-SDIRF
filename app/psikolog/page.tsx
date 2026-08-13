@@ -577,7 +577,6 @@ export default function PsikologDashboard() {
                   <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 mt-4 space-y-4">
                     <h4 className="font-bold text-slate-400 text-xs uppercase border-b border-white/10 pb-3">Respon & Status Persetujuan Psikolog</h4>
                     
-                    {/* Tombol Aksi Respon Psikolog */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <button 
                         onClick={() => handleUpdatePpiStatus("ACC")}
@@ -613,7 +612,6 @@ export default function PsikologDashboard() {
                       </button>
                     </div>
 
-                    {/* Status Tanda Tangan Stakeholder */}
                     <div className="grid grid-cols-3 gap-3 text-center text-xs pt-2">
                       <div className={`p-3 rounded-xl border ${selectedItem.ttd_gpk ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>
                         <strong className="block mb-1">GPK Pembuat</strong>
