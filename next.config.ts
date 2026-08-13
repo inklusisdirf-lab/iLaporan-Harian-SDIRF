@@ -7,7 +7,8 @@ const withPWA = require('@ducanh2912/next-pwa').default({
 });
 
 const nextConfig: NextConfig = {
-  // Biarkan kosong atau tambahkan konfigurasi standar Next.js jika diperlukan
+  // Tambahkan baris ini sesuai petunjuk error Next.js
+  turbopack: {},
 };
 
 export default withPWA(nextConfig);
