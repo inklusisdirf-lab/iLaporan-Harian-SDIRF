@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/app/utils/supabase/client";
 import { 
   BookOpen, FileText, PlusCircle, LogOut, 
-  BrainCircuit, Save, UserCheck, Edit3, Trash2, X, Eye, Plus, Minus, Users
+  BrainCircuit, Save, UserCheck, Edit3, Trash2, X, Eye, Plus, Minus, Users, MessageCircle
 } from "lucide-react";
 
 export default function GpkDashboard() {
@@ -121,7 +121,6 @@ export default function GpkDashboard() {
     e.preventDefault();
     if (!selectedStudentId) return alert("Pilih siswa terlebih dahulu!");
     
-    // Menyertakan tanggal, gpk_id, serta gpk_name untuk memudahkan filter admin
     const payload = { 
       student_id: selectedStudentId, 
       gpk_id: gpkId, 
@@ -300,7 +299,7 @@ export default function GpkDashboard() {
           </div>
         )}
 
-        {/* TAB UTAMA (SCROLLABLE & TIDAK OVERFLOW) */}
+        {/* TAB UTAMA */}
         <div className="w-full overflow-x-auto scrollbar-none pb-2">
           <div className="flex items-center gap-2.5 border-b border-white/10 pb-2 min-w-max">
             {[
@@ -360,7 +359,6 @@ export default function GpkDashboard() {
                   </label>
                 </div>
 
-                {/* INFORMASI GPK & TANGGAL (READONLY & TANGGAL PILIH) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-950/60 p-4 rounded-2xl border border-white/5">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold text-slate-400 uppercase">Nama GPK (Login)</label>
@@ -454,15 +452,34 @@ export default function GpkDashboard() {
                 ) : (
                   myReports.map((r) => (
                     <div key={r.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
-                      <div>
-                        <div className="flex justify-between items-center mb-3">
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
                           <span className="text-xs px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold">{r.mata_pelajaran}</span>
                           <span className="text-xs text-slate-400">{r.tanggal}</span>
                         </div>
                         <h4 className="text-lg font-bold text-white mb-1">{r.students?.full_name}</h4>
-                        <p className="text-xs text-slate-400 mb-2">GPK: {r.gpk_name || gpkName}</p>
-                        <p className="text-xs text-slate-300 bg-white/5 p-3 rounded-xl mb-3 line-clamp-2"><strong>Materi:</strong> {r.materi_pembelajaran}</p>
+                        <p className="text-xs text-slate-400">GPK: {r.gpk_name || gpkName}</p>
+                        
+                        <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
+                          <p className="line-clamp-1"><strong>Materi:</strong> {r.materi_pembelajaran}</p>
+                          <p className="line-clamp-2"><strong>Hasil:</strong> {r.hasil_pembelajaran}</p>
+                        </div>
+
+                        {/* Indikator Feedback Wali pada Kartu Riwayat */}
+                        {r.feedback_wali ? (
+                          <div className="bg-blue-500/15 border border-blue-500/40 p-3 rounded-xl text-blue-200 text-xs space-y-1 shadow-inner">
+                            <p className="font-bold flex items-center gap-1 text-blue-300">
+                              <MessageCircle className="w-3.5 h-3.5 text-blue-400" /> Tanggapan Wali:
+                            </p>
+                            <p className="italic text-slate-200">"{r.feedback_wali}"</p>
+                          </div>
+                        ) : (
+                          <div className="text-[11px] text-slate-500 italic flex items-center gap-1">
+                            <MessageCircle className="w-3.5 h-3.5 text-slate-600" /> Belum ada tanggapan dari wali.
+                          </div>
+                        )}
                       </div>
+
                       <div className="flex gap-2 pt-2 border-t border-white/10">
                         <button onClick={() => { setSelectedItem(r); setModalType("report"); }} className="flex-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
                           <Eye className="w-4 h-4" /> Detail
@@ -913,6 +930,20 @@ export default function GpkDashboard() {
                         </div>
                         <div><h4 className="text-xs font-bold text-slate-400 uppercase">Intervensi</h4>
                           <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 mt-1 h-full">{selectedItem.intervensi_pendamping || "-"}</div>
+                        </div>
+                      </div>
+
+                      {/* Tanggapan/Feedback Wali di dalam Modal Detail */}
+                      <div>
+                        <h4 className="text-xs font-bold text-blue-400 uppercase flex items-center gap-1.5 mb-1">
+                          <MessageCircle className="w-4 h-4 text-blue-400" /> Tanggapan / Feedback Wali Siswa
+                        </h4>
+                        <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl text-blue-200 text-xs sm:text-sm">
+                          {selectedItem.feedback_wali ? (
+                            <p className="italic">"{selectedItem.feedback_wali}"</p>
+                          ) : (
+                            <p className="text-slate-400 italic">Belum ada tanggapan atau feedback yang dikirimkan oleh wali siswa.</p>
+                          )}
                         </div>
                       </div>
                     </div>
