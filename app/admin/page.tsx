@@ -89,10 +89,12 @@ export default function AdminDashboard() {
     const { data: userData } = await supabase.from("profiles").select("*");
     if (userData) setUsers(userData);
 
+    // PENAMBAHAN .range(0, 4999) UNTUK MENARIK HINGGA 5000 DATA LAPORAN
     const { data: reportData } = await supabase
       .from("daily_reports")
       .select("*, students(full_name)")
-      .order("tanggal", { ascending: false });
+      .order("tanggal", { ascending: false })
+      .range(0, 4999);
     
     if (reportData) {
       setReports(reportData);
@@ -113,16 +115,20 @@ export default function AdminDashboard() {
       }
     }
 
+    // PENAMBAHAN .range(0, 4999) UNTUK ASESMEN
     const { data: assessData } = await supabase
       .from("assessments")
       .select("*, students(full_name)")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(0, 4999);
     if (assessData) setAssessments(assessData);
 
+    // PENAMBAHAN .range(0, 4999) UNTUK PPI
     const { data: ppiData } = await supabase
       .from("ppi")
       .select("*, students(full_name)")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(0, 4999);
     if (ppiData) setPpiList(ppiData);
   };
 
