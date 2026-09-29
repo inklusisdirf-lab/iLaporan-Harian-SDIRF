@@ -94,7 +94,7 @@ export default function AdminDashboard() {
       .from("daily_reports")
       .select("*, students(full_name)")
       .order("tanggal", { ascending: false })
-      .range(0, 4999);
+      .range(0, 499999);
     
     if (reportData) {
       setReports(reportData);
