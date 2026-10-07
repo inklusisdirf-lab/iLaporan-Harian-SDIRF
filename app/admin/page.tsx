@@ -12,6 +12,7 @@ import { useReactToPrint } from "react-to-print";
 export default function AdminDashboard() {
   const router = useRouter();
   const componentRef = useRef(null);
+  const ppiComponentRef = useRef(null); // <-- Ref khusus untuk cetak PPI
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("");
   
@@ -56,6 +57,11 @@ export default function AdminDashboard() {
     contentRef: componentRef,
   });
 
+  // Fungsi cetak khusus untuk Dokumen PPI
+  const handlePrintPpi = useReactToPrint({
+    contentRef: ppiComponentRef,
+  });
+
   useEffect(() => {
     async function checkAdminAuth() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -89,7 +95,6 @@ export default function AdminDashboard() {
     const { data: userData } = await supabase.from("profiles").select("*");
     if (userData) setUsers(userData);
 
-    // PENAMBAHAN .range(0, 4999) UNTUK MENARIK HINGGA 5000 DATA LAPORAN
     const { data: reportData } = await supabase
       .from("daily_reports")
       .select("*, students(full_name)")
@@ -115,7 +120,6 @@ export default function AdminDashboard() {
       }
     }
 
-    // PENAMBAHAN .range(0, 4999) UNTUK ASESMEN
     const { data: assessData } = await supabase
       .from("assessments")
       .select("*, students(full_name)")
@@ -123,7 +127,6 @@ export default function AdminDashboard() {
       .range(0, 4999);
     if (assessData) setAssessments(assessData);
 
-    // PENAMBAHAN .range(0, 4999) UNTUK PPI
     const { data: ppiData } = await supabase
       .from("ppi")
       .select("*, students(full_name)")
@@ -662,7 +665,7 @@ export default function AdminDashboard() {
                                 <span className="text-red-400 font-bold block">Kekurangan:</span>
                                 <span className="line-clamp-1">{a.profiling?.kekurangan || "-"}</span>
                               </div>
-                            </div>
+                          </div>
 
                             {a.catatan_psikolog && (
                               <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 shadow-inner">
@@ -672,15 +675,15 @@ export default function AdminDashboard() {
                                 <p className="italic text-slate-200">"{a.catatan_psikolog}"</p>
                               </div>
                             )}
-                          </div>
-
-                          <button 
-                            onClick={() => { setSelectedItem(a); setModalType("assessment"); }}
-                            className="w-full bg-purple-600/20 border border-purple-500/30 hover:bg-purple-600/30 text-purple-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-4"
-                          >
-                            <Eye className="w-4 h-4" /> Periksa Asesmen Lengkap
-                          </button>
                         </div>
+
+                        <button 
+                          onClick={() => { setSelectedItem(a); setModalType("assessment"); }}
+                          className="w-full bg-purple-600/20 border border-purple-500/30 hover:bg-purple-600/30 text-purple-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-4"
+                        >
+                          <Eye className="w-4 h-4" /> Periksa Asesmen Lengkap
+                        </button>
+                      </div>
                       ))
                     )}
                   </div>
@@ -718,15 +721,15 @@ export default function AdminDashboard() {
                                 <p className="italic text-slate-200">"{p.catatan_psikolog}"</p>
                               </div>
                             )}
-                          </div>
-
-                          <button 
-                            onClick={() => { setSelectedItem(p); setModalType("ppi"); }}
-                            className="w-full bg-blue-600/20 border border-blue-500/30 hover:bg-blue-600/30 text-blue-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-4"
-                          >
-                            <Eye className="w-4 h-4" /> Periksa Dokumen PPI Lengkap
-                          </button>
                         </div>
+
+                        <button 
+                          onClick={() => { setSelectedItem(p); setModalType("ppi"); }}
+                          className="w-full bg-blue-600/20 border border-blue-500/30 hover:bg-blue-600/30 text-blue-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-4"
+                        >
+                          <Eye className="w-4 h-4" /> Periksa Dokumen PPI Lengkap
+                        </button>
+                      </div>
                       ))
                     )}
                   </div>
@@ -1085,6 +1088,63 @@ export default function AdminDashboard() {
                       <p className="italic text-slate-100">"{selectedItem.catatan_psikolog}"</p>
                     </div>
                   )}
+
+                  {/* Tombol Cetak PDF di dalam Modal PPI */}
+                  <div className="pt-4 border-t border-white/10 flex justify-end">
+                    <button 
+                      onClick={() => handlePrintPpi()}
+                      className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition-all"
+                    >
+                      <Printer className="w-4 h-4" /> Download / Cetak PDF Dokumen PPI
+                    </button>
+                  </div>
+
+                  {/* Template Tersembunyi Khusus Cetak PDF PPI */}
+                  <div className="hidden">
+                    <div ref={ppiComponentRef} className="p-8 bg-white text-black font-sans">
+                      <div className="text-center border-b-2 border-black pb-4 mb-6">
+                        <h2 className="text-2xl font-bold uppercase">SD Islam Roushon Fikr Jombang</h2>
+                        <p className="text-sm font-semibold">PROGRAM PEMBELAJARAN INDIVIDUAL (PPI)</p>
+                        <p className="text-xs text-gray-700 mt-1">Periode: <b>{selectedItem.periode_ppi}</b> | Tahun Ajaran: <b>{selectedItem.tahun_ajaran}</b></p>
+                      </div>
+
+                      <div className="space-y-4 text-xs">
+                        <div className="border border-black p-3 rounded">
+                          <p><strong>Nama Siswa:</strong> {selectedItem.students?.full_name}</p>
+                          <p><strong>Wali Kelas:</strong> {selectedItem.wali_kelas || "-"}</p>
+                          <p><strong>Status Dokumen:</strong> {selectedItem.status}</p>
+                        </div>
+
+                        {selectedItem.profil_pdbk && (
+                          <div className="border border-black p-3">
+                            <h3 className="font-bold uppercase mb-1">1. Profil PDBK</h3>
+                            <p>Jenis Kebutuhan: {selectedItem.profil_pdbk.jenis_kebutuhan || "-"}</p>
+                            <p>Kelas/Usia: {selectedItem.profil_pdbk.kelas_usia || "-"}</p>
+                          </div>
+                        )}
+
+                        {selectedItem.tujuan_smart && (
+                          <div className="border border-black p-3">
+                            <h3 className="font-bold uppercase mb-1">2. Tujuan SMART</h3>
+                            <p><strong>Jangka Panjang:</strong> {selectedItem.tujuan_smart.jangka_panjang || "-"}</p>
+                            <p className="mt-1"><strong>Jangka Pendek:</strong></p>
+                            <ul className="list-disc pl-4">
+                              <li>{selectedItem.tujuan_smart.jangka_pendek_1 || "-"}</li>
+                              <li>{selectedItem.tujuan_smart.jangka_pendek_2 || "-"}</li>
+                              <li>{selectedItem.tujuan_smart.jangka_pendek_3 || "-"}</li>
+                            </ul>
+                          </div>
+                        )}
+
+                        <div className="border border-black p-3">
+                          <h3 className="font-bold uppercase mb-1">3. Status Tanda Tangan Digital</h3>
+                          <p>GPK Pendamping: {selectedItem.ttd_gpk ? "✅ Disetujui" : "⏳ Menunggu"}</p>
+                          <p>Psikolog Sekolah: {selectedItem.ttd_psikolog ? "✅ Disetujui" : "⏳ Menunggu"}</p>
+                          <p>Orang Tua / Wali: {selectedItem.ttd_orangtua ? "✅ Disetujui" : "⏳ Menunggu"}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
