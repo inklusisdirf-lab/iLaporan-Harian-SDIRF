@@ -53,7 +53,6 @@ export default function AdminDashboard() {
   const [editUserId, setEditUserId] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState("wali");
 
-  // State untuk Edit Assessment & PPI
   const [showAssessmentEditModal, setShowAssessmentEditModal] = useState(false);
   const [editAssessmentData, setEditAssessmentData] = useState<any>(null);
 
@@ -146,6 +145,7 @@ export default function AdminDashboard() {
       .range(0, 4999);
     if (ppiData) setPpiList(ppiData);
 
+    // Ambil data evaluasi 3 bulanan beserta relasi siswanya
     const { data: evalData } = await supabase
       .from("evaluation_reports")
       .select("*, students(full_name)")
@@ -347,7 +347,6 @@ export default function AdminDashboard() {
   }
 
   const displayedReports = getFilteredReports();
-  const ppiWithEvaluasi = ppiList.filter(p => p.evaluasi_8_aspek);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans">
@@ -865,7 +864,7 @@ export default function AdminDashboard() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <ClipboardCheck className="w-5 h-5 text-teal-400" /> Kelola & Validasi Evaluasi 3 Bulanan PDBK
+                <ClipboardCheck className="w-5 h-5 text-teal-400" /> Kelola & Validasi Evaluasi 3 Bulanan PDBK ({evaluations.length})
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">Pastikan psikolog telah memberikan feedback sebelum admin mengonfirmasi pengiriman ke orang tua.</p>
             </div>
@@ -1306,36 +1305,23 @@ export default function AdminDashboard() {
                 <div className="space-y-4">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                     <div><span className="block text-slate-500">Nama Siswa:</span><strong className="text-white text-sm">{selectedItem.students?.full_name}</strong></div>
-                    <div><span className="block text-slate-500">Guru Pendamping (GPK):</span><strong className="text-teal-400 text-sm">{selectedItem.gpk_name}</strong></div>
+                    <div><span className="block text-slate-500">Guru Pendamping (GPK):</span><strong className="text-teal-400 text-sm">{selectedItem.gpk_name || "-"}</strong></div>
                     <div><span className="block text-slate-500">Lama Pendampingan:</span><span className="text-white">{selectedItem.lama_pendampingan || "-"}</span></div>
                     <div><span className="block text-slate-500">Tanggal Pengisian:</span><span className="text-white">{selectedItem.tanggal_pengisian || "-"}</span></div>
                   </div>
 
                   {/* 8 Aspek Evaluasi Perkembangan */}
-                  {selectedItem.evaluasi_8_aspek && (
-                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-                      <h4 className="text-xs font-bold text-teal-300 uppercase tracking-wider">Evaluasi 8 Aspek Perkembangan</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-blue-400 block">1. Akademik:</strong> {selectedItem.evaluasi_8_aspek.akademik || "-"}</div>
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-purple-400 block">2. Komunikasi & Bahasa:</strong> {selectedItem.evaluasi_8_aspek.komunikasi || "-"}</div>
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-emerald-400 block">3. Motorik Kasar & Halus:</strong> {selectedItem.evaluasi_8_aspek.motorik || "-"}</div>
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-amber-400 block">4. Kemandirian (Self-Help):</strong> {selectedItem.evaluasi_8_aspek.kemandirian || "-"}</div>
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-pink-400 block">5. Sosial & Interaksi:</strong> {selectedItem.evaluasi_8_aspek.sosial || "-"}</div>
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-indigo-400 block">6. Emosi & Perilaku:</strong> {selectedItem.evaluasi_8_aspek.emosi || "-"}</div>
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-teal-400 block">7. Sensorik & Perseptual:</strong> {selectedItem.evaluasi_8_aspek.sensorik || "-"}</div>
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-rose-400 block">8. Keterampilan Vokasional:</strong> {selectedItem.evaluasi_8_aspek.vokasional || "-"}</div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-                      <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider">Catatan & Kesimpulan GPK</h4>
-                      <p className="text-slate-200 whitespace-pre-wrap text-sm">{selectedItem.catatan_gpk || "-"}</p>
-                    </div>
-                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-                      <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Hambatan / Kendala</h4>
-                      <p className="text-slate-200 whitespace-pre-wrap text-sm">{selectedItem.hambatan || "-"}</p>
+                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                    <h4 className="text-xs font-bold text-teal-300 uppercase tracking-wider">Evaluasi 8 Aspek Perkembangan</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-blue-400 block mb-1">1. Akademik:</strong> {selectedItem.evaluasi_8_aspek?.akademik || selectedItem.evaluasi_8_aspek?.aspek_1 || "-"}</div>
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-purple-400 block mb-1">2. Komunikasi & Bahasa:</strong> {selectedItem.evaluasi_8_aspek?.komunikasi || selectedItem.evaluasi_8_aspek?.aspek_2 || "-"}</div>
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-emerald-400 block mb-1">3. Motorik Kasar & Halus:</strong> {selectedItem.evaluasi_8_aspek?.motorik || selectedItem.evaluasi_8_aspek?.aspek_3 || "-"}</div>
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-amber-400 block mb-1">4. Kemandirian (Self-Help):</strong> {selectedItem.evaluasi_8_aspek?.kemandirian || selectedItem.evaluasi_8_aspek?.aspek_4 || "-"}</div>
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-pink-400 block mb-1">5. Sosial & Interaksi:</strong> {selectedItem.evaluasi_8_aspek?.sosial || selectedItem.evaluasi_8_aspek?.aspek_5 || "-"}</div>
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-indigo-400 block mb-1">6. Emosi & Perilaku:</strong> {selectedItem.evaluasi_8_aspek?.emosi || selectedItem.evaluasi_8_aspek?.aspek_6 || "-"}</div>
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-teal-400 block mb-1">7. Sensorik & Perseptual:</strong> {selectedItem.evaluasi_8_aspek?.sensorik || selectedItem.evaluasi_8_aspek?.aspek_7 || "-"}</div>
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-rose-400 block mb-1">8. Keterampilan Vokasional:</strong> {selectedItem.evaluasi_8_aspek?.vokasional || selectedItem.evaluasi_8_aspek?.aspek_8 || "-"}</div>
                     </div>
                   </div>
 
@@ -1376,28 +1362,16 @@ export default function AdminDashboard() {
                         <p><strong>Lama Pendampingan:</strong> {selectedItem.lama_pendampingan || "-"}</p>
                       </div>
 
-                      {selectedItem.evaluasi_8_aspek && (
-                        <div className="border border-black p-3 space-y-1">
-                          <h3 className="font-bold uppercase text-teal-900 border-b border-gray-300 pb-1 mb-2">Evaluasi 8 Aspek Perkembangan</h3>
-                          <p><strong>1. Akademik:</strong> {selectedItem.evaluasi_8_aspek.akademik || "-"}</p>
-                          <p><strong>2. Komunikasi & Bahasa:</strong> {selectedItem.evaluasi_8_aspek.komunikasi || "-"}</p>
-                          <p><strong>3. Motorik Kasar & Halus:</strong> {selectedItem.evaluasi_8_aspek.motorik || "-"}</p>
-                          <p><strong>4. Kemandirian (Self-Help):</strong> {selectedItem.evaluasi_8_aspek.kemandirian || "-"}</p>
-                          <p><strong>5. Sosial & Interaksi:</strong> {selectedItem.evaluasi_8_aspek.sosial || "-"}</p>
-                          <p><strong>6. Emosi & Perilaku:</strong> {selectedItem.evaluasi_8_aspek.emosi || "-"}</p>
-                          <p><strong>7. Sensorik & Perseptual:</strong> {selectedItem.evaluasi_8_aspek.sensorik || "-"}</p>
-                          <p><strong>8. Keterampilan Vokasional:</strong> {selectedItem.evaluasi_8_aspek.vokasional || "-"}</p>
-                        </div>
-                      )}
-
-                      <div className="border border-black p-3 space-y-2">
-                        <h3 className="font-bold uppercase border-b border-gray-300 pb-1">Catatan Kesimpulan GPK</h3>
-                        <p className="whitespace-pre-wrap">{selectedItem.catatan_gpk || "-"}</p>
-                      </div>
-
-                      <div className="border border-black p-3 space-y-2">
-                        <h3 className="font-bold uppercase border-b border-gray-300 pb-1">Hambatan / Kendala yang Dihadapi</h3>
-                        <p className="whitespace-pre-wrap">{selectedItem.hambatan || "-"}</p>
+                      <div className="border border-black p-3 space-y-1.5">
+                        <h3 className="font-bold uppercase text-teal-900 border-b border-gray-300 pb-1 mb-2">Evaluasi 8 Aspek Perkembangan</h3>
+                        <p><strong>1. Akademik:</strong> {selectedItem.evaluasi_8_aspek?.akademik || selectedItem.evaluasi_8_aspek?.aspek_1 || "-"}</p>
+                        <p><strong>2. Komunikasi & Bahasa:</strong> {selectedItem.evaluasi_8_aspek?.komunikasi || selectedItem.evaluasi_8_aspek?.aspek_2 || "-"}</p>
+                        <p><strong>3. Motorik Kasar & Halus:</strong> {selectedItem.evaluasi_8_aspek?.motorik || selectedItem.evaluasi_8_aspek?.aspek_3 || "-"}</p>
+                        <p><strong>4. Kemandirian (Self-Help):</strong> {selectedItem.evaluasi_8_aspek?.kemandirian || selectedItem.evaluasi_8_aspek?.aspek_4 || "-"}</p>
+                        <p><strong>5. Sosial & Interaksi:</strong> {selectedItem.evaluasi_8_aspek?.sosial || selectedItem.evaluasi_8_aspek?.aspek_5 || "-"}</p>
+                        <p><strong>6. Emosi & Perilaku:</strong> {selectedItem.evaluasi_8_aspek?.emosi || selectedItem.evaluasi_8_aspek?.aspek_6 || "-"}</p>
+                        <p><strong>7. Sensorik & Perseptual:</strong> {selectedItem.evaluasi_8_aspek?.sensorik || selectedItem.evaluasi_8_aspek?.aspek_7 || "-"}</p>
+                        <p><strong>8. Keterampilan Vokasional:</strong> {selectedItem.evaluasi_8_aspek?.vokasional || selectedItem.evaluasi_8_aspek?.aspek_8 || "-"}</p>
                       </div>
 
                       <div className="border border-black p-3 space-y-2 bg-gray-50">
