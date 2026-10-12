@@ -17,7 +17,7 @@ export default function GpkDashboard() {
   const [activeTab, setActiveTab] = useState("laporan-harian");
   const [laporanSubTab, setLaporanSubTab] = useState("tambah");
   const [ppiSubTab, setPpiSubTab] = useState("form-asesmen");
-  const [evalSubTab, setEvalSubTab] = useState("form"); // Sub tab untuk Evaluasi 8 Aspek
+  const [evalSubTab, setEvalSubTab] = useState("form"); // Sub tab untuk Evaluasi 3 Bulanan
 
   // State Modal Detail
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -66,7 +66,7 @@ export default function GpkDashboard() {
   ]);
   const [ttdGpk, setTtdGpk] = useState(false);
 
-  // === STATE FORM EVALUASI 8 ASPEK (3 BULANAN) ===
+  // === STATE FORM EVALUASI 3 BULANAN ===
   const [editEvalId, setEditEvalId] = useState<string | null>(null);
   const [lamaPendampingan, setLamaPendampingan] = useState("");
   const [tanggalPengisianEval, setTanggalPengisianEval] = useState(new Date().toISOString().split("T")[0]);
@@ -119,10 +119,10 @@ export default function GpkDashboard() {
     async function checkGpkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/login"); return; }
-       
+      
       const { data: profile } = await supabase.from("profiles").select("id, full_name, role").eq("id", user.id).maybeSingle();
       if (!profile || profile.role !== "gpk") { router.push("/login"); return; }
-       
+      
       setGpkId(profile.id); 
       setGpkName(profile.full_name);
 
@@ -310,7 +310,7 @@ export default function GpkDashboard() {
     else { setMessage("Dokumen PPI berhasil dihapus."); fetchGpkHistory(gpkId); setTimeout(() => setMessage(""), 3000); }
   };
 
-  // === SUBMIT EVALUASI 8 ASPEK ===
+  // === SUBMIT EVALUASI 3 BULANAN ===
   const handleSubmitEvaluation = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedStudentId) return alert("Pilih siswa dampingan terlebih dahulu!");
@@ -328,7 +328,7 @@ export default function GpkDashboard() {
       const { error } = await supabase.from("evaluation_reports").update(payload).eq("id", editEvalId);
       if (error) alert("Gagal memperbarui evaluasi: " + error.message);
       else {
-        setMessage("Evaluasi 8 aspek berhasil diperbarui!");
+        setMessage("Evaluasi 3 bulanan berhasil diperbarui!");
         setEditEvalId(null);
         resetEvalForm();
         fetchGpkHistory(gpkId);
@@ -338,7 +338,7 @@ export default function GpkDashboard() {
       const { error } = await supabase.from("evaluation_reports").insert([payload]);
       if (error) alert("Gagal menyimpan evaluasi: " + error.message);
       else {
-        setMessage("Evaluasi 8 aspek berhasil disimpan!");
+        setMessage("Evaluasi 3 bulanan berhasil disimpan!");
         resetEvalForm();
         fetchGpkHistory(gpkId);
         setTimeout(() => setMessage(""), 4000);
@@ -358,7 +358,7 @@ export default function GpkDashboard() {
   };
 
   const handleDeleteEvaluation = async (id: string) => {
-    if (!confirm("Yakin ingin menghapus data evaluasi 8 aspek ini?")) return;
+    if (!confirm("Yakin ingin menghapus data evaluasi 3 bulanan ini?")) return;
     const { error } = await supabase.from("evaluation_reports").delete().eq("id", id);
     if (error) alert("Gagal menghapus: " + error.message);
     else {
@@ -432,13 +432,13 @@ export default function GpkDashboard() {
           </div>
         )}
 
-        {/* TAB UTAMA (Ditambah Menu Evaluasi 8 Aspek) */}
+        {/* TAB UTAMA */}
         <div className="w-full overflow-x-auto scrollbar-none pb-2">
           <div className="flex items-center gap-2.5 border-b border-white/10 pb-2 min-w-max">
             {[
               { id: "laporan-harian", label: "Laporan Harian PDBK", icon: BookOpen },
               { id: "ppi-asesmen", label: "Asesmen & PPI Detail", icon: FileText },
-              { id: "evaluasi-aspek", label: "Evaluasi 8 Aspek (3 Bulanan)", icon: ClipboardCheck },
+              { id: "evaluasi-aspek", label: "Evaluasi 3 Bulanan", icon: ClipboardCheck },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -470,167 +470,167 @@ export default function GpkDashboard() {
                 </button>
                 <button onClick={() => setLaporanSubTab("riwayat")} className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${laporanSubTab === "riwayat" ? "bg-blue-600 text-white" : "text-slate-400"}`}>📜 Riwayat ({myReports.length})</button>
               </div>
+          </div>
+
+          {laporanSubTab === "tambah" && (
+            <form onSubmit={handleSubmitReport} className="bg-white/5 border border-white/10 p-5 sm:p-8 rounded-3xl backdrop-blur-xl flex flex-col gap-6 shadow-2xl">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                  <PlusCircle className="w-5 h-5 text-blue-400 flex-shrink-0" /> 
+                  <span>{editReportId ? "Edit Laporan Harian Pendampingan" : "Form Input Laporan Harian"}</span>
+                </h3>
+                
+                <label className="flex items-center gap-2 bg-slate-900 border border-blue-500/40 px-3.5 py-2 rounded-xl cursor-pointer shadow-md w-full sm:w-auto">
+                  <input 
+                    type="checkbox" 
+                    checked={isRollingMode} 
+                    onChange={(e) => setIsRollingMode(e.target.checked)} 
+                    className="w-4 h-4 text-blue-600 rounded flex-shrink-0" 
+                  />
+                  <span className="text-xs font-bold text-blue-300 flex items-center gap-1.5 whitespace-nowrap">
+                    <Users className="w-3.5 h-3.5" /> Mode Rolling (Semua Siswa)
+                  </span>
+                </label>
             </div>
 
-            {laporanSubTab === "tambah" && (
-              <form onSubmit={handleSubmitReport} className="bg-white/5 border border-white/10 p-5 sm:p-8 rounded-3xl backdrop-blur-xl flex flex-col gap-6 shadow-2xl">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                    <PlusCircle className="w-5 h-5 text-blue-400 flex-shrink-0" /> 
-                    <span>{editReportId ? "Edit Laporan Harian Pendampingan" : "Form Input Laporan Harian"}</span>
-                  </h3>
-                   
-                  <label className="flex items-center gap-2 bg-slate-900 border border-blue-500/40 px-3.5 py-2 rounded-xl cursor-pointer shadow-md w-full sm:w-auto">
-                    <input 
-                      type="checkbox" 
-                      checked={isRollingMode} 
-                      onChange={(e) => setIsRollingMode(e.target.checked)} 
-                      className="w-4 h-4 text-blue-600 rounded flex-shrink-0" 
-                    />
-                    <span className="text-xs font-bold text-blue-300 flex items-center gap-1.5 whitespace-nowrap">
-                      <Users className="w-3.5 h-3.5" /> Mode Rolling (Semua Siswa)
-                    </span>
-                  </label>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-950/60 p-4 rounded-2xl border border-white/5">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-400 uppercase">Nama GPK (Login)</label>
-                    <input 
-                      type="text" 
-                      value={gpkName} 
-                      disabled 
-                      className="bg-slate-900 border border-slate-800 rounded-xl py-3 px-4 text-slate-300 text-sm w-full cursor-not-allowed font-semibold" 
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-blue-400 uppercase">Tanggal Laporan</label>
-                    <input 
-                      type="date" 
-                      value={tanggalLaporan} 
-                      onChange={(e) => setTanggalLaporan(e.target.value)} 
-                      required 
-                      className="bg-slate-900 border border-blue-500/40 rounded-xl py-3 px-4 text-white text-sm w-full" 
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-400 uppercase">Nama Siswa PDBK</label>
-                    <select value={selectedStudentId} onChange={(e) => setSelectedStudentId(e.target.value)} required className="bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white text-sm w-full">
-                      <option value="">-- Pilih Siswa --</option>
-                      {studentOptionsList.map((s) => (
-                        <option key={s.id} value={s.id}>{s.full_name} ({s.kelas || "Inklusi"})</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-400 uppercase">Mata Pelajaran</label>
-                    <input type="text" placeholder="Contoh: Matematika" value={mataPelajaran} onChange={(e) => setMataPelajaran(e.target.value)} required className="bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white text-sm w-full" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-400 uppercase">Materi Pembelajaran</label>
-                    <textarea rows={3} value={materi} onChange={(e) => setMateri(e.target.value)} required className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-white text-sm w-full" />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-400 uppercase">Target Capaian</label>
-                    <textarea rows={3} value={targetCapaian} onChange={(e) => setTargetCapaian(e.target.value)} required className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-white text-sm w-full" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-emerald-400 uppercase">Hasil Pembelajaran</label>
-                    <textarea rows={3} value={hasilPembelajaran} onChange={(e) => setHasilPembelajaran(e.target.value)} required className="bg-slate-900 border border-emerald-500/40 rounded-xl p-4 text-white text-sm w-full" />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-400 uppercase">Catatan Perilaku</label>
-                    <textarea rows={3} value={catatanPerilaku} onChange={(e) => setCatatanPerilaku(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-white text-sm w-full" />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-slate-400 uppercase">Intervensi Pendamping</label>
-                    <textarea rows={3} value={intervensi} onChange={(e) => setIntervensi(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-white text-sm w-full" />
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-400 uppercase">Kondisi Mood Siswa</label>
-                  <select value={kondisiMood} onChange={(e) => setKondisiMood(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white text-sm w-full">
-                    <option value="Senang / Kooperatif">Senang / Kooperatif</option>
-                    <option value="Kurang Fokus / Bad Mood">Kurang Fokus / Bad Mood</option>
-                    <option value="Butuh Pendampingan Ekstra">Butuh Pendampingan Ekstra</option>
-                  </select>
-                </div>
-
-                <div className="flex gap-4 pt-2">
-                  <button type="submit" className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2">
-                    <Save className="w-5 h-5" /> {editReportId ? "Perbarui Laporan Harian" : "Simpan Laporan Harian"}
-                  </button>
-                  {editReportId && (
-                    <button type="button" onClick={() => { setEditReportId(null); resetReportForm(); }} className="bg-slate-800 hover:bg-slate-700 px-6 rounded-xl text-sm font-semibold">
-                      Batal
-                    </button>
-                  )}
-                </div>
-              </form>
-            )}
-
-            {laporanSubTab === "riwayat" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {myReports.length === 0 ? (
-                  <p className="text-slate-400 text-sm italic col-span-full">Belum ada riwayat laporan harian.</p>
-                ) : (
-                  myReports.map((r) => (
-                    <div key={r.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold">{r.mata_pelajaran}</span>
-                          <span className="text-xs text-slate-400">{r.tanggal}</span>
-                        </div>
-                        <h4 className="text-lg font-bold text-white mb-1">{r.students?.full_name}</h4>
-                        <p className="text-xs text-slate-400">GPK: {r.gpk_name || gpkName}</p>
-                         
-                        <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
-                          <p className="line-clamp-1"><strong>Materi:</strong> {r.materi_pembelajaran}</p>
-                          <p className="line-clamp-2"><strong>Hasil:</strong> {r.hasil_pembelajaran}</p>
-                        </div>
-
-                        {r.feedback_wali ? (
-                          <div className="bg-blue-500/15 border border-blue-500/40 p-3 rounded-xl text-blue-200 text-xs space-y-1 shadow-inner">
-                            <p className="font-bold flex items-center gap-1 text-blue-300">
-                              <MessageCircle className="w-3.5 h-3.5 text-blue-400" /> Tanggapan Wali:
-                            </p>
-                            <p className="italic text-slate-200">"{r.feedback_wali}"</p>
-                          </div>
-                        ) : (
-                          <div className="text-[11px] text-slate-500 italic flex items-center gap-1">
-                            <MessageCircle className="w-3.5 h-3.5 text-slate-600" /> Belum ada tanggapan dari wali.
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex gap-2 pt-2 border-t border-white/10">
-                        <button onClick={() => { setSelectedItem(r); setModalType("report"); }} className="flex-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
-                          <Eye className="w-4 h-4" /> Detail
-                        </button>
-                        <button onClick={() => handleEditReport(r)} className="flex-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
-                          <Edit3 className="w-3.5 h-3.5" /> Edit
-                        </button>
-                        <button onClick={() => handleDeleteReport(r.id)} className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-all">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-950/60 p-4 rounded-2xl border border-white/5">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-slate-400 uppercase">Nama GPK (Login)</label>
+                <input 
+                  type="text" 
+                  value={gpkName} 
+                  disabled 
+                  className="bg-slate-900 border border-slate-800 rounded-xl py-3 px-4 text-slate-300 text-sm w-full cursor-not-allowed font-semibold" 
+                />
               </div>
-            )}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-blue-400 uppercase">Tanggal Laporan</label>
+                <input 
+                  type="date" 
+                  value={tanggalLaporan} 
+                  onChange={(e) => setTanggalLaporan(e.target.value)} 
+                  required 
+                  className="bg-slate-900 border border-blue-500/40 rounded-xl py-3 px-4 text-white text-sm w-full" 
+                />
+              </div>
           </div>
-        )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-slate-400 uppercase">Nama Siswa PDBK</label>
+              <select value={selectedStudentId} onChange={(e) => setSelectedStudentId(e.target.value)} required className="bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white text-sm w-full">
+                <option value="">-- Pilih Siswa --</option>
+                {studentOptionsList.map((s) => (
+                  <option key={s.id} value={s.id}>{s.full_name} ({s.kelas || "Inklusi"})</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-slate-400 uppercase">Mata Pelajaran</label>
+              <input type="text" placeholder="Contoh: Matematika" value={mataPelajaran} onChange={(e) => setMataPelajaran(e.target.value)} required className="bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white text-sm w-full" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-slate-400 uppercase">Materi Pembelajaran</label>
+              <textarea rows={3} value={materi} onChange={(e) => setMateri(e.target.value)} required className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-white text-sm w-full" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-slate-400 uppercase">Target Capaian</label>
+              <textarea rows={3} value={targetCapaian} onChange={(e) => setTargetCapaian(e.target.value)} required className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-white text-sm w-full" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-emerald-400 uppercase">Hasil Pembelajaran</label>
+              <textarea rows={3} value={hasilPembelajaran} onChange={(e) => setHasilPembelajaran(e.target.value)} required className="bg-slate-900 border border-emerald-500/40 rounded-xl p-4 text-white text-sm w-full" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-slate-400 uppercase">Catatan Perilaku</label>
+              <textarea rows={3} value={catatanPerilaku} onChange={(e) => setCatatanPerilaku(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-white text-sm w-full" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-slate-400 uppercase">Intervensi Pendamping</label>
+              <textarea rows={3} value={intervensi} onChange={(e) => setIntervensi(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-white text-sm w-full" />
+            </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold text-slate-400 uppercase">Kondisi Mood Siswa</label>
+          <select value={kondisiMood} onChange={(e) => setKondisiMood(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white text-sm w-full">
+            <option value="Senang / Kooperatif">Senang / Kooperatif</option>
+            <option value="Kurang Fokus / Bad Mood">Kurang Fokus / Bad Mood</option>
+            <option value="Butuh Pendampingan Ekstra">Butuh Pendampingan Ekstra</option>
+        </select>
+        </div>
+
+        <div className="flex gap-4 pt-2">
+          <button type="submit" className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2">
+            <Save className="w-5 h-5" /> {editReportId ? "Perbarui Laporan Harian" : "Simpan Laporan Harian"}
+          </button>
+          {editReportId && (
+            <button type="button" onClick={() => { setEditReportId(null); resetReportForm(); }} className="bg-slate-800 hover:bg-slate-700 px-6 rounded-xl text-sm font-semibold">
+              Batal
+            </button>
+          )}
+      </div>
+    </form>
+  )}
+
+  {laporanSubTab === "riwayat" && (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {myReports.length === 0 ? (
+        <p className="text-slate-400 text-sm italic col-span-full">Belum ada riwayat laporan harian.</p>
+      ) : (
+        myReports.map((r) => (
+          <div key={r.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-xs px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold">{r.mata_pelajaran}</span>
+                <span className="text-xs text-slate-400">{r.tanggal}</span>
+              </div>
+              <h4 className="text-lg font-bold text-white mb-1">{r.students?.full_name}</h4>
+              <p className="text-xs text-slate-400">GPK: {r.gpk_name || gpkName}</p>
+               
+              <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
+                <p className="line-clamp-1"><strong>Materi:</strong> {r.materi_pembelajaran}</p>
+                <p className="line-clamp-2"><strong>Hasil:</strong> {r.hasil_pembelajaran}</p>
+              </div>
+
+              {r.feedback_wali ? (
+                <div className="bg-blue-500/15 border border-blue-500/40 p-3 rounded-xl text-blue-200 text-xs space-y-1 shadow-inner">
+                  <p className="font-bold flex items-center gap-1 text-blue-300">
+                    <MessageCircle className="w-3.5 h-3.5 text-blue-400" /> Tanggapan Wali:
+                  </p>
+                  <p className="italic text-slate-200">"{r.feedback_wali}"</p>
+                </div>
+              ) : (
+                <div className="text-[11px] text-slate-500 italic flex items-center gap-1">
+                  <MessageCircle className="w-3.5 h-3.5 text-slate-600" /> Belum ada tanggapan dari wali.
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2 pt-2 border-t border-white/10">
+              <button onClick={() => { setSelectedItem(r); setModalType("report"); }} className="flex-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
+                <Eye className="w-4 h-4" /> Detail
+              </button>
+              <button onClick={() => handleEditReport(r)} className="flex-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
+                <Edit3 className="w-3.5 h-3.5" /> Edit
+              </button>
+              <button onClick={() => handleDeleteReport(r.id)} className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-all">
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  )}
+</div>
+)}
 
         {/* === TAB 2: ASESMEN & PPI DETAIL === */}
         {activeTab === "ppi-asesmen" && (
@@ -1044,13 +1044,13 @@ export default function GpkDashboard() {
           </div>
         )}
 
-        {/* === TAB 3: EVALUASI 8 ASPEK (3 BULANAN) === */}
+        {/* === TAB 3: EVALUASI 3 BULANAN === */}
         {activeTab === "evaluasi-aspek" && (
           <div className="flex flex-col gap-6">
             <div className="w-full overflow-x-auto scrollbar-none pb-1">
               <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-max">
                 <button onClick={() => { setEditEvalId(null); resetEvalForm(); setEvalSubTab("form"); }} className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${evalSubTab === "form" ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white" : "text-slate-400"}`}>
-                  {editEvalId ? "✏️ Edit Evaluasi 8 Aspek" : "+ Form Evaluasi 8 Aspek"}
+                  {editEvalId ? "✏️ Edit Evaluasi 3 Bulanan" : "+ Form Evaluasi 3 Bulanan"}
                 </button>
                 <button onClick={() => setEvalSubTab("riwayat")} className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${evalSubTab === "riwayat" ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white" : "text-slate-400"}`}>
                   📊 Riwayat Evaluasi ({myEvaluations.length})
@@ -1063,7 +1063,7 @@ export default function GpkDashboard() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                     <ClipboardCheck className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                    <span>{editEvalId ? "Edit Evaluasi Berkala 8 Aspek" : "Form Evaluasi Berkala 8 Aspek (Triwulanan)"}</span>
+                    <span>{editEvalId ? "Edit Evaluasi Berkala 3 Bulanan" : "Form Evaluasi Berkala 3 Bulanan"}</span>
                   </h3>
                    
                   <label className="flex items-center gap-2 bg-slate-900 border border-blue-500/40 px-3.5 py-2 rounded-xl cursor-pointer shadow-md w-full sm:w-auto">
@@ -1104,7 +1104,7 @@ export default function GpkDashboard() {
                   </div>
                 </div>
 
-                {/* 8 ASPEK DENGAN 2 ISIAN (KONDISI AWAL & KONDISI SEKARANG) */}
+                {/* ASPEK EVALUASI */}
                 <div className="space-y-6">
                   
                   {/* 1. SENSORI MOTORIK */}
@@ -1271,7 +1271,7 @@ export default function GpkDashboard() {
 
                 <div className="flex gap-4 pt-4">
                   <button type="submit" className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2">
-                    <Save className="w-5 h-5" /> {editEvalId ? "Perbarui Evaluasi 8 Aspek" : "Simpan Evaluasi 8 Aspek"}
+                    <Save className="w-5 h-5" /> {editEvalId ? "Perbarui Evaluasi 3 Bulanan" : "Simpan Evaluasi 3 Bulanan"}
                   </button>
                   {editEvalId && (
                     <button type="button" onClick={() => { setEditEvalId(null); resetEvalForm(); }} className="bg-slate-800 hover:bg-slate-700 px-6 rounded-xl text-sm font-semibold">
@@ -1285,13 +1285,13 @@ export default function GpkDashboard() {
             {evalSubTab === "riwayat" && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {myEvaluations.length === 0 ? (
-                  <p className="text-slate-400 text-sm italic col-span-full">Belum ada riwayat evaluasi 8 aspek.</p>
+                  <p className="text-slate-400 text-sm italic col-span-full">Belum ada riwayat evaluasi 3 bulanan.</p>
                 ) : (
                   myEvaluations.map((item) => (
                     <div key={item.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                          <span className="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 font-semibold">Evaluasi 8 Aspek</span>
+                          <span className="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 font-semibold">Evaluasi 3 Bulanan</span>
                           <span className="text-xs text-slate-400">{item.tanggal_pengisian}</span>
                         </div>
                         <h4 className="text-lg font-bold text-white mb-1">{item.students?.full_name || "Siswa"}</h4>
@@ -1340,12 +1340,12 @@ export default function GpkDashboard() {
               <h3 className="text-lg sm:text-xl font-bold text-white uppercase flex items-center gap-2 border-b border-white/10 pb-4 pr-8">
                 {modalType === "report" ? ( <><BookOpen className="text-blue-400 flex-shrink-0"/> Rincian Lengkap Laporan Harian PDBK</> ) : 
                  modalType === "assessment" ? ( <><BrainCircuit className="text-purple-400 flex-shrink-0"/> Rincian Lengkap Asesmen Awal PDBK</> ) : 
-                 modalType === "evaluation" ? ( <><ClipboardCheck className="text-blue-400 flex-shrink-0"/> Rincian Evaluasi 8 Aspek (3 Bulanan)</> ) :
+                 modalType === "evaluation" ? ( <><ClipboardCheck className="text-blue-400 flex-shrink-0"/> Rincian Evaluasi 3 Bulanan</> ) :
                  ( <><FileText className="text-emerald-400 flex-shrink-0"/> Rincian Lengkap Dokumen PPI</> )}
               </h3>
 
               <div className="space-y-6 text-sm text-slate-300">
-                {/* DETAIL EVALUASI 8 ASPEK */}
+                {/* DETAIL EVALUASI 3 BULANAN */}
                 {modalType === "evaluation" && (
                   <div className="space-y-4">
                     <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
@@ -1382,7 +1382,6 @@ export default function GpkDashboard() {
                     )}
                   </div>
                 )}
-                {/* (Modal lain tetap seperti sebelumnya) */}
               </div>
 
               <button onClick={() => setSelectedItem(null)} className="mt-6 w-full bg-slate-800 hover:bg-slate-700 transition-colors py-3 rounded-xl font-bold text-white shadow-lg">Tutup Detail</button>
