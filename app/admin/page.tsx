@@ -146,7 +146,6 @@ export default function AdminDashboard() {
       .range(0, 4999);
     if (ppiData) setPpiList(ppiData);
 
-    // Ambil data evaluasi 3 bulanan
     const { data: evalData } = await supabase
       .from("evaluation_reports")
       .select("*, students(full_name)")
@@ -176,7 +175,6 @@ export default function AdminDashboard() {
 
   const handleSaveStudent = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const payload = {
       full_name: studentForm.full_name,
       nis: studentForm.nis || null,
@@ -269,7 +267,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Handler Delete Asesmen
   const handleDeleteAssessment = async (id: string) => {
     if (!confirm("Yakin ingin menghapus data asesmen awal ini?")) return;
     const { error } = await supabase.from("assessments").delete().eq("id", id);
@@ -281,7 +278,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Handler Save/Update Asesmen
   const handleSaveAssessment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editAssessmentData) return;
@@ -304,7 +300,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Handler Delete PPI
   const handleDeletePpi = async (id: string) => {
     if (!confirm("Yakin ingin menghapus dokumen PPI ini?")) return;
     const { error } = await supabase.from("ppi").delete().eq("id", id);
@@ -316,7 +311,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Handler Save/Update PPI & Evaluasi 8 Aspek
   const handleSavePpi = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editPpiData) return;
@@ -1313,13 +1307,36 @@ export default function AdminDashboard() {
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                     <div><span className="block text-slate-500">Nama Siswa:</span><strong className="text-white text-sm">{selectedItem.students?.full_name}</strong></div>
                     <div><span className="block text-slate-500">Guru Pendamping (GPK):</span><strong className="text-teal-400 text-sm">{selectedItem.gpk_name}</strong></div>
-                    <div><span className="block text-slate-500">Lama Pendampingan:</span><span className="text-white">{selectedItem.lama_pendampingan}</span></div>
-                    <div><span className="block text-slate-500">Tanggal Pengisian:</span><span className="text-white">{selectedItem.tanggal_pengisian}</span></div>
+                    <div><span className="block text-slate-500">Lama Pendampingan:</span><span className="text-white">{selectedItem.lama_pendampingan || "-"}</span></div>
+                    <div><span className="block text-slate-500">Tanggal Pengisian:</span><span className="text-white">{selectedItem.tanggal_pengisian || "-"}</span></div>
                   </div>
 
-                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-                    <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider">Catatan & Evaluasi GPK</h4>
-                    <p className="text-slate-200 whitespace-pre-wrap">{selectedItem.catatan_gpk || "-"}</p>
+                  {/* 8 Aspek Evaluasi Perkembangan */}
+                  {selectedItem.evaluasi_8_aspek && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                      <h4 className="text-xs font-bold text-teal-300 uppercase tracking-wider">Evaluasi 8 Aspek Perkembangan</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-blue-400 block">1. Akademik:</strong> {selectedItem.evaluasi_8_aspek.akademik || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-purple-400 block">2. Komunikasi & Bahasa:</strong> {selectedItem.evaluasi_8_aspek.komunikasi || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-emerald-400 block">3. Motorik Kasar & Halus:</strong> {selectedItem.evaluasi_8_aspek.motorik || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-amber-400 block">4. Kemandirian (Self-Help):</strong> {selectedItem.evaluasi_8_aspek.kemandirian || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-pink-400 block">5. Sosial & Interaksi:</strong> {selectedItem.evaluasi_8_aspek.sosial || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-indigo-400 block">6. Emosi & Perilaku:</strong> {selectedItem.evaluasi_8_aspek.emosi || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-teal-400 block">7. Sensorik & Perseptual:</strong> {selectedItem.evaluasi_8_aspek.sensorik || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-rose-400 block">8. Keterampilan Vokasional:</strong> {selectedItem.evaluasi_8_aspek.vokasional || "-"}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                      <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider">Catatan & Kesimpulan GPK</h4>
+                      <p className="text-slate-200 whitespace-pre-wrap text-sm">{selectedItem.catatan_gpk || "-"}</p>
+                    </div>
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                      <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Hambatan / Kendala</h4>
+                      <p className="text-slate-200 whitespace-pre-wrap text-sm">{selectedItem.hambatan || "-"}</p>
+                    </div>
                   </div>
 
                   <div className="bg-purple-950/20 p-4 rounded-2xl border border-purple-900/40 space-y-3">
@@ -1327,11 +1344,69 @@ export default function AdminDashboard() {
                       <BrainCircuit className="w-4 h-4 text-purple-400" /> Feedback Psikolog Sekolah
                     </h4>
                     {selectedItem.feedback_psikolog ? (
-                      <p className="italic text-purple-200">"{selectedItem.feedback_psikolog}"</p>
+                      <p className="italic text-purple-200 text-sm">"{selectedItem.feedback_psikolog}"</p>
                     ) : (
                       <p className="text-slate-400 italic text-xs">Psikolog belum memberikan feedback untuk evaluasi ini.</p>
                     )}
                   </div>
+
+                  {/* --- TOMBOL PRINT & HIDDEN COMPONENT --- */}
+                  <div className="pt-4 border-t border-white/10 flex justify-end">
+                    <button 
+                      onClick={() => handlePrintEvaluasi()}
+                      className="bg-teal-600 hover:bg-teal-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition-all"
+                    >
+                      <Printer className="w-4 h-4" /> Download / Cetak Laporan Evaluasi
+                    </button>
+                  </div>
+
+                  <div className="hidden">
+                    <div ref={evaluasiComponentRef} className="p-8 bg-white text-black font-sans text-xs space-y-4">
+                      <div className="text-center border-b-2 border-black pb-4 mb-4">
+                        <h2 className="text-xl font-bold uppercase">SD Islam Roushon Fikr Jombang</h2>
+                        <p className="text-sm font-semibold">LAPORAN EVALUASI PERKEMBANGAN 3 BULANAN</p>
+                        <p className="text-[11px] text-gray-700 mt-1">
+                          Tanggal Pengisian: <b>{selectedItem.tanggal_pengisian || "-"}</b>
+                        </p>
+                      </div>
+
+                      <div className="border border-black p-3 rounded space-y-1">
+                        <p><strong>Nama Siswa:</strong> {selectedItem.students?.full_name || "-"}</p>
+                        <p><strong>Guru Pendamping (GPK):</strong> {selectedItem.gpk_name || "-"}</p>
+                        <p><strong>Lama Pendampingan:</strong> {selectedItem.lama_pendampingan || "-"}</p>
+                      </div>
+
+                      {selectedItem.evaluasi_8_aspek && (
+                        <div className="border border-black p-3 space-y-1">
+                          <h3 className="font-bold uppercase text-teal-900 border-b border-gray-300 pb-1 mb-2">Evaluasi 8 Aspek Perkembangan</h3>
+                          <p><strong>1. Akademik:</strong> {selectedItem.evaluasi_8_aspek.akademik || "-"}</p>
+                          <p><strong>2. Komunikasi & Bahasa:</strong> {selectedItem.evaluasi_8_aspek.komunikasi || "-"}</p>
+                          <p><strong>3. Motorik Kasar & Halus:</strong> {selectedItem.evaluasi_8_aspek.motorik || "-"}</p>
+                          <p><strong>4. Kemandirian (Self-Help):</strong> {selectedItem.evaluasi_8_aspek.kemandirian || "-"}</p>
+                          <p><strong>5. Sosial & Interaksi:</strong> {selectedItem.evaluasi_8_aspek.sosial || "-"}</p>
+                          <p><strong>6. Emosi & Perilaku:</strong> {selectedItem.evaluasi_8_aspek.emosi || "-"}</p>
+                          <p><strong>7. Sensorik & Perseptual:</strong> {selectedItem.evaluasi_8_aspek.sensorik || "-"}</p>
+                          <p><strong>8. Keterampilan Vokasional:</strong> {selectedItem.evaluasi_8_aspek.vokasional || "-"}</p>
+                        </div>
+                      )}
+
+                      <div className="border border-black p-3 space-y-2">
+                        <h3 className="font-bold uppercase border-b border-gray-300 pb-1">Catatan Kesimpulan GPK</h3>
+                        <p className="whitespace-pre-wrap">{selectedItem.catatan_gpk || "-"}</p>
+                      </div>
+
+                      <div className="border border-black p-3 space-y-2">
+                        <h3 className="font-bold uppercase border-b border-gray-300 pb-1">Hambatan / Kendala yang Dihadapi</h3>
+                        <p className="whitespace-pre-wrap">{selectedItem.hambatan || "-"}</p>
+                      </div>
+
+                      <div className="border border-black p-3 space-y-2 bg-gray-50">
+                        <h3 className="font-bold uppercase border-b border-gray-300 pb-1 text-purple-900">Feedback Psikolog Sekolah</h3>
+                        <p className="italic whitespace-pre-wrap">"{selectedItem.feedback_psikolog || "Belum ada feedback."}"</p>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               )}
 
