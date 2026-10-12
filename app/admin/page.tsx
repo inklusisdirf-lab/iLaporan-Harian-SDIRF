@@ -145,7 +145,6 @@ export default function AdminDashboard() {
       .range(0, 4999);
     if (ppiData) setPpiList(ppiData);
 
-    // Ambil data evaluasi 3 bulanan beserta relasi siswanya
     const { data: evalData } = await supabase
       .from("evaluation_reports")
       .select("*, students(full_name)")
@@ -1130,58 +1129,46 @@ export default function AdminDashboard() {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div>
-                    <label className="text-slate-400 block mb-1">1. Akademik</label>
+                    <label className="text-slate-400 block mb-1">1. Perkembangan Sensori Motorik</label>
                     <input 
                       type="text" 
-                      value={editPpiData.evaluasi_8_aspek?.akademik || ""} 
+                      value={editPpiData.evaluasi_8_aspek?.sensori_motorik || editPpiData.evaluasi_8_aspek?.akademik || ""} 
                       onChange={(e) => setEditPpiData({
                         ...editPpiData, 
-                        evaluasi_8_aspek: { ...editPpiData.evaluasi_8_aspek, akademik: e.target.value }
+                        evaluasi_8_aspek: { ...editPpiData.evaluasi_8_aspek, sensori_motorik: e.target.value }
                       })} 
                       className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white" 
                     />
                   </div>
                   <div>
-                    <label className="text-slate-400 block mb-1">2. Komunikasi & Bahasa</label>
+                    <label className="text-slate-400 block mb-1">2. Kognitif</label>
                     <input 
                       type="text" 
-                      value={editPpiData.evaluasi_8_aspek?.komunikasi || ""} 
+                      value={editPpiData.evaluasi_8_aspek?.kognitif || editPpiData.evaluasi_8_aspek?.komunikasi || ""} 
                       onChange={(e) => setEditPpiData({
                         ...editPpiData, 
-                        evaluasi_8_aspek: { ...editPpiData.evaluasi_8_aspek, komunikasi: e.target.value }
+                        evaluasi_8_aspek: { ...editPpiData.evaluasi_8_aspek, kognitif: e.target.value }
                       })} 
                       className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white" 
                     />
                   </div>
                   <div>
-                    <label className="text-slate-400 block mb-1">3. Motorik Kasar & Halus</label>
+                    <label className="text-slate-400 block mb-1">3. Bahasa</label>
                     <input 
                       type="text" 
-                      value={editPpiData.evaluasi_8_aspek?.motorik || ""} 
+                      value={editPpiData.evaluasi_8_aspek?.bahasa || editPpiData.evaluasi_8_aspek?.motorik || ""} 
                       onChange={(e) => setEditPpiData({
                         ...editPpiData, 
-                        evaluasi_8_aspek: { ...editPpiData.evaluasi_8_aspek, motorik: e.target.value }
+                        evaluasi_8_aspek: { ...editPpiData.evaluasi_8_aspek, bahasa: e.target.value }
                       })} 
                       className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white" 
                     />
                   </div>
                   <div>
-                    <label className="text-slate-400 block mb-1">4. Kemandirian (Self-Help)</label>
+                    <label className="text-slate-400 block mb-1">4. Sosial</label>
                     <input 
                       type="text" 
-                      value={editPpiData.evaluasi_8_aspek?.kemandirian || ""} 
-                      onChange={(e) => setEditPpiData({
-                        ...editPpiData, 
-                        evaluasi_8_aspek: { ...editPpiData.evaluasi_8_aspek, kemandirian: e.target.value }
-                      })} 
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white" 
-                    />
-                  </div>
-                  <div>
-                    <label className="text-slate-400 block mb-1">5. Sosial & Interaksi</label>
-                    <input 
-                      type="text" 
-                      value={editPpiData.evaluasi_8_aspek?.sosial || ""} 
+                      value={editPpiData.evaluasi_8_aspek?.sosial || editPpiData.evaluasi_8_aspek?.kemandirian || ""} 
                       onChange={(e) => setEditPpiData({
                         ...editPpiData, 
                         evaluasi_8_aspek: { ...editPpiData.evaluasi_8_aspek, sosial: e.target.value }
@@ -1190,10 +1177,10 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div>
-                    <label className="text-slate-400 block mb-1">6. Emosi & Perilaku</label>
+                    <label className="text-slate-400 block mb-1">5. Emosi</label>
                     <input 
                       type="text" 
-                      value={editPpiData.evaluasi_8_aspek?.emosi || ""} 
+                      value={editPpiData.evaluasi_8_aspek?.emosi || editPpiData.evaluasi_8_aspek?.sosial_aspek || ""} 
                       onChange={(e) => setEditPpiData({
                         ...editPpiData, 
                         evaluasi_8_aspek: { ...editPpiData.evaluasi_8_aspek, emosi: e.target.value }
@@ -1202,25 +1189,37 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div>
-                    <label className="text-slate-400 block mb-1">7. Sensorik & Perseptual</label>
+                    <label className="text-slate-400 block mb-1">6. Kemampuan Membaca</label>
                     <input 
                       type="text" 
-                      value={editPpiData.evaluasi_8_aspek?.sensorik || ""} 
+                      value={editPpiData.evaluasi_8_aspek?.membaca || editPpiData.evaluasi_8_aspek?.emosi || ""} 
                       onChange={(e) => setEditPpiData({
                         ...editPpiData, 
-                        evaluasi_8_aspek: { ...editPpiData.evaluasi_8_aspek, sensorik: e.target.value }
+                        evaluasi_8_aspek: { ...editPpiData.evaluasi_8_aspek, membaca: e.target.value }
                       })} 
                       className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white" 
                     />
                   </div>
                   <div>
-                    <label className="text-slate-400 block mb-1">8. Keterampilan Vokasional</label>
+                    <label className="text-slate-400 block mb-1">7. Kemampuan Menulis</label>
                     <input 
                       type="text" 
-                      value={editPpiData.evaluasi_8_aspek?.vokasional || ""} 
+                      value={editPpiData.evaluasi_8_aspek?.menulis || editPpiData.evaluasi_8_aspek?.sensorik || ""} 
                       onChange={(e) => setEditPpiData({
                         ...editPpiData, 
-                        evaluasi_8_aspek: { ...editPpiData.evaluasi_8_aspek, vokasional: e.target.value }
+                        evaluasi_8_aspek: { ...editPpiData.evaluasi_8_aspek, menulis: e.target.value }
+                      })} 
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 block mb-1">8. Kemampuan Berhitung</label>
+                    <input 
+                      type="text" 
+                      value={editPpiData.evaluasi_8_aspek?.berhitung || editPpiData.evaluasi_8_aspek?.vokasional || ""} 
+                      onChange={(e) => setEditPpiData({
+                        ...editPpiData, 
+                        evaluasi_8_aspek: { ...editPpiData.evaluasi_8_aspek, berhitung: e.target.value }
                       })} 
                       className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white" 
                     />
@@ -1311,17 +1310,58 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* 8 Aspek Evaluasi Perkembangan */}
-                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-                    <h4 className="text-xs font-bold text-teal-300 uppercase tracking-wider">Evaluasi 8 Aspek Perkembangan</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-blue-400 block mb-1">1. Akademik:</strong> {selectedItem.evaluasi_8_aspek?.akademik || selectedItem.evaluasi_8_aspek?.aspek_1 || "-"}</div>
-                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-purple-400 block mb-1">2. Komunikasi & Bahasa:</strong> {selectedItem.evaluasi_8_aspek?.komunikasi || selectedItem.evaluasi_8_aspek?.aspek_2 || "-"}</div>
-                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-emerald-400 block mb-1">3. Motorik Kasar & Halus:</strong> {selectedItem.evaluasi_8_aspek?.motorik || selectedItem.evaluasi_8_aspek?.aspek_3 || "-"}</div>
-                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-amber-400 block mb-1">4. Kemandirian (Self-Help):</strong> {selectedItem.evaluasi_8_aspek?.kemandirian || selectedItem.evaluasi_8_aspek?.aspek_4 || "-"}</div>
-                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-pink-400 block mb-1">5. Sosial & Interaksi:</strong> {selectedItem.evaluasi_8_aspek?.sosial || selectedItem.evaluasi_8_aspek?.aspek_5 || "-"}</div>
-                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-indigo-400 block mb-1">6. Emosi & Perilaku:</strong> {selectedItem.evaluasi_8_aspek?.emosi || selectedItem.evaluasi_8_aspek?.aspek_6 || "-"}</div>
-                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-teal-400 block mb-1">7. Sensorik & Perseptual:</strong> {selectedItem.evaluasi_8_aspek?.sensorik || selectedItem.evaluasi_8_aspek?.aspek_7 || "-"}</div>
-                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-rose-400 block mb-1">8. Keterampilan Vokasional:</strong> {selectedItem.evaluasi_8_aspek?.vokasional || selectedItem.evaluasi_8_aspek?.aspek_8 || "-"}</div>
+                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-4">
+                    <h4 className="text-xs font-bold text-teal-300 uppercase tracking-wider">Evaluasi 8 Aspek Perkembangan & Indikator</h4>
+                    <div className="grid grid-cols-1 gap-3 text-xs">
+                      
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                        <strong className="text-blue-400 block">1. Perkembangan Sensori Motorik</strong>
+                        <p className="text-slate-300 text-[11px] italic">Indikator: Kemampuan motorik halus, motorik kasar, keseimbangan, kepekaan.</p>
+                        <p className="text-white pt-1">{selectedItem.evaluasi_8_aspek?.sensori_motorik || selectedItem.evaluasi_8_aspek?.akademik || "-"}</p>
+                      </div>
+
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                        <strong className="text-purple-400 block">2. Kognitif</strong>
+                        <p className="text-slate-300 text-[11px] italic">Indikator: Daya tangkap, fokus, daya ingat.</p>
+                        <p className="text-white pt-1">{selectedItem.evaluasi_8_aspek?.kognitif || selectedItem.evaluasi_8_aspek?.komunikasi || "-"}</p>
+                      </div>
+
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                        <strong className="text-emerald-400 block">3. Bahasa</strong>
+                        <p className="text-slate-300 text-[11px] italic">Indikator: Reseptif, ekspresif, komunikasi dua arah, fonologi.</p>
+                        <p className="text-white pt-1">{selectedItem.evaluasi_8_aspek?.bahasa || selectedItem.evaluasi_8_aspek?.motorik || "-"}</p>
+                      </div>
+
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                        <strong className="text-amber-400 block">4. Sosial</strong>
+                        <p className="text-slate-300 text-[11px] italic">Indikator: Kemampuan berinteraksi, inisiatif dalam menjalin interaksi.</p>
+                        <p className="text-white pt-1">{selectedItem.evaluasi_8_aspek?.sosial || selectedItem.evaluasi_8_aspek?.kemandirian || "-"}</p>
+                      </div>
+
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                        <strong className="text-pink-400 block">5. Emosi</strong>
+                        <p className="text-slate-300 text-[11px] italic">Indikator: Kondisi emosi anak selama ini.</p>
+                        <p className="text-white pt-1">{selectedItem.evaluasi_8_aspek?.emosi || selectedItem.evaluasi_8_aspek?.sosial_aspek || "-"}</p>
+                      </div>
+
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                        <strong className="text-indigo-400 block">6. Kemampuan Membaca</strong>
+                        <p className="text-slate-300 text-[11px] italic">Indikator: Capaian anak dalam aktivitas membaca.</p>
+                        <p className="text-white pt-1">{selectedItem.evaluasi_8_aspek?.membaca || selectedItem.evaluasi_8_aspek?.emosi_aspek || "-"}</p>
+                      </div>
+
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                        <strong className="text-teal-400 block">7. Kemampuan Menulis</strong>
+                        <p className="text-slate-300 text-[11px] italic">Indikator: Capaian dan kondisi anak terkait dengan kemampuan menulis.</p>
+                        <p className="text-white pt-1">{selectedItem.evaluasi_8_aspek?.menulis || selectedItem.evaluasi_8_aspek?.sensorik || "-"}</p>
+                      </div>
+
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                        <strong className="text-rose-400 block">8. Kemampuan Berhitung</strong>
+                        <p className="text-slate-300 text-[11px] italic">Indikator: Capaian anak dalam aktivitas pelajaran berhitung.</p>
+                        <p className="text-white pt-1">{selectedItem.evaluasi_8_aspek?.berhitung || selectedItem.evaluasi_8_aspek?.vokasional || "-"}</p>
+                      </div>
+
                     </div>
                   </div>
 
@@ -1362,16 +1402,19 @@ export default function AdminDashboard() {
                         <p><strong>Lama Pendampingan:</strong> {selectedItem.lama_pendampingan || "-"}</p>
                       </div>
 
-                      <div className="border border-black p-3 space-y-1.5">
-                        <h3 className="font-bold uppercase text-teal-900 border-b border-gray-300 pb-1 mb-2">Evaluasi 8 Aspek Perkembangan</h3>
-                        <p><strong>1. Akademik:</strong> {selectedItem.evaluasi_8_aspek?.akademik || selectedItem.evaluasi_8_aspek?.aspek_1 || "-"}</p>
-                        <p><strong>2. Komunikasi & Bahasa:</strong> {selectedItem.evaluasi_8_aspek?.komunikasi || selectedItem.evaluasi_8_aspek?.aspek_2 || "-"}</p>
-                        <p><strong>3. Motorik Kasar & Halus:</strong> {selectedItem.evaluasi_8_aspek?.motorik || selectedItem.evaluasi_8_aspek?.aspek_3 || "-"}</p>
-                        <p><strong>4. Kemandirian (Self-Help):</strong> {selectedItem.evaluasi_8_aspek?.kemandirian || selectedItem.evaluasi_8_aspek?.aspek_4 || "-"}</p>
-                        <p><strong>5. Sosial & Interaksi:</strong> {selectedItem.evaluasi_8_aspek?.sosial || selectedItem.evaluasi_8_aspek?.aspek_5 || "-"}</p>
-                        <p><strong>6. Emosi & Perilaku:</strong> {selectedItem.evaluasi_8_aspek?.emosi || selectedItem.evaluasi_8_aspek?.aspek_6 || "-"}</p>
-                        <p><strong>7. Sensorik & Perseptual:</strong> {selectedItem.evaluasi_8_aspek?.sensorik || selectedItem.evaluasi_8_aspek?.aspek_7 || "-"}</p>
-                        <p><strong>8. Keterampilan Vokasional:</strong> {selectedItem.evaluasi_8_aspek?.vokasional || selectedItem.evaluasi_8_aspek?.aspek_8 || "-"}</p>
+                      <div className="border border-black p-3 space-y-2">
+                        <h3 className="font-bold uppercase text-teal-900 border-b border-gray-300 pb-1 mb-2">Evaluasi 8 Aspek Perkembangan & Indikator</h3>
+                        
+                        <div className="space-y-2">
+                          <p><strong>1. Perkembangan Sensori Motorik:</strong><br/>{selectedItem.evaluasi_8_aspek?.sensori_motorik || selectedItem.evaluasi_8_aspek?.akademik || "-"}</p>
+                          <p><strong>2. Kognitif:</strong><br/>{selectedItem.evaluasi_8_aspek?.kognitif || selectedItem.evaluasi_8_aspek?.komunikasi || "-"}</p>
+                          <p><strong>3. Bahasa:</strong><br/>{selectedItem.evaluasi_8_aspek?.bahasa || selectedItem.evaluasi_8_aspek?.motorik || "-"}</p>
+                          <p><strong>4. Sosial:</strong><br/>{selectedItem.evaluasi_8_aspek?.sosial || selectedItem.evaluasi_8_aspek?.kemandirian || "-"}</p>
+                          <p><strong>5. Emosi:</strong><br/>{selectedItem.evaluasi_8_aspek?.emosi || selectedItem.evaluasi_8_aspek?.sosial_aspek || "-"}</p>
+                          <p><strong>6. Kemampuan Membaca:</strong><br/>{selectedItem.evaluasi_8_aspek?.membaca || selectedItem.evaluasi_8_aspek?.emosi_aspek || "-"}</p>
+                          <p><strong>7. Kemampuan Menulis:</strong><br/>{selectedItem.evaluasi_8_aspek?.menulis || selectedItem.evaluasi_8_aspek?.sensorik || "-"}</p>
+                          <p><strong>8. Kemampuan Berhitung:</strong><br/>{selectedItem.evaluasi_8_aspek?.berhitung || selectedItem.evaluasi_8_aspek?.vokasional || "-"}</p>
+                        </div>
                       </div>
 
                       <div className="border border-black p-3 space-y-2 bg-gray-50">
@@ -1569,14 +1612,14 @@ export default function AdminDashboard() {
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
                       <h4 className="text-xs font-bold text-teal-300 uppercase tracking-wider">6. Evaluasi 8 Aspek (3 Bulanan)</h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-blue-400 block">1. Akademik:</strong> {selectedItem.evaluasi_8_aspek.akademik || "-"}</div>
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-purple-400 block">2. Komunikasi & Bahasa:</strong> {selectedItem.evaluasi_8_aspek.komunikasi || "-"}</div>
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-emerald-400 block">3. Motorik Kasar & Halus:</strong> {selectedItem.evaluasi_8_aspek.motorik || "-"}</div>
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-amber-400 block">4. Kemandirian (Self-Help):</strong> {selectedItem.evaluasi_8_aspek.kemandirian || "-"}</div>
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-pink-400 block">5. Sosial & Interaksi:</strong> {selectedItem.evaluasi_8_aspek.sosial || "-"}</div>
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-indigo-400 block">6. Emosi & Perilaku:</strong> {selectedItem.evaluasi_8_aspek.emosi || "-"}</div>
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-teal-400 block">7. Sensorik & Perseptual:</strong> {selectedItem.evaluasi_8_aspek.sensorik || "-"}</div>
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-rose-400 block">8. Keterampilan Vokasional / Khusus:</strong> {selectedItem.evaluasi_8_aspek.vokasional || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-blue-400 block">1. Sensori Motorik:</strong> {selectedItem.evaluasi_8_aspek.sensori_motorik || selectedItem.evaluasi_8_aspek.akademik || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-purple-400 block">2. Kognitif:</strong> {selectedItem.evaluasi_8_aspek.kognitif || selectedItem.evaluasi_8_aspek.komunikasi || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-emerald-400 block">3. Bahasa:</strong> {selectedItem.evaluasi_8_aspek.bahasa || selectedItem.evaluasi_8_aspek.motorik || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-amber-400 block">4. Sosial:</strong> {selectedItem.evaluasi_8_aspek.sosial || selectedItem.evaluasi_8_aspek.kemandirian || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-pink-400 block">5. Emosi:</strong> {selectedItem.evaluasi_8_aspek.emosi || selectedItem.evaluasi_8_aspek.sosial_aspek || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-indigo-400 block">6. Membaca:</strong> {selectedItem.evaluasi_8_aspek.membaca || selectedItem.evaluasi_8_aspek.emosi_aspek || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-teal-400 block">7. Menulis:</strong> {selectedItem.evaluasi_8_aspek.menulis || selectedItem.evaluasi_8_aspek.sensorik || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-rose-400 block">8. Berhitung:</strong> {selectedItem.evaluasi_8_aspek.berhitung || selectedItem.evaluasi_8_aspek.vokasional || "-"}</div>
                       </div>
                     </div>
                   )}
@@ -1678,14 +1721,14 @@ export default function AdminDashboard() {
                       {selectedItem.evaluasi_8_aspek && (
                         <div className="border border-black p-3 space-y-1">
                           <h3 className="font-bold uppercase text-teal-900 border-b border-gray-300 pb-1">6. Evaluasi 8 Aspek (3 Bulanan)</h3>
-                          <p><strong>1. Akademik:</strong> {selectedItem.evaluasi_8_aspek.akademik || "-"}</p>
-                          <p><strong>2. Komunikasi & Bahasa:</strong> {selectedItem.evaluasi_8_aspek.komunikasi || "-"}</p>
-                          <p><strong>3. Motorik Kasar & Halus:</strong> {selectedItem.evaluasi_8_aspek.motorik || "-"}</p>
-                          <p><strong>4. Kemandirian (Self-Help):</strong> {selectedItem.evaluasi_8_aspek.kemandirian || "-"}</p>
-                          <p><strong>5. Sosial & Interaksi:</strong> {selectedItem.evaluasi_8_aspek.sosial || "-"}</p>
-                          <p><strong>6. Emosi & Perilaku:</strong> {selectedItem.evaluasi_8_aspek.emosi || "-"}</p>
-                          <p><strong>7. Sensorik & Perseptual:</strong> {selectedItem.evaluasi_8_aspek.sensorik || "-"}</p>
-                          <p><strong>8. Keterampilan Vokasional / Khusus:</strong> {selectedItem.evaluasi_8_aspek.vokasional || "-"}</p>
+                          <p><strong>1. Sensori Motorik:</strong> {selectedItem.evaluasi_8_aspek.sensori_motorik || selectedItem.evaluasi_8_aspek.akademik || "-"}</p>
+                          <p><strong>2. Kognitif:</strong> {selectedItem.evaluasi_8_aspek.kognitif || selectedItem.evaluasi_8_aspek.komunikasi || "-"}</p>
+                          <p><strong>3. Bahasa:</strong> {selectedItem.evaluasi_8_aspek.bahasa || selectedItem.evaluasi_8_aspek.motorik || "-"}</p>
+                          <p><strong>4. Sosial:</strong> {selectedItem.evaluasi_8_aspek.sosial || selectedItem.evaluasi_8_aspek.kemandirian || "-"}</p>
+                          <p><strong>5. Emosi:</strong> {selectedItem.evaluasi_8_aspek.emosi || selectedItem.evaluasi_8_aspek.sosial_aspek || "-"}</p>
+                          <p><strong>6. Membaca:</strong> {selectedItem.evaluasi_8_aspek.membaca || selectedItem.evaluasi_8_aspek.emosi_aspek || "-"}</p>
+                          <p><strong>7. Menulis:</strong> {selectedItem.evaluasi_8_aspek.menulis || selectedItem.evaluasi_8_aspek.sensorik || "-"}</p>
+                          <p><strong>8. Berhitung:</strong> {selectedItem.evaluasi_8_aspek.berhitung || selectedItem.evaluasi_8_aspek.vokasional || "-"}</p>
                         </div>
                       )}
 
