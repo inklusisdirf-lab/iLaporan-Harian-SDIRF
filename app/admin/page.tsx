@@ -1068,6 +1068,22 @@ export default function AdminDashboard() {
                     </div>
                   )}
 
+                  {selectedItem.evaluasi_8_aspek && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                      <h4 className="text-xs font-bold text-teal-300 uppercase tracking-wider">6. Evaluasi 8 Aspek (3 Bulanan)</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-blue-400 block">1. Akademik:</strong> {selectedItem.evaluasi_8_aspek.akademik || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-purple-400 block">2. Komunikasi & Bahasa:</strong> {selectedItem.evaluasi_8_aspek.komunikasi || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-emerald-400 block">3. Motorik Kasar & Halus:</strong> {selectedItem.evaluasi_8_aspek.motorik || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-amber-400 block">4. Kemandirian (Self-Help):</strong> {selectedItem.evaluasi_8_aspek.kemandirian || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-pink-400 block">5. Sosial & Interaksi:</strong> {selectedItem.evaluasi_8_aspek.sosial || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-indigo-400 block">6. Emosi & Perilaku:</strong> {selectedItem.evaluasi_8_aspek.emosi || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-teal-400 block">7. Sensorik & Perseptual:</strong> {selectedItem.evaluasi_8_aspek.sensorik || "-"}</div>
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800"><strong className="text-rose-400 block">8. Keterampilan Vokasional / Khusus:</strong> {selectedItem.evaluasi_8_aspek.vokasional || "-"}</div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
                     <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Status Tanda Tangan Digital</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
@@ -1086,7 +1102,6 @@ export default function AdminDashboard() {
                     </div>
                   )}
 
-                  {/* Tombol Cetak PDF di dalam Modal PPI */}
                   <div className="pt-4 border-t border-white/10 flex justify-end">
                     <button 
                       onClick={() => handlePrintPpi()}
@@ -1096,10 +1111,8 @@ export default function AdminDashboard() {
                     </button>
                   </div>
 
-                  {/* Template Tersembunyi Khusus Cetak PDF PPI (LENGKAP SEMUA FIELD) */}
                   <div className="hidden">
                     <div ref={ppiComponentRef} className="p-8 bg-white text-black font-sans text-xs space-y-4">
-                      {/* KOP SURAT */}
                       <div className="text-center border-b-2 border-black pb-4 mb-4">
                         <h2 className="text-xl font-bold uppercase">SD Islam Roushon Fikr Jombang</h2>
                         <p className="text-sm font-semibold">PROGRAM PEMBELAJARAN INDIVIDUAL (PPI)</p>
@@ -1108,14 +1121,12 @@ export default function AdminDashboard() {
                         </p>
                       </div>
 
-                      {/* INFORMASI UTAMA */}
                       <div className="border border-black p-3 rounded space-y-1">
                         <p><strong>Nama Siswa:</strong> {selectedItem.students?.full_name || "-"}</p>
                         <p><strong>Wali Kelas:</strong> {selectedItem.wali_kelas || "-"}</p>
                         <p><strong>Status Dokumen:</strong> {selectedItem.status || "-"}</p>
                       </div>
 
-                      {/* 1. PROFIL PDBK */}
                       {selectedItem.profil_pdbk && (
                         <div className="border border-black p-3 space-y-1">
                           <h3 className="font-bold uppercase text-blue-900 border-b border-gray-300 pb-1">1. Profil PDBK</h3>
@@ -1125,7 +1136,6 @@ export default function AdminDashboard() {
                         </div>
                       )}
 
-                      {/* 2. KEMAMPUAN SAAT INI */}
                       {selectedItem.kemampuan_saat_ini && (
                         <div className="border border-black p-3 space-y-1">
                           <h3 className="font-bold uppercase text-purple-900 border-b border-gray-300 pb-1">2. Tingkat Kemampuan Saat Ini</h3>
@@ -1134,7 +1144,6 @@ export default function AdminDashboard() {
                         </div>
                       )}
 
-                      {/* 3. TUJUAN SMART */}
                       {selectedItem.tujuan_smart && (
                         <div className="border border-black p-3 space-y-1">
                           <h3 className="font-bold uppercase text-emerald-900 border-b border-gray-300 pb-1">3. Tujuan SMART</h3>
@@ -1148,7 +1157,6 @@ export default function AdminDashboard() {
                         </div>
                       )}
 
-                      {/* 4. LAYANAN & AKOMODASI */}
                       {selectedItem.layanan_akomodasi && (
                         <div className="border border-black p-3 space-y-1">
                           <h3 className="font-bold uppercase text-indigo-900 border-b border-gray-300 pb-1">4. Layanan & Akomodasi Pembelajaran</h3>
@@ -1161,7 +1169,6 @@ export default function AdminDashboard() {
                         </div>
                       )}
 
-                      {/* 5. RENCANA EVALUASI BERKALA */}
                       {selectedItem.rencana_evaluasi && selectedItem.rencana_evaluasi.length > 0 && (
                         <div className="border border-black p-3 space-y-1">
                           <h3 className="font-bold uppercase text-amber-900 border-b border-gray-300 pb-1">5. Rencana Evaluasi Berkala</h3>
@@ -1171,7 +1178,20 @@ export default function AdminDashboard() {
                         </div>
                       )}
 
-                      {/* CATATAN PSIKOLOG */}
+                      {selectedItem.evaluasi_8_aspek && (
+                        <div className="border border-black p-3 space-y-1">
+                          <h3 className="font-bold uppercase text-teal-900 border-b border-gray-300 pb-1">6. Evaluasi 8 Aspek (3 Bulanan)</h3>
+                          <p><strong>1. Akademik:</strong> {selectedItem.evaluasi_8_aspek.akademik || "-"}</p>
+                          <p><strong>2. Komunikasi & Bahasa:</strong> {selectedItem.evaluasi_8_aspek.komunikasi || "-"}</p>
+                          <p><strong>3. Motorik Kasar & Halus:</strong> {selectedItem.evaluasi_8_aspek.motorik || "-"}</p>
+                          <p><strong>4. Kemandirian (Self-Help):</strong> {selectedItem.evaluasi_8_aspek.kemandirian || "-"}</p>
+                          <p><strong>5. Sosial & Interaksi:</strong> {selectedItem.evaluasi_8_aspek.sosial || "-"}</p>
+                          <p><strong>6. Emosi & Perilaku:</strong> {selectedItem.evaluasi_8_aspek.emosi || "-"}</p>
+                          <p><strong>7. Sensorik & Perseptual:</strong> {selectedItem.evaluasi_8_aspek.sensorik || "-"}</p>
+                          <p><strong>8. Keterampilan Vokasional / Khusus:</strong> {selectedItem.evaluasi_8_aspek.vokasional || "-"}</p>
+                        </div>
+                      )}
+
                       {selectedItem.catatan_psikolog && (
                         <div className="border border-black p-3 space-y-1">
                           <h3 className="font-bold uppercase text-gray-900 border-b border-gray-300 pb-1">Catatan Psikolog</h3>
@@ -1179,7 +1199,6 @@ export default function AdminDashboard() {
                         </div>
                       )}
 
-                      {/* STATUS TANDA TANGAN */}
                       <div className="border border-black p-3 space-y-1">
                         <h3 className="font-bold uppercase border-b border-gray-300 pb-1">Status Tanda Tangan Digital</h3>
                         <p>GPK Pendamping: {selectedItem.ttd_gpk ? "✅ Disetujui" : "⏳ Menunggu"}</p>
