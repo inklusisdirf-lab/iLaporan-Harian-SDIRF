@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/app/utils/supabase/client";
 import { 
   ShieldCheck, LogOut, Users, BookOpen, FileText, 
-  UserCheck, Printer, Plus, Trash2, Edit3, X, Eye, Save, BrainCircuit, Calendar, Filter, MessageCircle
+  UserCheck, Printer, Plus, Trash2, Edit3, X, Eye, Save, BrainCircuit, Calendar, Filter, MessageCircle, ClipboardCheck
 } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 
@@ -33,6 +33,7 @@ export default function AdminDashboard() {
 
   const [assessments, setAssessments] = useState<any[]>([]);
   const [ppiList, setPpiList] = useState<any[]>([]);
+  const [evaluations, setEvaluations] = useState<any[]>([]);
 
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [modalType, setModalType] = useState<string>(""); 
@@ -144,6 +145,13 @@ export default function AdminDashboard() {
       .order("created_at", { ascending: false })
       .range(0, 4999);
     if (ppiData) setPpiList(ppiData);
+
+    // Ambil data evaluasi 3 bulanan
+    const { data: evalData } = await supabase
+      .from("evaluation_reports")
+      .select("*, students(full_name)")
+      .order("created_at", { ascending: false });
+    if (evalData) setEvaluations(evalData);
   };
 
   const handleLogout = async () => {
@@ -401,7 +409,7 @@ export default function AdminDashboard() {
             { id: "user", label: "Manajemen User & Role", icon: UserCheck },
             { id: "laporan", label: "Rekapitulasi Laporan Harian", icon: BookOpen },
             { id: "ppi", label: "Monitoring Asesmen & PPI", icon: FileText },
-            { id: "evaluasi", label: "Evaluasi 8 Aspek (3 Bulanan)", icon: BrainCircuit },
+            { id: "evaluasi", label: "Evaluasi 3 Bulanan", icon: ClipboardCheck },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -856,82 +864,100 @@ export default function AdminDashboard() {
       </div>
     )}
 
-    {/* --- KONTEN TAB: EVALUASI 8 ASPEK (3 BULANAN) --- */}
+    {/* --- KONTEN TAB: EVALUASI 3 BULANAN --- */}
     {activeTab === "evaluasi" && (
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            <BrainCircuit className="w-5 h-5 text-teal-400" /> Rekapitulasi Evaluasi 8 Aspek (3 Bulanan) ({ppiWithEvaluasi.length})
-          </h3>
-          <button 
-            onClick={() => handlePrintEvaluasi()}
-            className="bg-teal-600 hover:bg-teal-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition-all"
-          >
-            <Printer className="w-4 h-4" /> Cetak Rekap Evaluasi Aspek
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {ppiWithEvaluasi.length === 0 ? (
-            <p className="text-slate-400 text-sm italic col-span-full">Belum ada data Evaluasi 8 Aspek yang diisi pada dokumen PPI.</p>
-          ) : (
-            ppiWithEvaluasi.map((p) => (
-              <div key={p.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 font-semibold uppercase">Evaluasi Aspek</span>
-                    <span className="text-xs text-slate-400">{p.periode_ppi || "-"}</span>
-                  </div>
-                  <h4 className="text-lg font-bold text-white mb-1">{p.students?.full_name || "Siswa"}</h4>
-                  
-                  <div className="space-y-2 text-xs text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    <p><strong className="text-blue-400">1. Akademik:</strong> {p.evaluasi_8_aspek?.akademik || "-"}</p>
-                    <p><strong className="text-purple-400">2. Komunikasi:</strong> {p.evaluasi_8_aspek?.komunikasi || "-"}</p>
-                    <p><strong className="text-emerald-400">3. Motorik:</strong> {p.evaluasi_8_aspek?.motorik || "-"}</p>
-                    <p className="text-slate-400 italic text-[11px] pt-1">+ 5 Aspek perkembangan lainnya tercatat di rincian.</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => { setSelectedItem(p); setModalType("ppi"); }}
-                    className="flex-1 bg-teal-600/20 border border-teal-500/30 hover:bg-teal-600/30 text-teal-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all"
-                  >
-                    <Eye className="w-3.5 h-3.5" /> Detail Aspek
-                  </button>
-                  <button 
-                    onClick={() => { setEditPpiData(p); setShowPpiEditModal(true); }}
-                    className="flex-1 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all"
-                  >
-                    <Edit3 className="w-3.5 h-3.5" /> Edit Aspek
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Hidden Print Template untuk Evaluasi 8 Aspek */}
-        <div className="hidden">
-          <div ref={evaluasiComponentRef} className="p-8 bg-white text-black font-sans text-xs space-y-4">
-            <div className="text-center border-b-2 border-black pb-4 mb-4">
-              <h2 className="text-xl font-bold uppercase">SD Islam Roushon Fikr Jombang</h2>
-              <p className="text-sm font-semibold">REKAPITULASI EVALUASI 8 ASPEK (3 BULANAN)</p>
-              <p className="text-[11px] text-gray-600 mt-1">Dicetak pada: {new Date().toLocaleDateString("id-ID")}</p>
+        <div className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-xl shadow-xl space-y-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <ClipboardCheck className="w-5 h-5 text-teal-400" /> Kelola & Validasi Evaluasi 3 Bulanan PDBK
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">Pastikan psikolog telah memberikan feedback sebelum admin mengonfirmasi pengiriman ke orang tua.</p>
             </div>
-            {ppiWithEvaluasi.map((p, idx) => (
-              <div key={idx} className="border border-black p-4 rounded space-y-2 mb-4">
-                <h3 className="font-bold text-sm bg-gray-100 p-2 border-b border-black">Siswa: {p.students?.full_name} | Periode: {p.periode_ppi}</h3>
-                <p><strong>1. Akademik:</strong> {p.evaluasi_8_aspek?.akademik || "-"}</p>
-                <p><strong>2. Komunikasi & Bahasa:</strong> {p.evaluasi_8_aspek?.komunikasi || "-"}</p>
-                <p><strong>3. Motorik Kasar & Halus:</strong> {p.evaluasi_8_aspek?.motorik || "-"}</p>
-                <p><strong>4. Kemandirian (Self-Help):</strong> {p.evaluasi_8_aspek?.kemandirian || "-"}</p>
-                <p><strong>5. Sosial & Interaksi:</strong> {p.evaluasi_8_aspek?.sosial || "-"}</p>
-                <p><strong>6. Emosi & Perilaku:</strong> {p.evaluasi_8_aspek?.emosi || "-"}</p>
-                <p><strong>7. Sensorik & Perseptual:</strong> {p.evaluasi_8_aspek?.sensorik || "-"}</p>
-                <p><strong>8. Keterampilan Vokasional:</strong> {p.evaluasi_8_aspek?.vokasional || "-"}</p>
-              </div>
-            ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+            {evaluations?.length === 0 ? (
+              <p className="text-slate-400 text-sm italic col-span-full">Belum ada data evaluasi 3 bulanan dari GPK.</p>
+            ) : (
+              evaluations.map((item) => {
+                const hasFeedbackPsikolog = Boolean(item.feedback_psikolog);
+                const isSentToParent = Boolean(item.sent_to_parent);
+
+                return (
+                  <div key={item.id} className="bg-slate-950/60 border border-white/10 rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-lg">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs px-2.5 py-1 rounded-full bg-teal-500/25 text-teal-300 font-semibold">Evaluasi 3 Bulanan</span>
+                        <span className="text-xs text-slate-400">{item.tanggal_pengisian || "-"}</span>
+                      </div>
+                      <div>
+                        <h4 className="text-base font-bold text-white">{item.students?.full_name || "Siswa PDBK"}</h4>
+                        <p className="text-xs text-slate-400">GPK: {item.gpk_name || "-"}</p>
+                        <p className="text-xs text-purple-300 mt-0.5">Lama Pendampingan: {item.lama_pendampingan || "-"}</p>
+                      </div>
+
+                      <div className="space-y-2 text-xs bg-white/5 p-3 rounded-xl border border-white/5">
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-400">Feedback Psikolog:</span>
+                          <span className={hasFeedbackPsikolog ? "text-emerald-400 font-semibold" : "text-amber-400 font-semibold"}>
+                            {hasFeedbackPsikolog ? "✅ Sudah Ada" : "⏳ Belum Ada"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-400">Status Akses Orang Tua:</span>
+                          <span className={isSentToParent ? "text-emerald-400 font-semibold" : "text-slate-400 font-semibold"}>
+                            {isSentToParent ? "📤 Telah Dikirim" : "🔒 Belum Dikirim"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
+                      <button 
+                        onClick={() => { setSelectedItem(item); setModalType("evaluation"); }} 
+                        className="w-full bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all"
+                      >
+                        <Eye className="w-4 h-4" /> Lihat Detail & Feedback
+                      </button>
+
+                      <button 
+                        disabled={!hasFeedbackPsikolog}
+                        onClick={async () => {
+                          if (!hasFeedbackPsikolog) return alert("Psikolog harus memberikan feedback terlebih dahulu sebelum dapat dikirim ke orang tua.");
+                          const confirmMsg = isSentToParent 
+                            ? "Batalkan pengiriman laporan ini ke orang tua?" 
+                            : "Konfirmasi dan kirim laporan evaluasi ini agar dapat dilihat oleh orang tua?";
+                          
+                          if (!confirm(confirmMsg)) return;
+
+                          const { error } = await supabase
+                            .from("evaluation_reports")
+                            .update({ sent_to_parent: !isSentToParent })
+                            .eq("id", item.id);
+
+                          if (error) alert("Gagal memperbarui status: " + error.message);
+                          else {
+                            alert(isSentToParent ? "Akses orang tua dicabut." : "Berhasil! Laporan kini dapat dilihat oleh orang tua.");
+                            fetchAllData(); 
+                          }
+                        }}
+                        className={`w-full py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all ${
+                          !hasFeedbackPsikolog 
+                            ? "bg-slate-800 text-slate-500 cursor-not-allowed" 
+                            : isSentToParent 
+                              ? "bg-amber-500/20 text-amber-300 hover:bg-amber-500/30" 
+                              : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg"
+                        }`}
+                      >
+                        {isSentToParent ? "↩️ Batalkan Kirim ke Ortu" : "📤 Konfirmasi & Kirim ke Ortu"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </div>
@@ -1227,6 +1253,7 @@ export default function AdminDashboard() {
             <h3 className="text-lg sm:text-xl font-bold text-white uppercase flex items-center gap-2 border-b border-white/10 pb-4 pr-8">
               {modalType === "report" ? ( <><BookOpen className="text-emerald-400 flex-shrink-0"/> Rincian Lengkap Laporan Harian PDBK</> ) : 
                modalType === "assessment" ? ( <><BrainCircuit className="text-purple-400 flex-shrink-0"/> Rincian Lengkap Asesmen Awal PDBK</> ) : 
+               modalType === "evaluation" ? ( <><ClipboardCheck className="text-teal-400 flex-shrink-0"/> Rincian Evaluasi 3 Bulanan</> ) :
                ( <><FileText className="text-blue-400 flex-shrink-0"/> Rincian Lengkap Dokumen PPI</> )}
             </h3>
 
@@ -1276,6 +1303,33 @@ export default function AdminDashboard() {
                       <p className="italic text-slate-100">"{selectedItem.feedback_wali}"</p>
                     ) : (
                       <p className="text-slate-400 italic text-xs">Belum ada tanggapan atau feedback yang dikirimkan oleh wali siswa.</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {modalType === "evaluation" && (
+                <div className="space-y-4">
+                  <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div><span className="block text-slate-500">Nama Siswa:</span><strong className="text-white text-sm">{selectedItem.students?.full_name}</strong></div>
+                    <div><span className="block text-slate-500">Guru Pendamping (GPK):</span><strong className="text-teal-400 text-sm">{selectedItem.gpk_name}</strong></div>
+                    <div><span className="block text-slate-500">Lama Pendampingan:</span><span className="text-white">{selectedItem.lama_pendampingan}</span></div>
+                    <div><span className="block text-slate-500">Tanggal Pengisian:</span><span className="text-white">{selectedItem.tanggal_pengisian}</span></div>
+                  </div>
+
+                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                    <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider">Catatan & Evaluasi GPK</h4>
+                    <p className="text-slate-200 whitespace-pre-wrap">{selectedItem.catatan_gpk || "-"}</p>
+                  </div>
+
+                  <div className="bg-purple-950/20 p-4 rounded-2xl border border-purple-900/40 space-y-3">
+                    <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <BrainCircuit className="w-4 h-4 text-purple-400" /> Feedback Psikolog Sekolah
+                    </h4>
+                    {selectedItem.feedback_psikolog ? (
+                      <p className="italic text-purple-200">"{selectedItem.feedback_psikolog}"</p>
+                    ) : (
+                      <p className="text-slate-400 italic text-xs">Psikolog belum memberikan feedback untuk evaluasi ini.</p>
                     )}
                   </div>
                 </div>
