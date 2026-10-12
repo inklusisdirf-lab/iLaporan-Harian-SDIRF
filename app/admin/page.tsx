@@ -1221,10 +1221,9 @@ export default function AdminDashboard() {
                         { key: "menulis", title: "7. Kemampuan Menulis", ind: "Capaian dan kondisi anak terkait dengan kemampuan menulis." },
                         { key: "berhitung", title: "8. Kemampuan Berhitung", ind: "Capaian anak dalam aktivitas pelajaran berhitung." },
                       ].map((itemAspek, idx) => {
-                        const dataAspek = selectedItem.evaluasi_8_aspek?.[itemAspek.key] || {};
-                        // Mendukung struktur object { awal: '...', sekarang: '...' } atau string biasa
-                        const awalVal = typeof dataAspek === 'object' ? (dataAspek.awal || dataAspek.kondisi_awal || "-") : (selectedItem.evaluasi_8_aspek?.[`awal_${itemAspek.key}`] || "-");
-                        const sekarangVal = typeof dataAspek === 'object' ? (dataAspek.sekarang || dataAspek.kondisi_sekarang || "-") : (selectedItem.evaluasi_8_aspek?.[`sekarang_${itemAspek.key}`] || dataAspek || "-");
+                        const aspectData = selectedItem.evaluasi_8_aspek?.[itemAspek.key] || {};
+                        const awalVal = typeof aspectData === 'object' ? (aspectData.awal || aspectData.kondisi_awal || "-") : "-";
+                        const sekarangVal = typeof aspectData === 'object' ? (aspectData.sekarang || aspectData.kondisi_sekarang || "-") : (aspectData || "-");
 
                         return (
                           <div key={idx} className="p-3.5 bg-slate-900 rounded-xl border border-slate-800 space-y-2">
@@ -1298,9 +1297,9 @@ export default function AdminDashboard() {
                           { key: "menulis", title: "7. Kemampuan Menulis" },
                           { key: "berhitung", title: "8. Kemampuan Berhitung" },
                         ].map((itemAspek, idx) => {
-                          const dataAspek = selectedItem.evaluasi_8_aspek?.[itemAspek.key] || {};
-                          const awalVal = typeof dataAspek === 'object' ? (dataAspek.awal || dataAspek.kondisi_awal || "-") : "-";
-                          const sekarangVal = typeof dataAspek === 'object' ? (dataAspek.sekarang || dataAspek.kondisi_sekarang || "-") : (dataAspek || "-");
+                          const aspectData = selectedItem.evaluasi_8_aspek?.[itemAspek.key] || {};
+                          const awalVal = typeof aspectData === 'object' ? (aspectData.awal || aspectData.kondisi_awal || "-") : "-";
+                          const sekarangVal = typeof aspectData === 'object' ? (aspectData.sekarang || aspectData.kondisi_sekarang || "-") : (aspectData || "-");
 
                           return (
                             <div key={idx} className="border-b border-gray-200 pb-2 space-y-0.5">
