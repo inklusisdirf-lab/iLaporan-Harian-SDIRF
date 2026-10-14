@@ -733,7 +733,7 @@ export default function PsikologDashboard() {
 
                   {selectedItem.profil_pdbk && (
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 text-xs">
-                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">1. Profil PDBK</h4>
+                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">Profil PDBK</h4>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <div><span className="text-slate-500">Nama:</span> {selectedItem.profil_pdbk.nama || "-"}</div>
                         <div><span className="text-slate-500">Kelas/Usia:</span> {selectedItem.profil_pdbk.kelas_usia || "-"}</div>
