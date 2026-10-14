@@ -617,7 +617,7 @@ export default function AdminDashboard() {
                           <span className="text-xs text-slate-400">{r.tanggal}</span>
                         </div>
                         <h4 className="text-lg font-bold text-white mb-1">{r.students?.full_name || "Siswa"}</h4>
-                          
+                         
                         <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
                           <p><strong className="text-blue-400">Materi:</strong> {r.materi_pembelajaran}</p>
                           <p className="line-clamp-2"><strong className="text-purple-400">Hasil:</strong> {r.hasil_pembelajaran}</p>
@@ -648,9 +648,10 @@ export default function AdminDashboard() {
                 )}
               </div>
 
+              {/* FORMAT CETAK PDF LAPORAN HARIAN (DENGAN PROTEKSI PAGE-BREAK) */}
               <div className="hidden">
-                <div ref={componentRef} className="p-8 bg-white text-black font-sans">
-                  <div className="text-center border-b-2 border-black pb-4 mb-6">
+                <div ref={componentRef} className="p-8 bg-white text-black font-sans" style={{ printColorAdjust: "exact" }}>
+                  <div className="text-center border-b-2 border-black pb-4 mb-6" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                     <h2 className="text-2xl font-bold uppercase">SD Islam Roushon Fikr Jombang</h2>
                     <p className="text-sm font-semibold">Rekapitulasi Laporan Harian Guru Pendamping Khusus (GPK)</p>
                     <div className="text-xs text-gray-700 mt-1 flex justify-center gap-4">
@@ -662,7 +663,7 @@ export default function AdminDashboard() {
                   </div>
                   <table className="w-full border-collapse border border-black text-xs">
                     <thead>
-                      <tr className="bg-gray-200">
+                      <tr className="bg-gray-200" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                         <th className="border border-black p-2">Tanggal</th>
                         <th className="border border-black p-2">Nama Siswa</th>
                         <th className="border border-black p-2">Mata Pelajaran</th>
@@ -678,7 +679,7 @@ export default function AdminDashboard() {
                         </tr>
                       ) : (
                         displayedReports.map((r, idx) => (
-                          <tr key={idx}>
+                          <tr key={idx} style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                             <td className="border border-black p-2 text-center">{r.tanggal}</td>
                             <td className="border border-black p-2">{r.students?.full_name}</td>
                             <td className="border border-black p-2">{r.mata_pelajaran}</td>
@@ -734,7 +735,7 @@ export default function AdminDashboard() {
                               <span className="text-xs text-slate-400">{a.tanggal_assessment || "-"}</span>
                             </div>
                             <h4 className="text-lg font-bold text-white mb-1">{a.students?.full_name || "Siswa PDBK"}</h4>
-                              
+                             
                             <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
                               <p className="line-clamp-2"><strong>Permasalahan:</strong> {a.permasalahan || "-"}</p>
                               {a.identitas?.kelas && <p><strong>Kelas:</strong> {a.identitas.kelas}</p>}
@@ -918,7 +919,7 @@ export default function AdminDashboard() {
                                 const confirmMsg = isSentToParent 
                                   ? "Batalkan pengiriman laporan ini ke orang tua?" 
                                   : "Konfirmasi dan kirim laporan evaluasi ini agar dapat dilihat oleh orang tua?";
-                                  
+                                 
                                 if (!confirm(confirmMsg)) return;
 
                                 const { error } = await supabase
@@ -1154,7 +1155,7 @@ export default function AdminDashboard() {
                     <div><span className="block text-xs text-slate-500">Pendamping (GPK)</span><span className="text-purple-400 font-semibold">{selectedItem.gpk_name || "-"}</span></div>
                     <div><span className="block text-xs text-slate-500">Kondisi Mood Siswa</span><span className="px-3 py-1 bg-white/10 rounded-full text-xs mt-1 inline-block text-amber-300 font-semibold">{selectedItem.kondisi_mood}</span></div>
                   </div>
-                      
+                     
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
                       <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">Materi Pembelajaran</h4>
@@ -1195,7 +1196,7 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {/* === Rincian Evaluasi 3 Bulanan (KOMPARASI ASPEK_DATA) dengan Urutan Seragam GPK === */}
+              {/* === Rincian Evaluasi 3 Bulanan (KOMPARASI ASPEK_DATA) === */}
               {modalType === "evaluation" && (
                 <div className="space-y-4">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
@@ -1242,7 +1243,7 @@ export default function AdminDashboard() {
                     ))
                   ) : (
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-center">
-                      <p className="text-slate-400 text-xs italic">Data evaluasi ini menggunakan format lama. Silakan minta GPK memperbarui data.</p>
+                      <p className="text-slate-400 text-xs italic">Data format tabel komparasi tidak tersedia.</p>
                     </div>
                   )}
 
@@ -1266,10 +1267,10 @@ export default function AdminDashboard() {
                     </button>
                   </div>
 
-                  {/* FORMAT CETAK PDF EVALUASI 3 BULANAN DENGAN URUTAN SERAGAM GPK */}
+                  {/* FORMAT CETAK PDF EVALUASI 3 BULANAN (DENGAN PROTEKSI PAGE-BREAK) */}
                   <div className="hidden">
-                    <div ref={evaluasiComponentRef} className="p-8 bg-white text-black font-sans text-xs space-y-4">
-                      <div className="text-center border-b-2 border-black pb-4 mb-4">
+                    <div ref={evaluasiComponentRef} className="p-8 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact" }}>
+                      <div className="text-center border-b-2 border-black pb-4 mb-4" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                         <h2 className="text-xl font-bold uppercase">SD Islam Roushon Fikr Jombang</h2>
                         <p className="text-sm font-semibold">LAPORAN EVALUASI PERKEMBANGAN 3 BULANAN (KOMPARASI)</p>
                         <p className="text-[11px] text-gray-700 mt-1">
@@ -1277,17 +1278,17 @@ export default function AdminDashboard() {
                         </p>
                       </div>
 
-                      <div className="border border-black p-3 rounded space-y-1">
+                      <div className="border border-black p-3 rounded space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                         <p><strong>Nama Siswa:</strong> {selectedItem.students?.full_name || "-"}</p>
                         <p><strong>Guru Pendamping (GPK):</strong> {selectedItem.gpk_name || "-"}</p>
                         <p><strong>Lama Pendampingan:</strong> {selectedItem.lama_pendampingan || "-"}</p>
                       </div>
 
                       <div className="border border-black p-3 space-y-4">
-                        <h3 className="font-bold uppercase text-teal-900 border-b-2 border-black pb-1 mb-2 text-center bg-gray-200">
+                        <h3 className="font-bold uppercase text-teal-900 border-b-2 border-black pb-1 mb-2 text-center bg-gray-200" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                           Rincian Aspek Perkembangan (Kondisi Awal vs Sekarang)
                         </h3>
-                        
+                         
                         {selectedItem.aspek_data ? (
                           Object.keys(selectedItem.aspek_data)
                             .sort((a, b) => {
@@ -1297,7 +1298,7 @@ export default function AdminDashboard() {
                               return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
                             })
                             .map((aspekKey, index) => (
-                            <div key={aspekKey} className="mb-4">
+                            <div key={aspekKey} className="mb-4" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                               <h4 className="font-bold uppercase text-black bg-gray-100 p-1.5 border border-black">{index + 1}. {aspekKey.replace(/_/g, " ")}</h4>
                               <table className="w-full border-collapse border border-black text-[11px] mt-1">
                                 <thead>
@@ -1327,7 +1328,7 @@ export default function AdminDashboard() {
                         )}
                       </div>
 
-                      <div className="border border-black p-3 space-y-2 bg-gray-50">
+                      <div className="border border-black p-3 space-y-2 bg-gray-50" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                         <h3 className="font-bold uppercase border-b border-gray-300 pb-1 text-purple-900">Feedback Psikolog Sekolah</h3>
                         <p className="italic whitespace-pre-wrap">"{selectedItem.feedback_psikolog || "Belum ada feedback."}"</p>
                       </div>
@@ -1391,7 +1392,7 @@ export default function AdminDashboard() {
                   {selectedItem.temuan_lapangan && (
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-4">
                       <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Temuan Lapangan (5 Aspek)</h4>
-                        
+                         
                       <div className="space-y-1.5 text-xs border-b border-white/5 pb-3">
                         <strong className="text-blue-300 block">1. Kognitif</strong>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -1546,9 +1547,10 @@ export default function AdminDashboard() {
                     </button>
                   </div>
 
+                  {/* FORMAT CETAK PDF DOKUMEN PPI (DENGAN PROTEKSI PAGE-BREAK) */}
                   <div className="hidden">
-                    <div ref={ppiComponentRef} className="p-8 bg-white text-black font-sans text-xs space-y-4">
-                      <div className="text-center border-b-2 border-black pb-4 mb-4">
+                    <div ref={ppiComponentRef} className="p-8 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact" }}>
+                      <div className="text-center border-b-2 border-black pb-4 mb-4" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                         <h2 className="text-xl font-bold uppercase">SD Islam Roushon Fikr Jombang</h2>
                         <p className="text-sm font-semibold">PROGRAM PEMBELAJARAN INDIVIDUAL (PPI)</p>
                         <p className="text-[11px] text-gray-700 mt-1">
@@ -1556,14 +1558,14 @@ export default function AdminDashboard() {
                         </p>
                       </div>
 
-                      <div className="border border-black p-3 rounded space-y-1">
+                      <div className="border border-black p-3 rounded space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                         <p><strong>Nama Siswa:</strong> {selectedItem.students?.full_name || "-"}</p>
                         <p><strong>Wali Kelas:</strong> {selectedItem.wali_kelas || "-"}</p>
                         <p><strong>Status Dokumen:</strong> {selectedItem.status || "-"}</p>
                       </div>
 
                       {selectedItem.profil_pdbk && (
-                        <div className="border border-black p-3 space-y-1">
+                        <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                           <h3 className="font-bold uppercase text-blue-900 border-b border-gray-300 pb-1">1. Profil PDBK</h3>
                           <p><strong>Nama:</strong> {selectedItem.profil_pdbk.nama || "-"}</p>
                           <p><strong>Kelas/Usia:</strong> {selectedItem.profil_pdbk.kelas_usia || "-"}</p>
@@ -1572,7 +1574,7 @@ export default function AdminDashboard() {
                       )}
 
                       {selectedItem.kemampuan_saat_ini && (
-                        <div className="border border-black p-3 space-y-1">
+                        <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                           <h3 className="font-bold uppercase text-purple-900 border-b border-gray-300 pb-1">2. Tingkat Kemampuan Saat Ini</h3>
                           <p><strong>Kekuatan / Potensi:</strong> {selectedItem.kemampuan_saat_ini.kekuatan || "-"}</p>
                           <p><strong>Area Pengembangan:</strong> {selectedItem.kemampuan_saat_ini.area_pengembangan || "-"}</p>
@@ -1580,7 +1582,7 @@ export default function AdminDashboard() {
                       )}
 
                       {selectedItem.tujuan_smart && (
-                        <div className="border border-black p-3 space-y-1">
+                        <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                           <h3 className="font-bold uppercase text-emerald-900 border-b border-gray-300 pb-1">3. Tujuan SMART</h3>
                           <p><strong>Jangka Panjang:</strong> {selectedItem.tujuan_smart.jangka_panjang || "-"}</p>
                           <p className="mt-1 font-semibold">Jangka Pendek:</p>
@@ -1593,7 +1595,7 @@ export default function AdminDashboard() {
                       )}
 
                       {selectedItem.layanan_akomodasi && (
-                        <div className="border border-black p-3 space-y-1">
+                        <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                           <h3 className="font-bold uppercase text-indigo-900 border-b border-gray-300 pb-1">4. Layanan & Akomodasi Pembelajaran</h3>
                           <p><strong>Modifikasi Kurikulum:</strong> {selectedItem.layanan_akomodasi.modifikasi || "-"}</p>
                           <p><strong>Media Belajar:</strong> {selectedItem.layanan_akomodasi.media || "-"}</p>
@@ -1605,7 +1607,7 @@ export default function AdminDashboard() {
                       )}
 
                       {selectedItem.rencana_evaluasi && selectedItem.rencana_evaluasi.length > 0 && (
-                        <div className="border border-black p-3 space-y-1">
+                        <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                           <h3 className="font-bold uppercase text-amber-900 border-b border-gray-300 pb-1">5. Rencana Evaluasi Berkala</h3>
                           {selectedItem.rencana_evaluasi.map((ev: any, idx: number) => (
                             <p key={idx}><strong>{ev.periode}:</strong> {ev.kegiatan} ({ev.status})</p>
@@ -1614,13 +1616,13 @@ export default function AdminDashboard() {
                       )}
 
                       {selectedItem.catatan_psikolog && (
-                        <div className="border border-black p-3 space-y-1">
+                        <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                           <h3 className="font-bold uppercase text-gray-900 border-b border-gray-300 pb-1">Catatan Psikolog</h3>
                           <p className="italic">"{selectedItem.catatan_psikolog}"</p>
                         </div>
                       )}
 
-                      <div className="border border-black p-3 space-y-1">
+                      <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                         <h3 className="font-bold uppercase border-b border-gray-300 pb-1">Status Tanda Tangan Digital</h3>
                         <p>GPK Pendamping: {selectedItem.ttd_gpk ? "✅ Disetujui" : "⏳ Menunggu"}</p>
                         <p>Psikolog Sekolah: {selectedItem.ttd_psikolog ? "✅ Disetujui" : "⏳ Menunggu"}</p>
