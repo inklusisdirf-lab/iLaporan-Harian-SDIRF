@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/app/utils/supabase/client";
 import { 
   FileText, BrainCircuit, CheckCircle2, XCircle, 
-  X, Eye, Save, LogOut, Search, BookOpen, Calendar, MessageCircle
+  X, Eye, Save, LogOut, BookOpen, Calendar, MessageCircle
 } from "lucide-react";
 
 export default function PsikologDashboard() {
@@ -198,7 +198,7 @@ export default function PsikologDashboard() {
           </div>
         )}
 
-        {/* TAB UTAMA TANPA JUMLAH */}
+        {/* TAB UTAMA */}
         <div className="flex flex-wrap gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-fit">
           <button 
             onClick={() => setActiveTab("asesmen")} 
@@ -536,7 +536,7 @@ export default function PsikologDashboard() {
                 </div>
               )}
 
-              {/* ASESMEN AWAL 100% LENGKAP + FORM CATATAN PSIKOLOG */}
+              {/* ASESMEN AWAL LENGKAP + FORM CATATAN PSIKOLOG */}
               {modalType === "assessment" && (
                 <div className="space-y-4">
                    <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -546,7 +546,7 @@ export default function PsikologDashboard() {
 
                   {selectedItem.identitas && (
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">1. Identitas Diri Anak</h4>
+                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">Identitas Diri Anak</h4>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                         <div><span className="text-slate-500 block">Nama Anak:</span> <span className="text-white font-medium">{selectedItem.identitas.nama_anak || "-"}</span></div>
                         <div><span className="text-slate-500 block">Tanggal Lahir:</span> <span className="text-white font-medium">{selectedItem.identitas.tanggal_lahir || "-"}</span></div>
@@ -653,7 +653,7 @@ export default function PsikologDashboard() {
                 </div>
               )}
 
-              {/* DOKUMEN PPI 100% LENGKAP + FEEDBACK WALI + VALIDASI */}
+              {/* DOKUMEN PPI LENGKAP + FEEDBACK WALI + VALIDASI */}
               {modalType === "ppi" && (
                 <div className="space-y-4">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -696,7 +696,7 @@ export default function PsikologDashboard() {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
                           <div><strong className="text-slate-400 block">Jangka Pendek 1:</strong> {selectedItem.tujuan_smart.jangka_pendek_1 || "-"}</div>
                           <div><strong className="text-slate-400 block">Jangka Pendek 2:</strong> {selectedItem.tujuan_smart.jangka_pendek_2 || "-"}</div>
-                          <div><strong className="text-slate-400 block">Jangka Pendek 3:</strong> {selectedItem.tujukan_smart?.jangka_pendek_3 || selectedItem.tujuan_smart.jangka_pendek_3 || "-"}</div>
+                          <div><strong className="text-slate-400 block">Jangka Pendek 3:</strong> {selectedItem.tujuan_smart.jangka_pendek_3 || "-"}</div>
                         </div>
                       </div>
                     </div>
