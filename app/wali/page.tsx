@@ -1,12 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/app/utils/supabase/client";
-import { Users, LogOut, BookOpen, FileText, CheckCircle, Eye, MessageCircle, X, Calendar, Edit3, Trash2 } from "lucide-react";
+import { 
+  Users, LogOut, BookOpen, FileText, CheckCircle, Eye, MessageCircle, X, Calendar, Edit3, Trash2, ClipboardCheck, Printer, BrainCircuit
+} from "lucide-react";
+import { useReactToPrint } from "react-to-print";
 
 export default function WaliDashboard() {
   const router = useRouter();
+  const evaluasiComponentRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [parentName, setParentName] = useState("");
   const [childInfo, setChildInfo] = useState("");
@@ -18,15 +22,21 @@ export default function WaliDashboard() {
   const [groupedReports, setGroupedReports] = useState<{ [key: string]: any[] }>({});
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [ppiList, setPpiList] = useState<any[]>([]);
+  const [evaluations, setEvaluations] = useState<any[]>([]);
   
   // State untuk Modal Detail
   const [selectedPpi, setSelectedPpi] = useState<any>(null);
   const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [selectedEvaluation, setSelectedEvaluation] = useState<any>(null);
   
   // State untuk Input & Edit Feedback Harian
   const [feedbackInput, setFeedbackInput] = useState<{ [key: string]: string }>({});
   const [editingFeedbackId, setEditingFeedbackId] = useState<string | null>(null);
   const [editFeedbackText, setEditFeedbackText] = useState("");
+
+  const handlePrintEvaluasi = useReactToPrint({
+    contentRef: evaluasiComponentRef,
+  });
 
   useEffect(() => {
     async function checkWaliAuth() {
@@ -94,7 +104,6 @@ export default function WaliDashboard() {
     if (reportData) {
       setReports(reportData);
 
-      // Mengelompokkan laporan berdasarkan tanggal
       const grouped = reportData.reduce((acc: any, report: any) => {
         const dateKey = report.tanggal || "Tanpa Tanggal";
         if (!acc[dateKey]) acc[dateKey] = [];
@@ -104,7 +113,6 @@ export default function WaliDashboard() {
 
       setGroupedReports(grouped);
 
-      // Otomatis pilih tanggal terbaru jika belum ada yang dipilih
       const dates = Object.keys(grouped).sort().reverse();
       if (dates.length > 0) {
         setSelectedDate(dates[0]);
@@ -117,6 +125,15 @@ export default function WaliDashboard() {
       .eq("student_id", sId)
       .order("created_at", { ascending: false });
     if (ppiData) setPpiList(ppiData);
+
+    // Ambil Evaluasi 3 Bulanan yang HANYA SUDAH DIKIRIM ADMIN (sent_to_parent = true)
+    const { data: evalData } = await supabase
+      .from("evaluation_reports")
+      .select("*, students(full_name)")
+      .eq("student_id", sId)
+      .eq("sent_to_parent", true)
+      .order("created_at", { ascending: false });
+    if (evalData) setEvaluations(evalData);
   };
 
   const handleLogout = async () => {
@@ -254,7 +271,7 @@ export default function WaliDashboard() {
         <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-emerald-900/20 to-blue-900/20 border border-white/10 backdrop-blur-xl shadow-xl">
           <h2 className="text-2xl sm:text-3xl font-extrabold mb-2">Selamat Datang, {parentName || "Wali Siswa"}! 👋</h2>
           <p className="text-slate-300 max-w-2xl text-xs sm:text-sm md:text-base leading-relaxed">
-            Pantau perkembangan harian ananda di sekolah, lihat catatan capaian dari Guru Pendamping Khusus (GPK), berikan tanggapan/feedback, serta tanda tangani dokumen Program Pembelajaran Individual (PPI).
+            Pantau perkembangan harian ananda di sekolah, lihat catatan capaian dari Guru Pendamping Khusus (GPK), berikan tanggapan/feedback, serta tanda tangani dokumen Program Pembelajaran Individual (PPI) dan Evaluasi 3 Bulanan.
           </p>
           {!studentId && (
             <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-300 text-xs">
@@ -286,10 +303,20 @@ export default function WaliDashboard() {
             >
               <FileText className="w-4 h-4" /> Dokumen & Persetujuan PPI ({ppiList.length})
             </button>
+            <button
+              onClick={() => setActiveTab("evaluasi")}
+              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold text-sm transition-all shadow-lg whitespace-nowrap ${
+                activeTab === "evaluasi" 
+                  ? "bg-gradient-to-r from-teal-600 to-blue-600 text-white border border-white/20" 
+                  : "bg-white/5 border border-white/10 text-slate-400 hover:text-white"
+              }`}
+            >
+              <ClipboardCheck className="w-4 h-4" /> Evaluasi 3 Bulanan ({evaluations.length})
+            </button>
           </div>
         </div>
 
-        {/* KONTEN TAB: LAPORAN HARIAN (DIKELOMPOKKAN BERDASARKAN TANGGAL) */}
+        {/* KONTEN TAB: LAPORAN HARIAN */}
         {activeTab === "laporan" && (
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
@@ -299,7 +326,6 @@ export default function WaliDashboard() {
               <p className="text-xs text-slate-400">Klik salah satu tanggal di bawah untuk melihat laporan harian ananda pada hari tersebut.</p>
             </div>
 
-            {/* Daftar Pilihan Tanggal */}
             {Object.keys(groupedReports).length === 0 ? (
               <p className="text-slate-400 text-sm italic">Belum ada laporan harian yang diunggah oleh GPK untuk ananda.</p>
             ) : (
@@ -320,7 +346,6 @@ export default function WaliDashboard() {
               </div>
             )}
 
-            {/* Grid Kartu Laporan Berdasarkan Tanggal yang Dipilih */}
             {selectedDate && groupedReports[selectedDate] && (
               <div className="mt-2">
                 <h4 className="text-sm font-semibold text-emerald-400 mb-4 flex items-center gap-2">
@@ -341,7 +366,6 @@ export default function WaliDashboard() {
                         </div>
                         <h4 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">Ananda: {r.students?.full_name || childInfo}</h4>
                         
-                        {/* Menampilkan Nama Pendamping (GPK) dengan pengecekan ganda */}
                         <p className="text-xs text-slate-300">
                           Pendamping: <strong className="text-purple-400">
                             {r.profiles?.full_name || r.gpk_name || "-"}
@@ -478,6 +502,53 @@ export default function WaliDashboard() {
           </div>
         )}
 
+        {/* KONTEN TAB: EVALUASI 3 BULANAN */}
+        {activeTab === "evaluasi" && (
+          <div className="flex flex-col gap-6">
+            <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+              <ClipboardCheck className="w-5 h-5 text-teal-400 flex-shrink-0" /> Laporan Evaluasi 3 Bulanan (Telah Dikirim Sekolah)
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {evaluations.length === 0 ? (
+                <p className="text-slate-400 text-sm italic col-span-full">Belum ada laporan evaluasi 3 bulanan yang dikirimkan oleh sekolah.</p>
+              ) : (
+                evaluations.map((item) => (
+                  <div key={item.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 font-semibold">Evaluasi 3 Bulanan</span>
+                        <span className="text-xs text-slate-400">{item.tanggal_pengisian || "-"}</span>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">{item.students?.full_name || childInfo}</h4>
+                        <p className="text-xs text-slate-400">GPK: {item.gpk_name || "-"}</p>
+                        <p className="text-xs text-purple-300 mt-0.5">Lama Pendampingan: {item.lama_pendampingan || "-"}</p>
+                      </div>
+
+                      {item.feedback_psikolog && (
+                        <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 shadow-inner">
+                          <p className="font-bold flex items-center gap-1 text-purple-300">
+                            <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Feedback Psikolog:
+                          </p>
+                          <p className="italic text-slate-200">"{item.feedback_psikolog}"</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <button 
+                      onClick={() => setSelectedEvaluation(item)}
+                      className="w-full bg-teal-600/20 border border-teal-500/30 hover:bg-teal-600/30 text-teal-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-4"
+                    >
+                      <Eye className="w-4 h-4" /> Lihat Detail & Cetak Laporan
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* MODAL POPUP DETAIL LAPORAN HARIAN */}
@@ -605,6 +676,152 @@ export default function WaliDashboard() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL POPUP DETAIL & CETAK EVALUASI 3 BULANAN */}
+      {selectedEvaluation && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-white/20 rounded-3xl p-6 md:p-8 max-w-4xl w-full max-h-[85vh] overflow-y-auto relative shadow-2xl my-auto space-y-6">
+            <button onClick={() => setSelectedEvaluation(null)} className="absolute top-4 right-4 sm:top-6 sm:right-6 text-slate-400 hover:text-white bg-white/5 p-2 rounded-full hover:bg-red-500/20 hover:text-red-400 transition-all z-10">
+              <X className="w-5 h-5" />
+            </button>
+
+            <h3 className="text-lg sm:text-xl font-bold text-white uppercase flex items-center gap-2 border-b border-white/10 pb-4 pr-8">
+              <ClipboardCheck className="text-teal-400 flex-shrink-0"/> Laporan Evaluasi 3 Bulanan (Komparasi)
+            </h3>
+
+            <div className="space-y-6 text-sm text-slate-300">
+              <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                <div><span className="block text-slate-500">Guru Pendamping (GPK):</span><strong className="text-teal-400 text-sm">{selectedEvaluation.gpk_name || "-"}</strong></div>
+                <div><span className="block text-slate-500">Lama Pendampingan:</span><span className="text-white text-sm">{selectedEvaluation.lama_pendampingan || "-"}</span></div>
+                <div><span className="block text-slate-500">Tanggal Pengisian:</span><span className="text-white text-sm">{selectedEvaluation.tanggal_pengisian || "-"}</span></div>
+              </div>
+
+              <h4 className="text-xs font-bold text-teal-300 uppercase tracking-wider mt-4">Rincian Evaluasi 8 Aspek (Kondisi Awal vs Sekarang)</h4>
+
+              {selectedEvaluation.aspek_data ? (
+                Object.keys(selectedEvaluation.aspek_data)
+                  .sort((a, b) => {
+                    const urutan = ["sensori_motorik", "kognitif", "bahasa_komunikasi", "sosial", "emosi", "membaca", "menulis", "berhitung"];
+                    const indexA = urutan.indexOf(a.toLowerCase());
+                    const indexB = urutan.indexOf(b.toLowerCase());
+                    return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
+                  })
+                  .map((aspekKey) => (
+                  <div key={aspekKey} className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                    <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">{aspekKey.replace(/_/g, " ")}</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {Object.keys(selectedEvaluation.aspek_data[aspekKey]).map((indKey) => {
+                        const ind = selectedEvaluation.aspek_data[aspekKey][indKey];
+                        return (
+                          <div key={indKey} className="bg-slate-900 p-3 rounded-xl border border-slate-800 text-xs space-y-2">
+                            <span className="font-bold text-blue-300 block uppercase border-b border-slate-800 pb-1.5">{indKey.replace(/_/g, " ")}</span>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <span className="text-slate-500 block text-[10px] mb-0.5">Kondisi Awal:</span>
+                                <p className="text-slate-300 whitespace-pre-wrap">{ind.kondisi_awal || "-"}</p>
+                              </div>
+                              <div>
+                                <span className="text-emerald-500 block text-[10px] mb-0.5">Kondisi Sekarang:</span>
+                                <p className="text-emerald-100 whitespace-pre-wrap">{ind.kondisi_sekarang || "-"}</p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-center">
+                  <p className="text-slate-400 text-xs italic">Data format tabel komparasi tidak tersedia.</p>
+                </div>
+              )}
+
+              {selectedEvaluation.feedback_psikolog && (
+                <div className="bg-purple-950/20 p-4 rounded-2xl border border-purple-900/40 space-y-2">
+                  <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <BrainCircuit className="w-4 h-4 text-purple-400" /> Feedback Psikolog Sekolah
+                  </h4>
+                  <p className="italic text-purple-200 text-sm">"{selectedEvaluation.feedback_psikolog}"</p>
+                </div>
+              )}
+
+              <div className="pt-4 border-t border-white/10 flex justify-end">
+                <button 
+                  onClick={() => handlePrintEvaluasi()}
+                  className="bg-teal-600 hover:bg-teal-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition-all"
+                >
+                  <Printer className="w-4 h-4" /> Download / Cetak Laporan Evaluasi
+                </button>
+              </div>
+
+              {/* FORMAT CETAK PDF EVALUASI */}
+              <div className="hidden">
+                <div ref={evaluasiComponentRef} className="p-8 bg-white text-black font-sans text-xs space-y-4">
+                  <div className="text-center border-b-2 border-black pb-4 mb-4">
+                    <h2 className="text-xl font-bold uppercase">SD Islam Roushon Fikr Jombang</h2>
+                    <p className="text-sm font-semibold">LAPORAN EVALUASI PERKEMBANGAN 3 BULANAN (KOMPARASI)</p>
+                    <p className="text-[11px] text-gray-700 mt-1">Tanggal Pengisian: <b>{selectedEvaluation.tanggal_pengisian || "-"}</b></p>
+                  </div>
+
+                  <div className="border border-black p-3 rounded space-y-1">
+                    <p><strong>Nama Siswa:</strong> {selectedEvaluation.students?.full_name || childInfo}</p>
+                    <p><strong>Guru Pendamping (GPK):</strong> {selectedEvaluation.gpk_name || "-"}</p>
+                    <p><strong>Lama Pendampingan:</strong> {selectedEvaluation.lama_pendampingan || "-"}</p>
+                  </div>
+
+                  <div className="border border-black p-3 space-y-4">
+                    <h3 className="font-bold uppercase text-teal-900 border-b-2 border-black pb-1 mb-2 text-center bg-gray-200">
+                      Rincian Aspek Perkembangan (Kondisi Awal vs Sekarang)
+                    </h3>
+                    
+                    {selectedEvaluation.aspek_data && Object.keys(selectedEvaluation.aspek_data)
+                      .sort((a, b) => {
+                        const urutan = ["sensori_motorik", "kognitif", "bahasa_komunikasi", "sosial", "emosi", "membaca", "menulis", "berhitung"];
+                        const indexA = urutan.indexOf(a.toLowerCase());
+                        const indexB = urutan.indexOf(b.toLowerCase());
+                        return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
+                      })
+                      .map((aspekKey, index) => (
+                      <div key={aspekKey} className="mb-4">
+                        <h4 className="font-bold uppercase text-black bg-gray-100 p-1.5 border border-black">{index + 1}. {aspekKey.replace(/_/g, " ")}</h4>
+                        <table className="w-full border-collapse border border-black text-[11px] mt-1">
+                          <thead>
+                            <tr className="bg-gray-50">
+                              <th className="border border-black p-1.5 w-1/4">Indikator</th>
+                              <th className="border border-black p-1.5 w-[37.5%]">Kondisi Awal</th>
+                              <th className="border border-black p-1.5 w-[37.5%]">Kondisi Sekarang</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {Object.keys(selectedEvaluation.aspek_data[aspekKey]).map((indKey) => {
+                              const ind = selectedEvaluation.aspek_data[aspekKey][indKey];
+                              return (
+                                <tr key={indKey}>
+                                  <td className="border border-black p-1.5 uppercase font-semibold">{indKey.replace(/_/g, " ")}</td>
+                                  <td className="border border-black p-1.5 whitespace-pre-wrap">{ind.kondisi_awal || "-"}</td>
+                                  <td className="border border-black p-1.5 whitespace-pre-wrap">{ind.kondisi_sekarang || "-"}</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="border border-black p-3 space-y-2 bg-gray-50">
+                    <h3 className="font-bold uppercase border-b border-gray-300 pb-1 text-purple-900">Feedback Psikolog Sekolah</h3>
+                    <p className="italic whitespace-pre-wrap">"{selectedEvaluation.feedback_psikolog || "Belum ada feedback."}"</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button onClick={() => setSelectedEvaluation(null)} className="mt-6 w-full bg-slate-800 hover:bg-slate-700 transition-colors py-3 rounded-xl font-bold text-white shadow-lg">Tutup Detail</button>
           </div>
         </div>
       )}
