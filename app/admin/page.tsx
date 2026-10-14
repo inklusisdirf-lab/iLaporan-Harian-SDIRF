@@ -962,7 +962,7 @@ export default function AdminDashboard() {
             <button type="button" onClick={closeStudentModal} className="absolute top-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white">
               <X className="w-5 h-5" />
             </button>
-              
+            
             <h3 className="text-xl font-bold text-blue-400">{editStudentId ? "Edit Siswa & Plotting" : "Tambah Siswa Baru"}</h3>
 
             <div className="space-y-3">
@@ -1019,7 +1019,7 @@ export default function AdminDashboard() {
             <button type="button" onClick={() => setShowUserModal(false)} className="absolute top-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white">
               <X className="w-5 h-5" />
             </button>
-              
+            
             <h3 className="text-xl font-bold text-purple-400">Ubah Role Pengguna</h3>
             <div>
               <label className="text-xs text-slate-300 uppercase font-bold">Pilih Peran (Role)</label>
@@ -1195,7 +1195,7 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {/* === Rincian Evaluasi 3 Bulanan (KOMPARASI ASPEK_DATA) === */}
+              {/* === Rincian Evaluasi 3 Bulanan (KOMPARASI ASPEK_DATA) dengan Urutan Seragam GPK === */}
               {modalType === "evaluation" && (
                 <div className="space-y-4">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
@@ -1210,7 +1210,7 @@ export default function AdminDashboard() {
                   {selectedItem.aspek_data ? (
                     Object.keys(selectedItem.aspek_data)
                       .sort((a, b) => {
-                        const urutan = ["motorik", "kognitif", "bahasa_komunikasi", "kemandirian", "sosial", "emosi"];
+                        const urutan = ["sensori_motorik", "kognitif", "bahasa_komunikasi", "sosial", "emosi", "membaca", "menulis", "berhitung"];
                         const indexA = urutan.indexOf(a.toLowerCase());
                         const indexB = urutan.indexOf(b.toLowerCase());
                         return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
@@ -1266,7 +1266,7 @@ export default function AdminDashboard() {
                     </button>
                   </div>
 
-                  {/* FORMAT CETAK PDF EVALUASI 3 BULANAN */}
+                  {/* FORMAT CETAK PDF EVALUASI 3 BULANAN DENGAN URUTAN SERAGAM GPK */}
                   <div className="hidden">
                     <div ref={evaluasiComponentRef} className="p-8 bg-white text-black font-sans text-xs space-y-4">
                       <div className="text-center border-b-2 border-black pb-4 mb-4">
@@ -1291,7 +1291,7 @@ export default function AdminDashboard() {
                         {selectedItem.aspek_data ? (
                           Object.keys(selectedItem.aspek_data)
                             .sort((a, b) => {
-                              const urutan = ["motorik", "kognitif", "bahasa_komunikasi", "kemandirian", "sosial", "emosi"];
+                              const urutan = ["sensori_motorik", "kognitif", "bahasa_komunikasi", "sosial", "emosi", "membaca", "menulis", "berhitung"];
                               const indexA = urutan.indexOf(a.toLowerCase());
                               const indexB = urutan.indexOf(b.toLowerCase());
                               return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
