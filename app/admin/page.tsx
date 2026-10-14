@@ -1208,7 +1208,14 @@ export default function AdminDashboard() {
                   <h4 className="text-xs font-bold text-teal-300 uppercase tracking-wider mt-6">Rincian Evaluasi 8 Aspek (Kondisi Awal vs Sekarang)</h4>
 
                   {selectedItem.aspek_data ? (
-                    Object.keys(selectedItem.aspek_data).map((aspekKey) => (
+                    Object.keys(selectedItem.aspek_data)
+                      .sort((a, b) => {
+                        const urutan = ["motorik", "kognitif", "bahasa_komunikasi", "kemandirian", "sosial", "emosi"];
+                        const indexA = urutan.indexOf(a.toLowerCase());
+                        const indexB = urutan.indexOf(b.toLowerCase());
+                        return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
+                      })
+                      .map((aspekKey) => (
                       <div key={aspekKey} className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
                         <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">{aspekKey.replace(/_/g, " ")}</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1282,7 +1289,14 @@ export default function AdminDashboard() {
                         </h3>
                         
                         {selectedItem.aspek_data ? (
-                          Object.keys(selectedItem.aspek_data).map((aspekKey, index) => (
+                          Object.keys(selectedItem.aspek_data)
+                            .sort((a, b) => {
+                              const urutan = ["motorik", "kognitif", "bahasa_komunikasi", "kemandirian", "sosial", "emosi"];
+                              const indexA = urutan.indexOf(a.toLowerCase());
+                              const indexB = urutan.indexOf(b.toLowerCase());
+                              return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
+                            })
+                            .map((aspekKey, index) => (
                             <div key={aspekKey} className="mb-4">
                               <h4 className="font-bold uppercase text-black bg-gray-100 p-1.5 border border-black">{index + 1}. {aspekKey.replace(/_/g, " ")}</h4>
                               <table className="w-full border-collapse border border-black text-[11px] mt-1">
