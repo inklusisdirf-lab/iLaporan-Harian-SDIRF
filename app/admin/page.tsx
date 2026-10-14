@@ -617,7 +617,7 @@ export default function AdminDashboard() {
                           <span className="text-xs text-slate-400">{r.tanggal}</span>
                         </div>
                         <h4 className="text-lg font-bold text-white mb-1">{r.students?.full_name || "Siswa"}</h4>
-                         
+                          
                         <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
                           <p><strong className="text-blue-400">Materi:</strong> {r.materi_pembelajaran}</p>
                           <p className="line-clamp-2"><strong className="text-purple-400">Hasil:</strong> {r.hasil_pembelajaran}</p>
@@ -734,7 +734,7 @@ export default function AdminDashboard() {
                               <span className="text-xs text-slate-400">{a.tanggal_assessment || "-"}</span>
                             </div>
                             <h4 className="text-lg font-bold text-white mb-1">{a.students?.full_name || "Siswa PDBK"}</h4>
-                             
+                              
                             <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
                               <p className="line-clamp-2"><strong>Permasalahan:</strong> {a.permasalahan || "-"}</p>
                               {a.identitas?.kelas && <p><strong>Kelas:</strong> {a.identitas.kelas}</p>}
@@ -918,7 +918,7 @@ export default function AdminDashboard() {
                                 const confirmMsg = isSentToParent 
                                   ? "Batalkan pengiriman laporan ini ke orang tua?" 
                                   : "Konfirmasi dan kirim laporan evaluasi ini agar dapat dilihat oleh orang tua?";
-                                 
+                                  
                                 if (!confirm(confirmMsg)) return;
 
                                 const { error } = await supabase
@@ -961,7 +961,7 @@ export default function AdminDashboard() {
             <button type="button" onClick={closeStudentModal} className="absolute top-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white">
               <X className="w-5 h-5" />
             </button>
-             
+              
             <h3 className="text-xl font-bold text-blue-400">{editStudentId ? "Edit Siswa & Plotting" : "Tambah Siswa Baru"}</h3>
 
             <div className="space-y-3">
@@ -1018,7 +1018,7 @@ export default function AdminDashboard() {
             <button type="button" onClick={() => setShowUserModal(false)} className="absolute top-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white">
               <X className="w-5 h-5" />
             </button>
-             
+              
             <h3 className="text-xl font-bold text-purple-400">Ubah Role Pengguna</h3>
             <div>
               <label className="text-xs text-slate-300 uppercase font-bold">Pilih Peran (Role)</label>
@@ -1254,7 +1254,7 @@ export default function AdminDashboard() {
                     <div><span className="block text-xs text-slate-500">Pendamping (GPK)</span><span className="text-purple-400 font-semibold">{selectedItem.gpk_name || "-"}</span></div>
                     <div><span className="block text-xs text-slate-500">Kondisi Mood Siswa</span><span className="px-3 py-1 bg-white/10 rounded-full text-xs mt-1 inline-block text-amber-300 font-semibold">{selectedItem.kondisi_mood}</span></div>
                   </div>
-                     
+                      
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
                       <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">Materi Pembelajaran</h4>
@@ -1304,9 +1304,36 @@ export default function AdminDashboard() {
                     <div><span className="block text-slate-500">Tanggal Pengisian:</span><span className="text-white">{selectedItem.tanggal_pengisian || "-"}</span></div>
                   </div>
 
+                  {/* TAMBAHAN BARU: LAPORAN NARATIF GPK (CAPAIAN, KENDALA, REKOMENDASI) */}
+                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-4">
+                    <h4 className="text-xs font-bold text-teal-300 uppercase tracking-wider">Laporan Perkembangan (Naratif GPK)</h4>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <strong className="text-emerald-400 block text-xs uppercase mb-1">Capaian / Perkembangan Siswa</strong>
+                        <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 text-slate-300 text-sm whitespace-pre-wrap">
+                          {selectedItem.capaian || "Tidak ada deskripsi capaian."}
+                        </div>
+                      </div>
+                      <div>
+                        <strong className="text-amber-400 block text-xs uppercase mb-1">Kendala yang Dihadapi</strong>
+                        <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 text-slate-300 text-sm whitespace-pre-wrap">
+                          {selectedItem.kendala || "Tidak ada kendala yang dicatat."}
+                        </div>
+                      </div>
+                      <div>
+                        <strong className="text-blue-400 block text-xs uppercase mb-1">Rekomendasi / Tindak Lanjut</strong>
+                        <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 text-slate-300 text-sm whitespace-pre-wrap">
+                          {selectedItem.rekomendasi || "Tidak ada rekomendasi."}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* AKHIR TAMBAHAN LAPORAN NARATIF */}
+
                   <div className="space-y-4">
                     <h4 className="text-xs font-bold text-teal-300 uppercase tracking-wider">Rincian Evaluasi 8 Aspek & Indikator</h4>
-                     
+                      
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
                       <strong className="text-blue-400 block text-xs uppercase">1. Perkembangan Sensori Motorik</strong>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
@@ -1409,6 +1436,20 @@ export default function AdminDashboard() {
                         <p><strong>Lama Pendampingan:</strong> {selectedItem.lama_pendampingan || "-"}</p>
                       </div>
 
+                      {/* CETAK PDF LAPORAN NARATIF GPK TAMBAHAN */}
+                      <div className="border border-black p-3 space-y-2">
+                        <h3 className="font-bold uppercase text-teal-900 border-b border-gray-300 pb-1 mb-2">Laporan Perkembangan (Naratif GPK)</h3>
+                        <p><strong>Capaian / Perkembangan Siswa:</strong><br/>
+                          <span className="whitespace-pre-wrap">{selectedItem.capaian || "-"}</span>
+                        </p>
+                        <p><strong>Kendala yang Dihadapi:</strong><br/>
+                          <span className="whitespace-pre-wrap">{selectedItem.kendala || "-"}</span>
+                        </p>
+                        <p><strong>Rekomendasi / Tindak Lanjut:</strong><br/>
+                          <span className="whitespace-pre-wrap">{selectedItem.rekomendasi || "-"}</span>
+                        </p>
+                      </div>
+
                       <div className="border border-black p-3 space-y-2">
                         <h3 className="font-bold uppercase text-teal-900 border-b border-gray-300 pb-1 mb-2">Rincian 8 Aspek & Indikator Perkembangan</h3>
                          
@@ -1509,7 +1550,7 @@ export default function AdminDashboard() {
                   {selectedItem.temuan_lapangan && (
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-4">
                       <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Temuan Lapangan (5 Aspek)</h4>
-                       
+                        
                       <div className="space-y-1.5 text-xs border-b border-white/5 pb-3">
                         <strong className="text-blue-300 block">1. Kognitif</strong>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
