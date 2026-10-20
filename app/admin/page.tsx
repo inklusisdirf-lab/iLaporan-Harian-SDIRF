@@ -73,10 +73,12 @@ export default function AdminDashboard() {
     contentRef: evaluasiComponentRef,
   });
 
+  // --- PEMBARUAN: Menggunakan getSession() untuk mendukung Remember Me / Session Persistence ---
   useEffect(() => {
     async function checkAdminAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
         router.push("/login");
         return;
       }
@@ -84,7 +86,7 @@ export default function AdminDashboard() {
       const { data: profile } = await supabase
         .from("profiles")
         .select("full_name, role")
-        .eq("id", user.id)
+        .eq("id", session.user.id)
         .maybeSingle();
 
       if (!profile || profile.role !== "admin") {
@@ -648,7 +650,7 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              {/* FORMAT CETAK PDF LAPORAN HARIAN (DENGAN PROTEKSI PAGE-BREAK) */}
+              {/* FORMAT CETAK PDF LAPORAN HARIAN */}
               <div className="hidden">
                 <div ref={componentRef} className="p-8 bg-white text-black font-sans" style={{ printColorAdjust: "exact" }}>
                   <div className="text-center border-b-2 border-black pb-4 mb-6" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
@@ -1196,7 +1198,7 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {/* === Rincian Evaluasi 3 Bulanan (KOMPARASI ASPEK_DATA) === */}
+              {/* === Rincian Evaluasi 3 Bulanan === */}
               {modalType === "evaluation" && (
                 <div className="space-y-4">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
@@ -1267,7 +1269,7 @@ export default function AdminDashboard() {
                     </button>
                   </div>
 
-                  {/* FORMAT CETAK PDF EVALUASI 3 BULANAN (DENGAN PROTEKSI PAGE-BREAK) */}
+                  {/* FORMAT CETAK PDF EVALUASI 3 BULANAN */}
                   <div className="hidden">
                     <div ref={evaluasiComponentRef} className="p-8 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact" }}>
                       <div className="text-center border-b-2 border-black pb-4 mb-4" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
@@ -1547,7 +1549,7 @@ export default function AdminDashboard() {
                     </button>
                   </div>
 
-                  {/* FORMAT CETAK PDF DOKUMEN PPI (DENGAN PROTEKSI PAGE-BREAK) */}
+                  {/* FORMAT CETAK PDF DOKUMEN PPI */}
                   <div className="hidden">
                     <div ref={ppiComponentRef} className="p-8 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact" }}>
                       <div className="text-center border-b-2 border-black pb-4 mb-4" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>

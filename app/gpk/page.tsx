@@ -126,37 +126,73 @@ export default function GpkDashboard() {
     { key: "berhitung", label: "Berhitung" }
   ];
 
+  // STABILISASI SESI & REMEMBER ME PADA HP
   useEffect(() => {
+    let isMounted = true;
+
     async function checkGpkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push("/login"); return; }
-      
-      const { data: profile } = await supabase.from("profiles").select("id, full_name, role").eq("id", user.id).maybeSingle();
-      if (!profile || profile.role !== "gpk") { router.push("/login"); return; }
-      
-      setGpkId(profile.id); 
-      setGpkName(profile.full_name);
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError || !session) {
+          if (isMounted) router.push("/login");
+          return;
+        }
 
-      const { data: allStudentsData } = await supabase.from("students").select("*");
-      if (allStudentsData) {
-        setAllStudents(allStudentsData);
-        const mine = allStudentsData.filter(s => s.gpk_id === profile.id);
-        setAssignedStudents(mine);
+        const user = session.user;
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("id, full_name, role")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (profileError || !profile || profile.role !== "gpk") {
+          if (isMounted) router.push("/login");
+          return;
+        }
+
+        if (isMounted) {
+          setGpkId(profile.id); 
+          setGpkName(profile.full_name);
+
+          const { data: allStudentsData } = await supabase.from("students").select("*");
+          if (allStudentsData) {
+            setAllStudents(allStudentsData);
+            const mine = allStudentsData.filter(s => s.gpk_id === profile.id);
+            setAssignedStudents(mine);
+          }
+
+          fetchGpkHistory(profile.id);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Auth check error:", err);
+        if (isMounted) setLoading(false);
       }
-
-      fetchGpkHistory(profile.id);
-      setLoading(false);
     }
+
     checkGpkAuth();
+
+    // Listener otomatis memperbarui/mempertahankan sesi aktif lintas tab & HP
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        router.push("/login");
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription?.unsubscribe();
+    };
   }, [router]);
 
   const fetchGpkHistory = async (id: string) => {
     const { data: repData } = await supabase.from("daily_reports").select("*, students(full_name)").eq("gpk_id", id).order("created_at", { ascending: false });
     if (repData) setMyReports(repData);
-    
+     
     const { data: assessData } = await supabase.from("assessments").select("*, students(full_name)").eq("gpk_id", id).order("created_at", { ascending: false });
     if (assessData) setMyAssessments(assessData);
-    
+     
     const { data: ppiData } = await supabase.from("ppi").select("*, students(full_name)").eq("gpk_id", id).order("created_at", { ascending: false });
     if (ppiData) setMyPpi(ppiData);
 
@@ -190,7 +226,7 @@ export default function GpkDashboard() {
   const handleSubmitReport = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedStudentId) return alert("Pilih siswa terlebih dahulu!");
-      
+       
     const payload = { 
       student_id: selectedStudentId, 
       gpk_id: gpkId, 
@@ -321,7 +357,6 @@ export default function GpkDashboard() {
     else { setMessage("Dokumen PPI berhasil dihapus."); fetchGpkHistory(gpkId); setTimeout(() => setMessage(""), 3000); }
   };
 
-  // Submit Evaluasi
   const handleSubmitEvaluation = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedStudentId) return alert("Pilih siswa dampingan terlebih dahulu!");
@@ -490,12 +525,7 @@ export default function GpkDashboard() {
                   </h3>
                   
                   <label className="flex items-center gap-2 bg-slate-900 border border-blue-500/40 px-3.5 py-2 rounded-xl cursor-pointer shadow-md w-full sm:w-auto">
-                    <input 
-                      type="checkbox" 
-                      checked={isRollingMode} 
-                      onChange={(e) => setIsRollingMode(e.target.checked)} 
-                      className="w-4 h-4 text-blue-600 rounded flex-shrink-0" 
-                    />
+                    <input type="checkbox" checked={isRollingMode} onChange={(e) => setIsRollingMode(e.target.checked)} className="w-4 h-4 text-blue-600 rounded flex-shrink-0" />
                     <span className="text-xs font-bold text-blue-300 flex items-center gap-1.5 whitespace-nowrap">
                       <Users className="w-3.5 h-3.5" /> Mode Rolling (Semua Siswa)
                     </span>
@@ -505,22 +535,11 @@ export default function GpkDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-950/60 p-4 rounded-2xl border border-white/5">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold text-slate-400 uppercase">Nama GPK (Login)</label>
-                    <input 
-                      type="text" 
-                      value={gpkName} 
-                      disabled 
-                      className="bg-slate-900 border border-slate-800 rounded-xl py-3 px-4 text-slate-300 text-sm w-full cursor-not-allowed font-semibold" 
-                    />
+                    <input type="text" value={gpkName} disabled className="bg-slate-900 border border-slate-800 rounded-xl py-3 px-4 text-slate-300 text-sm w-full cursor-not-allowed font-semibold" />
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold text-blue-400 uppercase">Tanggal Laporan</label>
-                    <input 
-                      type="date" 
-                      value={tanggalLaporan} 
-                      onChange={(e) => setTanggalLaporan(e.target.value)} 
-                      required 
-                      className="bg-slate-900 border border-blue-500/40 rounded-xl py-3 px-4 text-white text-sm w-full" 
-                    />
+                    <input type="date" value={tanggalLaporan} onChange={(e) => setTanggalLaporan(e.target.value)} required className="bg-slate-900 border border-blue-500/40 rounded-xl py-3 px-4 text-white text-sm w-full" />
                   </div>
                 </div>
 
@@ -602,7 +621,7 @@ export default function GpkDashboard() {
                         </div>
                         <h4 className="text-lg font-bold text-white mb-1">{r.students?.full_name}</h4>
                         <p className="text-xs text-slate-400">GPK: {r.gpk_name || gpkName}</p>
-                          
+                        
                         <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
                           <p className="line-clamp-1"><strong>Materi:</strong> {r.materi_pembelajaran}</p>
                           <p className="line-clamp-2"><strong>Hasil:</strong> {r.hasil_pembelajaran}</p>
@@ -789,7 +808,7 @@ export default function GpkDashboard() {
                           <span className="text-xs text-slate-400">{a.tanggal_assessment || "-"}</span>
                         </div>
                         <h4 className="text-lg font-bold text-white mb-1">{a.students?.full_name || "Siswa PDBK"}</h4>
-                          
+                        
                         <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
                           <p className="line-clamp-2"><strong>Permasalahan:</strong> {a.permasalahan || "-"}</p>
                           {a.identitas?.kelas && <p><strong>Kelas:</strong> {a.identitas.kelas}</p>}
@@ -914,11 +933,7 @@ export default function GpkDashboard() {
                 <div className="border border-white/10 p-4 sm:p-5 rounded-2xl bg-white/5 space-y-4">
                   <div className="flex justify-between items-center">
                     <h4 className="font-bold text-amber-300 text-sm uppercase">5. Jadwal & Rencana Evaluasi</h4>
-                    <button 
-                      type="button" 
-                      onClick={addEvaluasiRow}
-                      className="text-xs bg-amber-500/25 px-3.5 py-2 rounded-xl text-amber-300 hover:bg-amber-500/40 flex items-center gap-1.5 font-semibold transition-all"
-                    >
+                    <button type="button" onClick={addEvaluasiRow} className="text-xs bg-amber-500/25 px-3.5 py-2 rounded-xl text-amber-300 hover:bg-amber-500/40 flex items-center gap-1.5 font-semibold transition-all">
                       <Plus className="w-3.5 h-3.5" /> Tambah Baris
                     </button>
                   </div>
@@ -928,31 +943,15 @@ export default function GpkDashboard() {
                       <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800 items-end">
                         <div className="md:col-span-3 flex flex-col gap-1.5">
                           <label className="text-xs font-semibold text-slate-400">Periode Waktu</label>
-                          <input 
-                            type="text" 
-                            placeholder="Contoh: Bulan ke-1" 
-                            value={row.periode} 
-                            onChange={(e) => updateEvaluasiRow(index, "periode", e.target.value)} 
-                            className="bg-slate-900 p-2.5 rounded-xl border border-slate-700 text-xs text-white w-full" 
-                          />
+                          <input type="text" placeholder="Contoh: Bulan ke-1" value={row.periode} onChange={(e) => updateEvaluasiRow(index, "periode", e.target.value)} className="bg-slate-900 p-2.5 rounded-xl border border-slate-700 text-xs text-white w-full" />
                         </div>
                         <div className="md:col-span-5 flex flex-col gap-1.5">
                           <label className="text-xs font-semibold text-slate-400">Kegiatan Evaluasi</label>
-                          <input 
-                            type="text" 
-                            placeholder="Contoh: Observasi pemahaman materi" 
-                            value={row.kegiatan} 
-                            onChange={(e) => updateEvaluasiRow(index, "kegiatan", e.target.value)} 
-                            className="bg-slate-900 p-2.5 rounded-xl border border-slate-700 text-xs text-white w-full" 
-                          />
+                          <input type="text" placeholder="Contoh: Observasi pemahaman materi" value={row.kegiatan} onChange={(e) => updateEvaluasiRow(index, "kegiatan", e.target.value)} className="bg-slate-900 p-2.5 rounded-xl border border-slate-700 text-xs text-white w-full" />
                         </div>
                         <div className="md:col-span-3 flex flex-col gap-1.5">
                           <label className="text-xs font-semibold text-slate-400">Status Progres</label>
-                          <select 
-                            value={row.status} 
-                            onChange={(e) => updateEvaluasiRow(index, "status", e.target.value)} 
-                            className="bg-slate-900 p-2.5 rounded-xl border border-slate-700 text-xs text-white w-full"
-                          >
+                          <select value={row.status} onChange={(e) => updateEvaluasiRow(index, "status", e.target.value)} className="bg-slate-900 p-2.5 rounded-xl border border-slate-700 text-xs text-white w-full">
                             <option value="Aktif">Aktif</option>
                             <option value="Selesai">Selesai</option>
                             <option value="Tertunda">Tertunda</option>
@@ -960,12 +959,7 @@ export default function GpkDashboard() {
                         </div>
                         <div className="md:col-span-1 flex justify-center">
                           {rencanaEvaluasi.length > 1 && (
-                            <button 
-                              type="button" 
-                              onClick={() => removeEvaluasiRow(index)} 
-                              className="p-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-all w-full md:w-auto flex justify-center"
-                              title="Hapus Baris"
-                            >
+                            <button type="button" onClick={() => removeEvaluasiRow(index)} className="p-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-all w-full md:w-auto flex justify-center" title="Hapus Baris">
                               <Minus className="w-4 h-4" />
                             </button>
                           )}
@@ -1076,19 +1070,13 @@ export default function GpkDashboard() {
                   </h3>
                   
                   <label className="flex items-center gap-2 bg-slate-900 border border-blue-500/40 px-3.5 py-2 rounded-xl cursor-pointer shadow-md w-full sm:w-auto">
-                    <input 
-                      type="checkbox" 
-                      checked={isRollingMode} 
-                      onChange={(e) => setIsRollingMode(e.target.checked)} 
-                      className="w-4 h-4 text-blue-600 rounded flex-shrink-0" 
-                    />
+                    <input type="checkbox" checked={isRollingMode} onChange={(e) => setIsRollingMode(e.target.checked)} className="w-4 h-4 text-blue-600 rounded flex-shrink-0" />
                     <span className="text-xs font-bold text-blue-300 flex items-center gap-1.5 whitespace-nowrap">
                       <Users className="w-3.5 h-3.5" /> Mode Rolling (Semua Siswa)
                     </span>
                   </label>
                 </div>
 
-                {/* IDENTITAS AWAL EVALUASI */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-950/60 p-4 rounded-2xl border border-white/5">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold text-slate-400 uppercase">Nama Pendamping Khusus</label>
@@ -1113,14 +1101,10 @@ export default function GpkDashboard() {
                   </div>
                 </div>
 
-                {/* ASPEK EVALUASI */}
+                {/* ASPEK EVALUASI LENGKAP */}
                 <div className="space-y-6">
-                  
-                  {/* 1. SENSORI MOTORIK */}
                   <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-4">
-                    <h4 className="font-bold text-blue-400 text-sm uppercase flex items-center gap-2">
-                      <span>1. Perkembangan Sensori Motorik Anak</span>
-                    </h4>
+                    <h4 className="font-bold text-blue-400 text-sm uppercase">1. Perkembangan Sensori Motorik Anak</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {[
                         { key: "motorik_halus", label: "Kemampuan Motorik Halus" },
@@ -1145,7 +1129,6 @@ export default function GpkDashboard() {
                     </div>
                   </div>
 
-                  {/* 2. KOGNITIF */}
                   <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-4">
                     <h4 className="font-bold text-purple-400 text-sm uppercase">2. Kognitif</h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1171,15 +1154,14 @@ export default function GpkDashboard() {
                     </div>
                   </div>
 
-                  {/* 3. BAHASA */}
                   <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-4">
                     <h4 className="font-bold text-emerald-400 text-sm uppercase">3. Bahasa</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {[
-                        { key: "reseptif", label: "Kemampuan Reseptif (Memahami Informasi Verbal)" },
-                        { key: "ekspresif", label: "Kemampuan Ekspresif (Menyampaikan Ide Verbal)" },
-                        { key: "komunikasi_dua_arah", label: "Kemampuan Menjalin Komunikasi Dua Arah" },
-                        { key: "fonologi", label: "Kemampuan Fonologi (Bunyi Huruf Asli)" },
+                        { key: "reseptif", label: "Kemampuan Reseptif" },
+                        { key: "ekspresif", label: "Kemampuan Ekspresif" },
+                        { key: "komunikasi_dua_arah", label: "Komunikasi Dua Arah" },
+                        { key: "fonologi", label: "Fonologi" },
                       ].map((ind) => (
                         <div key={ind.key} className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
                           <span className="text-xs font-bold text-slate-300 block">{ind.label}</span>
@@ -1198,13 +1180,12 @@ export default function GpkDashboard() {
                     </div>
                   </div>
 
-                  {/* 4. SOSIAL */}
                   <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-4">
                     <h4 className="font-bold text-amber-400 text-sm uppercase">4. Sosial</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {[
-                        { key: "berinteraksi", label: "Kemampuan Berinteraksi dengan Sekitar" },
-                        { key: "inisiatif", label: "Inisiatif dalam Menjalin Interaksi" },
+                        { key: "berinteraksi", label: "Kemampuan Berinteraksi" },
+                        { key: "inisiatif", label: "Inisiatif Interaksi" },
                       ].map((ind) => (
                         <div key={ind.key} className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
                           <span className="text-xs font-bold text-slate-300 block">{ind.label}</span>
@@ -1223,14 +1204,11 @@ export default function GpkDashboard() {
                     </div>
                   </div>
 
-                  {/* 5. EMOSI, 6. MEMBACA, 7. MENULIS, 8. BERHITUNG */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    
-                    {/* 5. Emosi */}
                     <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-3">
                       <h4 className="font-bold text-pink-400 text-sm uppercase">5. Emosi</h4>
                       <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                        <span className="text-xs font-bold text-slate-300 block">Kondisi Emosi Anak Selama Ini</span>
+                        <span className="text-xs font-bold text-slate-300 block">Kondisi Emosi Anak</span>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           <div><label className="text-[10px] text-slate-400 block mb-1">Kondisi Awal</label><textarea rows={2} value={aspekForm.emosi.kondisi_emosi.kondisi_awal} onChange={(e) => handleAspekChange('emosi', 'kondisi_emosi', 'kondisi_awal', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white" /></div>
                           <div><label className="text-[10px] text-emerald-400 block mb-1">Kondisi Sekarang</label><textarea rows={2} value={aspekForm.emosi.kondisi_emosi.kondisi_sekarang} onChange={(e) => handleAspekChange('emosi', 'kondisi_emosi', 'kondisi_sekarang', e.target.value)} className="w-full bg-slate-900 border border-emerald-500/40 rounded-lg p-2 text-xs text-white" /></div>
@@ -1238,11 +1216,10 @@ export default function GpkDashboard() {
                       </div>
                     </div>
 
-                    {/* 6. Membaca */}
                     <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-3">
-                      <h4 className="font-bold text-indigo-400 text-sm uppercase">6. Kemampuan Membaca</h4>
+                      <h4 className="font-bold text-indigo-400 text-sm uppercase">6. Membaca</h4>
                       <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                        <span className="text-xs font-bold text-slate-300 block">Capaian Anak dalam Aktivitas Membaca</span>
+                        <span className="text-xs font-bold text-slate-300 block">Capaian Membaca</span>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           <div><label className="text-[10px] text-slate-400 block mb-1">Kondisi Awal</label><textarea rows={2} value={aspekForm.membaca.capaian_membaca.kondisi_awal} onChange={(e) => handleAspekChange('membaca', 'capaian_membaca', 'kondisi_awal', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white" /></div>
                           <div><label className="text-[10px] text-emerald-400 block mb-1">Kondisi Sekarang</label><textarea rows={2} value={aspekForm.membaca.capaian_membaca.kondisi_sekarang} onChange={(e) => handleAspekChange('membaca', 'capaian_membaca', 'kondisi_sekarang', e.target.value)} className="w-full bg-slate-900 border border-emerald-500/40 rounded-lg p-2 text-xs text-white" /></div>
@@ -1250,11 +1227,10 @@ export default function GpkDashboard() {
                       </div>
                     </div>
 
-                    {/* 7. Menulis */}
                     <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-3">
-                      <h4 className="font-bold text-teal-400 text-sm uppercase">7. Kemampuan Menulis</h4>
+                      <h4 className="font-bold text-teal-400 text-sm uppercase">7. Menulis</h4>
                       <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                        <span className="text-xs font-bold text-slate-300 block">Capaian dan Kondisi Terkait Menulis</span>
+                        <span className="text-xs font-bold text-slate-300 block">Capaian Menulis</span>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           <div><label className="text-[10px] text-slate-400 block mb-1">Kondisi Awal</label><textarea rows={2} value={aspekForm.menulis.capaian_menulis.kondisi_awal} onChange={(e) => handleAspekChange('menulis', 'capaian_menulis', 'kondisi_awal', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white" /></div>
                           <div><label className="text-[10px] text-emerald-400 block mb-1">Kondisi Sekarang</label><textarea rows={2} value={aspekForm.menulis.capaian_menulis.kondisi_sekarang} onChange={(e) => handleAspekChange('menulis', 'capaian_menulis', 'kondisi_sekarang', e.target.value)} className="w-full bg-slate-900 border border-emerald-500/40 rounded-lg p-2 text-xs text-white" /></div>
@@ -1262,18 +1238,16 @@ export default function GpkDashboard() {
                       </div>
                     </div>
 
-                    {/* 8. Berhitung */}
                     <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-3">
-                      <h4 className="font-bold text-cyan-400 text-sm uppercase">8. Kemampuan Berhitung</h4>
+                      <h4 className="font-bold text-cyan-400 text-sm uppercase">8. Berhitung</h4>
                       <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                        <span className="text-xs font-bold text-slate-300 block">Capaian Anak dalam Aktivitas Berhitung</span>
+                        <span className="text-xs font-bold text-slate-300 block">Capaian Berhitung</span>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           <div><label className="text-[10px] text-slate-400 block mb-1">Kondisi Awal</label><textarea rows={2} value={aspekForm.berhitung.capaian_berhitung.kondisi_awal} onChange={(e) => handleAspekChange('berhitung', 'capaian_berhitung', 'kondisi_awal', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white" /></div>
                           <div><label className="text-[10px] text-emerald-400 block mb-1">Kondisi Sekarang</label><textarea rows={2} value={aspekForm.berhitung.capaian_berhitung.kondisi_sekarang} onChange={(e) => handleAspekChange('berhitung', 'capaian_berhitung', 'kondisi_sekarang', e.target.value)} className="w-full bg-slate-900 border border-emerald-500/40 rounded-lg p-2 text-xs text-white" /></div>
                         </div>
                       </div>
                     </div>
-
                   </div>
                 </div>
 
@@ -1344,7 +1318,7 @@ export default function GpkDashboard() {
               <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 sm:top-6 sm:right-6 text-slate-400 hover:text-white bg-white/5 p-2 rounded-full hover:bg-red-500/20 hover:text-red-400 transition-all z-10">
                 <X className="w-5 h-5" />
               </button>
-                
+                 
               <h3 className="text-lg sm:text-xl font-bold text-white uppercase flex items-center gap-2 border-b border-white/10 pb-4 pr-8">
                 {modalType === "report" ? ( <><BookOpen className="text-blue-400 flex-shrink-0"/> Rincian Lengkap Laporan Harian PDBK</> ) : 
                  modalType === "assessment" ? ( <><BrainCircuit className="text-purple-400 flex-shrink-0"/> Rincian Lengkap Asesmen Awal PDBK</> ) : 
@@ -1353,8 +1327,6 @@ export default function GpkDashboard() {
               </h3>
 
               <div className="space-y-6 text-sm text-slate-300">
-                
-                {/* DETAIL EVALUASI 3 BULANAN DENGAN URUTAN (SORTING) YANG BENAR */}
                 {modalType === "evaluation" && (
                   <div className="space-y-4">
                     <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
@@ -1363,10 +1335,9 @@ export default function GpkDashboard() {
                       <div><span className="block text-slate-500">Lama Pendampingan</span><strong className="text-blue-400 text-base">{selectedItem.lama_pendampingan}</strong></div>
                     </div>
 
-                    {/* RENDER BERDASARKAN URUTAN YANG SUDAH DITENTUKAN */}
                     {selectedItem.aspek_data && aspekOrder.map((aspek) => {
                       const dataAspek = selectedItem.aspek_data[aspek.key];
-                      if (!dataAspek) return null; // Jika data kosong, lewati
+                      if (!dataAspek) return null;
 
                       return (
                         <div key={aspek.key} className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
