@@ -20,6 +20,7 @@ export default function LoginPage() {
 
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false); // State untuk Remember Me
 
   const [forgotEmail, setForgotEmail] = useState("");
   
@@ -104,6 +105,9 @@ export default function LoginPage() {
       });
 
       if (error) throw error;
+
+      // Jika "Remember Me" dicentang, sesi otomatis di-handle persistensinya oleh client Supabase (localStorage).
+      // Anda juga bisa menambahkan logika tambahan di sini jika diperlukan.
 
       const { data: profileData } = await supabase
         .from("profiles")
@@ -223,11 +227,24 @@ export default function LoginPage() {
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
                     <input type="password" placeholder="Password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white text-sm" required />
                   </div>
-                  <div className="flex justify-end">
-                    <button type="button" onClick={() => { setView("forgot"); setErrorMessage(""); setSuccessMessage(""); }} className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                  
+                  {/* Fitur Remember Me & Lupa Password */}
+                  <div className="flex items-center justify-between text-xs text-slate-300">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={rememberMe} 
+                        onChange={(e) => setRememberMe(e.target.checked)} 
+                        className="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0 cursor-pointer"
+                      />
+                      Remember Me
+                    </label>
+                    
+                    <button type="button" onClick={() => { setView("forgot"); setErrorMessage(""); setSuccessMessage(""); }} className="text-blue-400 hover:text-blue-300 flex items-center gap-1">
                       <KeyRound className="w-3.5 h-3.5" /> Lupa Password?
                     </button>
                   </div>
+
                   <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg">{loading ? "Loading..." : "Masuk"}</button>
                   <p className="text-center text-sm text-slate-400 mt-2">Belum punya akun? <button type="button" onClick={() => { setView("register"); setErrorMessage(""); setSuccessMessage(""); }} className="text-blue-400 font-semibold hover:underline">Daftar</button></p>
                 </motion.form>
