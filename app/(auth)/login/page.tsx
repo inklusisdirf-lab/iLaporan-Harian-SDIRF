@@ -20,13 +20,49 @@ export default function LoginPage() {
 
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false); // State untuk Remember Me
+  const [rememberMe, setRememberMe] = useState(true); // Default true agar tetap login
 
   const [forgotEmail, setForgotEmail] = useState("");
   
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Mulai dengan true untuk cek sesi awal
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  // 1. CEK SESI AKTIF OTOMATIS SAAT HALAMAN DIBUKA (Cukup 1x login)
+  useEffect(() => {
+    async function checkExistingSession() {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (session && !error) {
+          // Ambil role user dari tabel profiles
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", session.user.id)
+            .maybeSingle();
+
+          if (profileData?.role) {
+            redirectToDashboard(profileData.role);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Gagal memeriksa sesi:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    checkExistingSession();
+  }, [router]);
+
+  const redirectToDashboard = (role: string) => {
+    if (role === "admin") router.push("/admin");
+    else if (role === "gpk") router.push("/gpk");
+    else if (role === "psikolog") router.push("/psikolog");
+    else router.push("/wali");
+  };
 
   // Penangkap token_hash dari link email konfirmasi secara otomatis
   useEffect(() => {
@@ -106,23 +142,18 @@ export default function LoginPage() {
 
       if (error) throw error;
 
-      // Jika "Remember Me" dicentang, sesi otomatis di-handle persistensinya oleh client Supabase (localStorage).
-      // Anda juga bisa menambahkan logika tambahan di sini jika diperlukan.
+      if (data.user) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", data.user.id)
+          .single();
 
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", data.user!.id)
-        .single();
-
-      const role = profileData?.role;
-      if (role === "admin") router.push("/admin");
-      else if (role === "gpk") router.push("/gpk");
-      else if (role === "psikolog") router.push("/psikolog");
-      else router.push("/wali");
+        const role = profileData?.role || "wali";
+        redirectToDashboard(role);
+      }
     } catch (error: any) {
       setErrorMessage(error.message);
-    } finally {
       setLoading(false);
     }
   };
@@ -152,6 +183,18 @@ export default function LoginPage() {
     visible: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: -20 }
   };
+
+  // Jika sedang memeriksa sesi aktif, tampilkan loading agar tidak kedip ke form login
+  if (loading && view === "login") {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-slate-400">Memeriksa sesi login...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div translate="no" className="notranslate min-h-screen bg-slate-950 flex items-center justify-center relative overflow-hidden font-sans text-slate-100 py-12 px-4 sm:px-6 lg:px-8">
