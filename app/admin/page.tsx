@@ -698,8 +698,8 @@ export default function AdminDashboard() {
                   )}
                 </tbody>
               </table>
-            </div>
           </div>
+        </div>
         </div>
         )}
 
@@ -1458,7 +1458,7 @@ export default function AdminDashboard() {
                   </button>
                 </div>
 
-                {/* FORMAT CETAK PDF ASESMEN AWAL (Tersembunyi) */}
+                {/* FORMAT CETAK PDF ASESMEN AWAL LENGKAP */}
                 <div className="hidden">
                   <div ref={assessmentComponentRef} className="p-8 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact" }}>
                     <div className="text-center border-b-2 border-black pb-4 mb-4" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
@@ -1506,6 +1506,17 @@ export default function AdminDashboard() {
                         <p><strong>Kekurangan / Tantangan:</strong> {selectedItem.profiling.kekurangan || "-"}</p>
                         <p><strong>Hal yang Disukai:</strong> {selectedItem.profiling.disukai || "-"}</p>
                         <p><strong>Hal yang Tidak Disukai:</strong> {selectedItem.profiling.tidak_disukai || "-"}</p>
+                      </div>
+                    )}
+
+                    {selectedItem.temuan_lapangan && (
+                      <div className="border border-black p-3 space-y-2" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                        <h3 className="font-bold uppercase text-purple-900 border-b border-gray-300 pb-1">5. Temuan Lapangan</h3>
+                        <p><strong>Kognitif (Daya Tangkap / Fokus / Konsentrasi):</strong> {selectedItem.temuan_lapangan.kognitif?.daya_tangkap || "-"} / {selectedItem.temuan_lapangan.kognitif?.fokus || "-"} / {selectedItem.temuan_lapangan.kognitif?.konsentrasi || "-"}</p>
+                        <p><strong>Bahasa / Komunikasi (Reseptif / Ekspresif):</strong> {selectedItem.temuan_lapangan.bahasa?.reseptif || "-"} / {selectedItem.temuan_lapangan.bahasa?.ekspresif || "-"}</p>
+                        <p><strong>Kemandirian (Motorik Kasar / Halus):</strong> {selectedItem.temuan_lapangan.kemandirian?.motorik_kasar || "-"} / {selectedItem.temuan_lapangan.kemandirian?.motorik_halus || "-"}</p>
+                        <p><strong>Sosial:</strong> {selectedItem.temuan_lapangan.sosial?.adaptasi || "-"}</p>
+                        <p><strong>Emosi:</strong> {selectedItem.temuan_lapangan.emosi?.kontrol_emosi || "-"}</p>
                       </div>
                     )}
 
