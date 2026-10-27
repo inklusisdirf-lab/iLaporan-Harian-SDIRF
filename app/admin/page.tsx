@@ -529,7 +529,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
                   <Filter className="w-4 h-4" /> Filter Laporan Harian & Cetak
                 </div>
-                 
+                  
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   <div>
                     <label className="text-[11px] text-slate-400 block mb-1">Nama Siswa</label>
@@ -589,33 +589,33 @@ export default function AdminDashboard() {
 
               <div className="flex flex-col gap-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-emerald-400" /> Pengelompokan Berdasarkan Tanggal:
+                  <Calendar className="w-4 h-4 text-emerald-400" /> Pengelompokan Berdasarkan Tanggal:
                 </span>
                 {Object.keys(groupedReports).length === 0 ? (
-                    <p className="text-slate-400 text-xs italic">Belum ada data tanggal laporan harian.</p>
+                  <p className="text-slate-400 text-xs italic">Belum ada data tanggal laporan harian.</p>
                 ) : (
-                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
-                      {Object.keys(groupedReports).sort().reverse().map((date) => (
-                        <button
-                          key={date}
-                          onClick={() => setSelectedReportDate(date)}
-                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md whitespace-nowrap flex items-center gap-1.5 ${
-                            selectedReportDate === date && !tglMulai && !tglSelesai
-                              ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white border border-white/30"
-                              : "bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10"
-                          }`}
-                        >
-                          <span>📅</span> {date} <span className="text-[10px] bg-white/20 px-1.5 py-0.2 rounded-full">({groupedReports[date].length})</span>
-                        </button>
+                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                    {Object.keys(groupedReports).sort().reverse().map((date) => (
+                      <button
+                        key={date}
+                        onClick={() => setSelectedReportDate(date)}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md whitespace-nowrap flex items-center gap-1.5 ${
+                          selectedReportDate === date && !tglMulai && !tglSelesai
+                            ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white border border-white/30"
+                            : "bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10"
+                        }`}
+                      >
+                        <span>📅</span> {date} <span className="text-[10px] bg-white/20 px-1.5 py-0.2 rounded-full">({groupedReports[date].length})</span>
+                      </button>
                     ))}
                   </div>
                 )}
-            </div>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {displayedReports.length === 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {displayedReports.length === 0 ? (
                   <p className="text-slate-400 text-sm italic col-span-full">Tidak ada laporan harian pada filter yang dipilih.</p>
-              ) : (
+                ) : (
                   displayedReports.map((r) => (
                     <div key={r.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
                       <div className="space-y-3">
@@ -644,222 +644,222 @@ export default function AdminDashboard() {
                         )}
                       </div>
 
-                  <button 
-                    onClick={() => { setSelectedItem(r); setModalType("report"); }}
-                    className="w-full bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all"
-                  >
-                    <Eye className="w-4 h-4 text-emerald-400" /> Lihat Detail Laporan
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
-
-          {/* FORMAT CETAK PDF LAPORAN HARIAN */}
-          <div className="hidden">
-            <div ref={componentRef} className="p-8 bg-white text-black font-sans" style={{ printColorAdjust: "exact" }}>
-              <div className="text-center border-b-2 border-black pb-4 mb-6" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
-                <h2 className="text-2xl font-bold uppercase">SD Islam Roushon Fikr Jombang</h2>
-                <p className="text-sm font-semibold">Rekapitulasi Laporan Harian Guru Pendamping Khusus (GPK)</p>
-                <div className="text-xs text-gray-700 mt-1 flex justify-center gap-4">
-                  {filterNama && <span>Siswa: <b>{filterNama}</b></span>}
-                  {filterMapel && <span>Mapel: <b>{filterMapel}</b></span>}
-                  {tglMulai && tglSelesai && <span>Periode: <b>{tglMulai} s.d {tglSelesai}</b></span>}
-                </div>
-                <p className="text-xs text-gray-600 mt-1">Dicetak pada: {new Date().toLocaleDateString("id-ID")}</p>
+                      <button 
+                        onClick={() => { setSelectedItem(r); setModalType("report"); }}
+                        className="w-full bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all"
+                      >
+                        <Eye className="w-4 h-4 text-emerald-400" /> Lihat Detail Laporan
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
-              <table className="w-full border-collapse border border-black text-xs">
-                <thead>
-                  <tr className="bg-gray-200" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
-                    <th className="border border-black p-2">Tanggal</th>
-                    <th className="border border-black p-2">Nama Siswa</th>
-                    <th className="border border-black p-2">Mata Pelajaran</th>
-                    <th className="border border-black p-2">Materi</th>
-                    <th className="border border-black p-2">Hasil Pembelajaran</th>
-                    <th className="border border-black p-2">Tanggapan Wali</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {displayedReports.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="border border-black p-4 text-center italic">Tidak ada laporan yang sesuai dengan filter.</td>
-                    </tr>
-                  ) : (
-                    displayedReports.map((r, idx) => (
-                      <tr key={idx} style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
-                        <td className="border border-black p-2 text-center">{r.tanggal}</td>
-                        <td className="border border-black p-2">{r.students?.full_name}</td>
-                        <td className="border border-black p-2">{r.mata_pelajaran}</td>
-                        <td className="border border-black p-2">{r.materi_pembelajaran}</td>
-                        <td className="border border-black p-2">{r.hasil_pembelajaran}</td>
-                        <td className="border border-black p-2 italic">{r.feedback_wali || "-"}</td>
+
+              {/* FORMAT CETAK PDF LAPORAN HARIAN */}
+              <div className="hidden">
+                <div ref={componentRef} className="p-8 bg-white text-black font-sans" style={{ printColorAdjust: "exact" }}>
+                  <div className="text-center border-b-2 border-black pb-4 mb-6" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                    <h2 className="text-2xl font-bold uppercase">SD Islam Roushon Fikr Jombang</h2>
+                    <p className="text-sm font-semibold">Rekapitulasi Laporan Harian Guru Pendamping Khusus (GPK)</p>
+                    <div className="text-xs text-gray-700 mt-1 flex justify-center gap-4">
+                      {filterNama && <span>Siswa: <b>{filterNama}</b></span>}
+                      {filterMapel && <span>Mapel: <b>{filterMapel}</b></span>}
+                      {tglMulai && tglSelesai && <span>Periode: <b>{tglMulai} s.d {tglSelesai}</b></span>}
+                    </div>
+                    <p className="text-xs text-gray-600 mt-1">Dicetak pada: {new Date().toLocaleDateString("id-ID")}</p>
+                  </div>
+                  <table className="w-full border-collapse border border-black text-xs">
+                    <thead>
+                      <tr className="bg-gray-200" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                        <th className="border border-black p-2">Tanggal</th>
+                        <th className="border border-black p-2">Nama Siswa</th>
+                        <th className="border border-black p-2">Mata Pelajaran</th>
+                        <th className="border border-black p-2">Materi</th>
+                        <th className="border border-black p-2">Hasil Pembelajaran</th>
+                        <th className="border border-black p-2">Tanggapan Wali</th>
                       </tr>
+                    </thead>
+                    <tbody>
+                      {displayedReports.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="border border-black p-4 text-center italic">Tidak ada laporan yang sesuai dengan filter.</td>
+                        </tr>
+                      ) : (
+                        displayedReports.map((r, idx) => (
+                          <tr key={idx} style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                            <td className="border border-black p-2 text-center">{r.tanggal}</td>
+                            <td className="border border-black p-2">{r.students?.full_name}</td>
+                            <td className="border border-black p-2">{r.mata_pelajaran}</td>
+                            <td className="border border-black p-2">{r.materi_pembelajaran}</td>
+                            <td className="border border-black p-2">{r.hasil_pembelajaran}</td>
+                            <td className="border border-black p-2 italic">{r.feedback_wali || "-"}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "ppi" && (
+            <div className="flex flex-col gap-6">
+              <div className="flex gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-fit">
+                <button 
+                  onClick={() => setPpiSubTab("asesmen")} 
+                  className={`px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+                    ppiSubTab === "asesmen" ? "bg-purple-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <BrainCircuit className="w-4 h-4" /> Asesmen Awal ({assessments.length})
+                </button>
+                <button 
+                  onClick={() => setPpiSubTab("ppi")} 
+                  className={`px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+                    ppiSubTab === "ppi" ? "bg-blue-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <FileText className="w-4 h-4" /> Dokumen PPI ({ppiList.length})
+                </button>
+            </div>
+
+            {ppiSubTab === "asesmen" && (
+              <div className="flex flex-col gap-6">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <BrainCircuit className="w-5 h-5 text-purple-400" /> Monitoring Asesmen Awal PDBK
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {assessments.length === 0 ? (
+                    <p className="text-slate-400 text-sm italic col-span-full">Belum ada data asesmen awal.</p>
+                  ) : (
+                    assessments.map((a) => (
+                      <div key={a.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 font-semibold">Asesmen Awal</span>
+                            <span className="text-xs text-slate-400">{a.tanggal_assessment || "-"}</span>
+                          </div>
+                          <h4 className="text-lg font-bold text-white mb-1">{a.students?.full_name || "Siswa PDBK"}</h4>
+                           
+                          <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
+                            <p className="line-clamp-2"><strong>Permasalahan:</strong> {a.permasalahan || "-"}</p>
+                            {a.identitas?.kelas && <p><strong>Kelas:</strong> {a.identitas.kelas}</p>}
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-400 pt-1">
+                            <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                              <span className="text-emerald-400 font-bold block">Kelebihan:</span>
+                              <span className="line-clamp-1">{a.profiling?.kelebihan || "-"}</span>
+                            </div>
+                            <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                              <span className="text-red-400 font-bold block">Kekurangan:</span>
+                              <span className="line-clamp-1">{a.profiling?.kekurangan || "-"}</span>
+                            </div>
+                          </div>
+
+                          {a.catatan_psikolog && (
+                            <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 shadow-inner">
+                              <p className="font-bold flex items-center gap-1 text-purple-300">
+                                <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Psikolog:
+                              </p>
+                              <p className="italic text-slate-200">"{a.catatan_psikolog}"</p>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col gap-2 pt-2">
+                          <div className="flex gap-2">
+                            <button 
+                              onClick={() => { setSelectedItem(a); setModalType("assessment"); }}
+                              className="flex-1 bg-purple-600/20 border border-purple-500/30 hover:bg-purple-600/30 text-purple-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all"
+                            >
+                              <Eye className="w-3.5 h-3.5" /> Detail
+                            </button>
+                            <button 
+                              onClick={() => { setEditAssessmentData(a); setShowAssessmentEditModal(true); }}
+                              className="flex-1 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" /> Edit
+                            </button>
+                          </div>
+                          <button 
+                            onClick={() => handleDeleteAssessment(a.id)}
+                            className="w-full bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" /> Hapus Asesmen
+                          </button>
+                        </div>
+                      </div>
                     ))
                   )}
-                </tbody>
-              </table>
-          </div>
-        </div>
-        </div>
-        )}
-
-        {activeTab === "ppi" && (
-          <div className="flex flex-col gap-6">
-            <div className="flex gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-fit">
-              <button 
-                onClick={() => setPpiSubTab("asesmen")} 
-                className={`px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
-                  ppiSubTab === "asesmen" ? "bg-purple-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
-                }`}
-              >
-                <BrainCircuit className="w-4 h-4" /> Asesmen Awal ({assessments.length})
-              </button>
-              <button 
-                onClick={() => setPpiSubTab("ppi")} 
-                className={`px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
-                  ppiSubTab === "ppi" ? "bg-blue-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
-                }`}
-              >
-                <FileText className="w-4 h-4" /> Dokumen PPI ({ppiList.length})
-              </button>
-          </div>
-
-          {ppiSubTab === "asesmen" && (
-            <div className="flex flex-col gap-6">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <BrainCircuit className="w-5 h-5 text-purple-400" /> Monitoring Asesmen Awal PDBK
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {assessments.length === 0 ? (
-                  <p className="text-slate-400 text-sm italic col-span-full">Belum ada data asesmen awal.</p>
-                ) : (
-                  assessments.map((a) => (
-                    <div key={a.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 font-semibold">Asesmen Awal</span>
-                          <span className="text-xs text-slate-400">{a.tanggal_assessment || "-"}</span>
-                        </div>
-                        <h4 className="text-lg font-bold text-white mb-1">{a.students?.full_name || "Siswa PDBK"}</h4>
-                         
-                        <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
-                          <p className="line-clamp-2"><strong>Permasalahan:</strong> {a.permasalahan || "-"}</p>
-                          {a.identitas?.kelas && <p><strong>Kelas:</strong> {a.identitas.kelas}</p>}
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-400 pt-1">
-                          <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
-                            <span className="text-emerald-400 font-bold block">Kelebihan:</span>
-                            <span className="line-clamp-1">{a.profiling?.kelebihan || "-"}</span>
-                          </div>
-                          <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
-                            <span className="text-red-400 font-bold block">Kekurangan:</span>
-                            <span className="line-clamp-1">{a.profiling?.kekurangan || "-"}</span>
-                          </div>
-                        </div>
-
-                        {a.catatan_psikolog && (
-                          <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 shadow-inner">
-                            <p className="font-bold flex items-center gap-1 text-purple-300">
-                              <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Psikolog:
-                            </p>
-                            <p className="italic text-slate-200">"{a.catatan_psikolog}"</p>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex flex-col gap-2 pt-2">
-                        <div className="flex gap-2">
-                          <button 
-                            onClick={() => { setSelectedItem(a); setModalType("assessment"); }}
-                            className="flex-1 bg-purple-600/20 border border-purple-500/30 hover:bg-purple-600/30 text-purple-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all"
-                          >
-                            <Eye className="w-3.5 h-3.5" /> Detail
-                          </button>
-                          <button 
-                            onClick={() => { setEditAssessmentData(a); setShowAssessmentEditModal(true); }}
-                            className="flex-1 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all"
-                          >
-                            <Edit3 className="w-3.5 h-3.5" /> Edit
-                          </button>
-                        </div>
-                        <button 
-                          onClick={() => handleDeleteAssessment(a.id)}
-                          className="w-full bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" /> Hapus Asesmen
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {ppiSubTab === "ppi" && (
-            <div className="flex flex-col gap-6">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <FileText className="w-5 h-5 text-blue-400" /> Monitoring Program Pembelajaran Individual (PPI)
-              </h3>
+            {ppiSubTab === "ppi" && (
+              <div className="flex flex-col gap-6">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-blue-400" /> Monitoring Program Pembelajaran Individual (PPI)
+                </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ppiList.length === 0 ? (
-                  <p className="text-slate-400 text-sm italic col-span-full">Belum ada dokumen PPI.</p>
-                ) : (
-                  ppiList.map((p) => (
-                    <div key={p.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
-                      <div>
-                        <div className="flex justify-between items-center mb-3">
-                          <span className="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 font-semibold uppercase">{p.status}</span>
-                          <span className="text-xs text-slate-400">{p.periode_ppi}</span>
-                        </div>
-                        <h4 className="text-lg font-bold text-white mb-1">{p.students?.full_name || "Siswa"}</h4>
-                        <div className="space-y-1.5 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5 mt-3">
-                          <p>TTD GPK: {p.ttd_gpk ? "✅ Selesai" : "⏳ Menunggu"}</p>
-                          <p>TTD Psikolog: {p.ttd_psikolog ? "✅ Disetujui" : "⏳ Menunggu"}</p>
-                          <p>TTD Orang Tua: {p.ttd_orangtua ? "✅ Selesai" : "⏳ Menunggu"}</p>
-                        </div>
-                        {p.catatan_psikolog && (
-                          <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 mt-3 shadow-inner">
-                            <p className="font-bold flex items-center gap-1 text-purple-300">
-                              <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Psikolog:
-                            </p>
-                            <p className="italic text-slate-200">"{p.catatan_psikolog}"</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {ppiList.length === 0 ? (
+                    <p className="text-slate-400 text-sm italic col-span-full">Belum ada dokumen PPI.</p>
+                  ) : (
+                    ppiList.map((p) => (
+                      <div key={p.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
+                        <div>
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 font-semibold uppercase">{p.status}</span>
+                            <span className="text-xs text-slate-400">{p.periode_ppi}</span>
                           </div>
-                        )}
-                      </div>
+                          <h4 className="text-lg font-bold text-white mb-1">{p.students?.full_name || "Siswa"}</h4>
+                          <div className="space-y-1.5 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5 mt-3">
+                            <p>TTD GPK: {p.ttd_gpk ? "✅ Selesai" : "⏳ Menunggu"}</p>
+                            <p>TTD Psikolog: {p.ttd_psikolog ? "✅ Disetujui" : "⏳ Menunggu"}</p>
+                            <p>TTD Orang Tua: {p.ttd_orangtua ? "✅ Selesai" : "⏳ Menunggu"}</p>
+                          </div>
+                          {p.catatan_psikolog && (
+                            <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 mt-3 shadow-inner">
+                              <p className="font-bold flex items-center gap-1 text-purple-300">
+                                <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Psikolog:
+                              </p>
+                              <p className="italic text-slate-200">"{p.catatan_psikolog}"</p>
+                            </div>
+                          )}
+                        </div>
 
-                      <div className="flex flex-col gap-2 pt-2">
-                        <div className="flex gap-2">
+                        <div className="flex flex-col gap-2 pt-2">
+                          <div className="flex gap-2">
+                            <button 
+                              onClick={() => { setSelectedItem(p); setModalType("ppi"); }}
+                              className="flex-1 bg-blue-600/20 border border-blue-500/30 hover:bg-blue-600/30 text-blue-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all"
+                            >
+                              <Eye className="w-3.5 h-3.5" /> Detail
+                            </button>
+                            <button 
+                              onClick={() => { setEditPpiData(p); setShowPpiEditModal(true); }}
+                              className="flex-1 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" /> Edit
+                            </button>
+                          </div>
                           <button 
-                            onClick={() => { setSelectedItem(p); setModalType("ppi"); }}
-                            className="flex-1 bg-blue-600/20 border border-blue-500/30 hover:bg-blue-600/30 text-blue-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all"
+                            onClick={() => handleDeletePpi(p.id)}
+                            className="w-full bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all"
                           >
-                            <Eye className="w-3.5 h-3.5" /> Detail
-                          </button>
-                          <button 
-                            onClick={() => { setEditPpiData(p); setShowPpiEditModal(true); }}
-                            className="flex-1 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all"
-                          >
-                            <Edit3 className="w-3.5 h-3.5" /> Edit
+                            <Trash2 className="w-3.5 h-3.5" /> Hapus Dokumen PPI
                           </button>
                         </div>
-                        <button 
-                          onClick={() => handleDeletePpi(p.id)}
-                          className="w-full bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" /> Hapus Dokumen PPI
-                        </button>
                       </div>
-                    </div>
-                  ))
-                )}
+                    ))
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
         )}
 
         {activeTab === "evaluasi" && (
@@ -1509,16 +1509,14 @@ export default function AdminDashboard() {
                       </div>
                     )}
 
-                    {selectedItem.temuan_lapangan && (
-                      <div className="border border-black p-3 space-y-2" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
-                        <h3 className="font-bold uppercase text-purple-900 border-b border-gray-300 pb-1">5. Temuan Lapangan</h3>
-                        <p><strong>Kognitif (Daya Tangkap / Fokus / Konsentrasi):</strong> {selectedItem.temuan_lapangan.kognitif?.daya_tangkap || "-"} / {selectedItem.temuan_lapangan.kognitif?.fokus || "-"} / {selectedItem.temuan_lapangan.kognitif?.konsentrasi || "-"}</p>
-                        <p><strong>Bahasa / Komunikasi (Reseptif / Ekspresif):</strong> {selectedItem.temuan_lapangan.bahasa?.reseptif || "-"} / {selectedItem.temuan_lapangan.bahasa?.ekspresif || "-"}</p>
-                        <p><strong>Kemandirian (Motorik Kasar / Halus):</strong> {selectedItem.temuan_lapangan.kemandirian?.motorik_kasar || "-"} / {selectedItem.temuan_lapangan.kemandirian?.motorik_halus || "-"}</p>
-                        <p><strong>Sosial:</strong> {selectedItem.temuan_lapangan.sosial?.adaptasi || "-"}</p>
-                        <p><strong>Emosi:</strong> {selectedItem.temuan_lapangan.emosi?.kontrol_emosi || "-"}</p>
-                      </div>
-                    )}
+                    <div className="border border-black p-3 space-y-2" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                      <h3 className="font-bold uppercase text-purple-900 border-b border-gray-300 pb-1">5. Temuan Lapangan</h3>
+                      <p><strong>Kognitif (Daya Tangkap / Fokus / Konsentrasi):</strong> {selectedItem.temuan_lapangan?.kognitif?.daya_tangkap || "-"} / {selectedItem.temuan_lapangan?.kognitif?.fokus || "-"} / {selectedItem.temuan_lapangan?.kognitif?.konsentrasi || "-"}</p>
+                      <p><strong>Bahasa / Komunikasi (Reseptif / Ekspresif):</strong> {selectedItem.temuan_lapangan?.bahasa?.reseptif || "-"} / {selectedItem.temuan_lapangan?.bahasa?.ekspresif || "-"}</p>
+                      <p><strong>Kemandirian (Motorik Kasar / Halus):</strong> {selectedItem.temuan_lapangan?.kemandirian?.motorik_kasar || "-"} / {selectedItem.temuan_lapangan?.kemandirian?.motorik_halus || "-"}</p>
+                      <p><strong>Sosial:</strong> {selectedItem.temuan_lapangan?.sosial?.adaptasi || "-"}</p>
+                      <p><strong>Emosi:</strong> {selectedItem.temuan_lapangan?.emosi?.kontrol_emosi || "-"}</p>
+                    </div>
 
                     {selectedItem.catatan_psikolog && (
                       <div className="border border-black p-3 space-y-1 bg-gray-50" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
