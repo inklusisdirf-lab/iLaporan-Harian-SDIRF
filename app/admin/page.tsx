@@ -655,7 +655,7 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              {/* FORMAT CETAK PDF LAPORAN HARIAN (DENGAN PADDING/MARGIN AMAN) */}
+              {/* FORMAT CETAK PDF LAPORAN HARIAN */}
               <div className="hidden">
                 <div ref={componentRef} className="p-10 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact", width: "100%", boxSizing: "border-box" }}>
                   <div className="text-center border-b-2 border-black pb-4 mb-6" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
@@ -1274,7 +1274,7 @@ export default function AdminDashboard() {
                   </button>
                 </div>
 
-                {/* FORMAT CETAK PDF EVALUASI 3 BULANAN (DENGAN MARGIN AMAN) */}
+                {/* FORMAT CETAK PDF EVALUASI 3 BULANAN */}
                 <div className="hidden">
                   <div ref={evaluasiComponentRef} className="p-10 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact", width: "100%", boxSizing: "border-box" }}>
                     <div className="text-center border-b-2 border-black pb-4 mb-4" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
@@ -1458,7 +1458,7 @@ export default function AdminDashboard() {
                   </button>
                 </div>
 
-                {/* FORMAT CETAK PDF ASESMEN AWAL LENGKAP (DENGAN MARGIN AMAN) */}
+                {/* FORMAT CETAK PDF ASESMEN AWAL LENGKAP (DENGAN TABEL TEMUAN LAPANGAN TERSTRUKTUR) */}
                 <div className="hidden">
                   <div ref={assessmentComponentRef} className="p-10 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact", width: "100%", boxSizing: "border-box" }}>
                     <div className="text-center border-b-2 border-black pb-4 mb-4" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
@@ -1509,13 +1509,60 @@ export default function AdminDashboard() {
                       </div>
                     )}
 
-                    <div className="border border-black p-3.5 space-y-2" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
-                      <h3 className="font-bold uppercase text-purple-900 border-b border-gray-300 pb-1">5. Temuan Lapangan</h3>
-                      <p><strong>Kognitif (Daya Tangkap / Fokus / Konsentrasi):</strong> {selectedItem.temuan_lapangan?.kognitif?.daya_tangkap || "-"} / {selectedItem.temuan_lapangan?.kognitif?.fokus || "-"} / {selectedItem.temuan_lapangan?.kognitif?.konsentrasi || "-"}</p>
-                      <p><strong>Bahasa / Komunikasi (Reseptif / Ekspresif):</strong> {selectedItem.temuan_lapangan?.bahasa?.reseptif || "-"} / {selectedItem.temuan_lapangan?.bahasa?.ekspresif || "-"}</p>
-                      <p><strong>Kemandirian (Motorik Kasar / Halus):</strong> {selectedItem.temuan_lapangan?.kemandirian?.motorik_kasar || "-"} / {selectedItem.temuan_lapangan?.kemandirian?.motorik_halus || "-"}</p>
-                      <p><strong>Sosial:</strong> {selectedItem.temuan_lapangan?.sosial?.adaptasi || "-"}</p>
-                      <p><strong>Emosi:</strong> {selectedItem.temuan_lapangan?.emosi?.kontrol_emosi || "-"}</p>
+                    {/* 5. TEMUAN LAPANGAN DALAM BENTUK TABEL TERSTRUKTUR */}
+                    <div className="border border-black p-3.5 space-y-3" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                      <h3 className="font-bold uppercase text-purple-900 border-b border-gray-300 pb-1">5. Temuan Lapangan (5 Aspek Perkembangan)</h3>
+                      
+                      <table className="w-full border-collapse border border-black text-[11px]">
+                        <thead>
+                          <tr className="bg-gray-100">
+                            <th className="border border-black p-1.5 w-1/3 text-left">Aspek / Sub-Aspek</th>
+                            <th className="border border-black p-1.5 w-2/3 text-left">Keterangan / Temuan</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {/* Kognitif */}
+                          <tr>
+                            <td className="border border-black p-1.5 font-bold bg-gray-50" rowSpan={7}>1. Kognitif</td>
+                            <td className="border border-black p-1.5"><strong>Daya Tangkap:</strong> {selectedItem.temuan_lapangan?.kognitif?.daya_tangkap || "-"}</td>
+                          </tr>
+                          <tr><td className="border border-black p-1.5"><strong>Fokus:</strong> {selectedItem.temuan_lapangan?.kognitif?.fokus || "-"}</td></tr>
+                          <tr><td className="border border-black p-1.5"><strong>Konsentrasi:</strong> {selectedItem.temuan_lapangan?.kognitif?.konsentrasi || "-"}</td></tr>
+                          <tr><td className="border border-black p-1.5"><strong>Mengingat:</strong> {selectedItem.temuan_lapangan?.kognitif?.mengingat || "-"}</td></tr>
+                          <tr><td className="border border-black p-1.5"><strong>Membaca:</strong> {selectedItem.temuan_lapangan?.kognitif?.membaca || "-"}</td></tr>
+                          <tr><td className="border border-black p-1.5"><strong>Menulis:</strong> {selectedItem.temuan_lapangan?.kognitif?.menulis || "-"}</td></tr>
+                          <tr><td className="border border-black p-1.5"><strong>Berhitung:</strong> {selectedItem.temuan_lapangan?.kognitif?.berhitung || "-"}</td></tr>
+
+                          {/* Bahasa / Komunikasi */}
+                          <tr>
+                            <td className="border border-black p-1.5 font-bold bg-gray-50" rowSpan={3}>2. Bahasa / Komunikasi</td>
+                            <td className="border border-black p-1.5"><strong>Reseptif:</strong> {selectedItem.temuan_lapangan?.bahasa?.reseptif || "-"}</td>
+                          </tr>
+                          <tr><td className="border border-black p-1.5"><strong>Ekspresif:</strong> {selectedItem.temuan_lapangan?.bahasa?.ekspresif || "-"}</td></tr>
+                          <tr><td className="border border-black p-1.5"><strong>Fonologi:</strong> {selectedItem.temuan_lapangan?.bahasa?.fonologi || "-"}</td></tr>
+
+                          {/* Kemandirian */}
+                          <tr>
+                            <td className="border border-black p-1.5 font-bold bg-gray-50" rowSpan={4}>3. Kemandirian</td>
+                            <td className="border border-black p-1.5"><strong>Motorik Kasar:</strong> {selectedItem.temuan_lapangan?.kemandirian?.motorik_kasar || "-"}</td>
+                          </tr>
+                          <tr><td className="border border-black p-1.5"><strong>Motorik Halus:</strong> {selectedItem.temuan_lapangan?.kemandirian?.motorik_halus || "-"}</td></tr>
+                          <tr><td className="border border-black p-1.5"><strong>Keseimbangan:</strong> {selectedItem.temuan_lapangan?.kemandirian?.keseimbangan || "-"}</td></tr>
+                          <tr><td className="border border-black p-1.5"><strong>Kontrol Sendi:</strong> {selectedItem.temuan_lapangan?.kemandirian?.kontrol_sendi || "-"}</td></tr>
+
+                          {/* Sosial */}
+                          <tr>
+                            <td className="border border-black p-1.5 font-bold bg-gray-50">4. Sosial</td>
+                            <td className="border border-black p-1.5"><strong>Adaptasi:</strong> {selectedItem.temuan_lapangan?.sosial?.adaptasi || "-"}</td>
+                          </tr>
+
+                          {/* Emosi */}
+                          <tr>
+                            <td className="border border-black p-1.5 font-bold bg-gray-50">5. Emosi</td>
+                            <td className="border border-black p-1.5"><strong>Kontrol Emosi:</strong> {selectedItem.temuan_lapangan?.emosi?.kontrol_emosi || "-"}</td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
 
                     {selectedItem.catatan_psikolog && (
@@ -1633,7 +1680,7 @@ export default function AdminDashboard() {
                  </button>
                </div>
 
-               {/* FORMAT CETAK PDF DOKUMEN PPI (DENGAN MARGIN AMAN) */}
+               {/* FORMAT CETAK PDF DOKUMEN PPI */}
                <div className="hidden">
                  <div ref={ppiComponentRef} className="p-10 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact", width: "100%", boxSizing: "border-box" }}>
                    <div className="text-center border-b-2 border-black pb-4 mb-4" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
