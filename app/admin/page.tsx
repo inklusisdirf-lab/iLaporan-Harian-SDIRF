@@ -655,12 +655,12 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              {/* FORMAT CETAK PDF LAPORAN HARIAN */}
+              {/* FORMAT CETAK PDF LAPORAN HARIAN (DENGAN PADDING/MARGIN AMAN) */}
               <div className="hidden">
-                <div ref={componentRef} className="p-8 bg-white text-black font-sans" style={{ printColorAdjust: "exact" }}>
+                <div ref={componentRef} className="p-10 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact", width: "100%", boxSizing: "border-box" }}>
                   <div className="text-center border-b-2 border-black pb-4 mb-6" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                     <h2 className="text-2xl font-bold uppercase">SD Islam Roushon Fikr Jombang</h2>
-                    <p className="text-sm font-semibold">Rekapitulasi Laporan Harian Guru Pendamping Khusus (GPK)</p>
+                    <p className="text-sm font-semibold">REKAPITULASI LAPORAN HARIAN GURU PENDAMPING KHUSUS (GPK)</p>
                     <div className="text-xs text-gray-700 mt-1 flex justify-center gap-4">
                       {filterNama && <span>Siswa: <b>{filterNama}</b></span>}
                       {filterMapel && <span>Mapel: <b>{filterMapel}</b></span>}
@@ -671,12 +671,12 @@ export default function AdminDashboard() {
                   <table className="w-full border-collapse border border-black text-xs">
                     <thead>
                       <tr className="bg-gray-200" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
-                        <th className="border border-black p-2">Tanggal</th>
-                        <th className="border border-black p-2">Nama Siswa</th>
-                        <th className="border border-black p-2">Mata Pelajaran</th>
-                        <th className="border border-black p-2">Materi</th>
-                        <th className="border border-black p-2">Hasil Pembelajaran</th>
-                        <th className="border border-black p-2">Tanggapan Wali</th>
+                        <th className="border border-black p-2.5 text-center">Tanggal</th>
+                        <th className="border border-black p-2.5">Nama Siswa</th>
+                        <th className="border border-black p-2.5">Mata Pelajaran</th>
+                        <th className="border border-black p-2.5">Materi</th>
+                        <th className="border border-black p-2.5">Hasil Pembelajaran</th>
+                        <th className="border border-black p-2.5">Tanggapan Wali</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -687,12 +687,12 @@ export default function AdminDashboard() {
                       ) : (
                         displayedReports.map((r, idx) => (
                           <tr key={idx} style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
-                            <td className="border border-black p-2 text-center">{r.tanggal}</td>
-                            <td className="border border-black p-2">{r.students?.full_name}</td>
-                            <td className="border border-black p-2">{r.mata_pelajaran}</td>
-                            <td className="border border-black p-2">{r.materi_pembelajaran}</td>
-                            <td className="border border-black p-2">{r.hasil_pembelajaran}</td>
-                            <td className="border border-black p-2 italic">{r.feedback_wali || "-"}</td>
+                            <td className="border border-black p-2.5 text-center">{r.tanggal}</td>
+                            <td className="border border-black p-2.5">{r.students?.full_name}</td>
+                            <td className="border border-black p-2.5">{r.mata_pelajaran}</td>
+                            <td className="border border-black p-2.5">{r.materi_pembelajaran}</td>
+                            <td className="border border-black p-2.5">{r.hasil_pembelajaran}</td>
+                            <td className="border border-black p-2.5 italic">{r.feedback_wali || "-"}</td>
                           </tr>
                         ))
                       )}
@@ -1274,9 +1274,9 @@ export default function AdminDashboard() {
                   </button>
                 </div>
 
-                {/* FORMAT CETAK PDF EVALUASI 3 BULANAN */}
+                {/* FORMAT CETAK PDF EVALUASI 3 BULANAN (DENGAN MARGIN AMAN) */}
                 <div className="hidden">
-                  <div ref={evaluasiComponentRef} className="p-8 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact" }}>
+                  <div ref={evaluasiComponentRef} className="p-10 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact", width: "100%", boxSizing: "border-box" }}>
                     <div className="text-center border-b-2 border-black pb-4 mb-4" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                       <h2 className="text-xl font-bold uppercase">SD Islam Roushon Fikr Jombang</h2>
                       <p className="text-sm font-semibold">LAPORAN EVALUASI PERKEMBANGAN 3 BULANAN (KOMPARASI)</p>
@@ -1306,13 +1306,13 @@ export default function AdminDashboard() {
                           })
                           .map((aspekKey, index) => (
                           <div key={aspekKey} className="mb-4" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
-                            <h4 className="font-bold uppercase text-black bg-gray-100 p-1.5 border border-black">{index + 1}. {aspekKey.replace(/_/g, " ")}</h4>
+                            <h4 className="font-bold uppercase text-black bg-gray-100 p-2 border border-black">{index + 1}. {aspekKey.replace(/_/g, " ")}</h4>
                             <table className="w-full border-collapse border border-black text-[11px] mt-1">
                               <thead>
                                 <tr className="bg-gray-50">
-                                  <th className="border border-black p-1.5 w-1/4">Indikator</th>
-                                  <th className="border border-black p-1.5 w-[37.5%]">Kondisi Awal</th>
-                                  <th className="border border-black p-1.5 w-[37.5%]">Kondisi Sekarang</th>
+                                  <th className="border border-black p-2 w-1/4">Indikator</th>
+                                  <th className="border border-black p-2 w-[37.5%]">Kondisi Awal</th>
+                                  <th className="border border-black p-2 w-[37.5%]">Kondisi Sekarang</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -1320,9 +1320,9 @@ export default function AdminDashboard() {
                                   const ind = selectedItem.aspek_data[aspekKey][indKey];
                                   return (
                                     <tr key={indKey}>
-                                      <td className="border border-black p-1.5 uppercase font-semibold">{indKey.replace(/_/g, " ")}</td>
-                                      <td className="border border-black p-1.5 whitespace-pre-wrap">{ind.kondisi_awal || "-"}</td>
-                                      <td className="border border-black p-1.5 whitespace-pre-wrap">{ind.kondisi_sekarang || "-"}</td>
+                                      <td className="border border-black p-2 uppercase font-semibold">{indKey.replace(/_/g, " ")}</td>
+                                      <td className="border border-black p-2 whitespace-pre-wrap">{ind.kondisi_awal || "-"}</td>
+                                      <td className="border border-black p-2 whitespace-pre-wrap">{ind.kondisi_sekarang || "-"}</td>
                                     </tr>
                                   );
                                 })}
@@ -1458,9 +1458,9 @@ export default function AdminDashboard() {
                   </button>
                 </div>
 
-                {/* FORMAT CETAK PDF ASESMEN AWAL LENGKAP */}
+                {/* FORMAT CETAK PDF ASESMEN AWAL LENGKAP (DENGAN MARGIN AMAN) */}
                 <div className="hidden">
-                  <div ref={assessmentComponentRef} className="p-8 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact" }}>
+                  <div ref={assessmentComponentRef} className="p-10 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact", width: "100%", boxSizing: "border-box" }}>
                     <div className="text-center border-b-2 border-black pb-4 mb-4" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                       <h2 className="text-xl font-bold uppercase">SD Islam Roushon Fikr Jombang</h2>
                       <p className="text-sm font-semibold">LAPORAN ASESMEN AWAL PDBK</p>
@@ -1469,14 +1469,14 @@ export default function AdminDashboard() {
                       </p>
                     </div>
 
-                    <div className="border border-black p-3 rounded space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                    <div className="border border-black p-3.5 rounded space-y-1.5" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                       <p><strong>Nama Siswa:</strong> {selectedItem.students?.full_name || selectedItem.identitas?.nama_anak || "-"}</p>
                       <p><strong>Kelas:</strong> {selectedItem.identitas?.kelas || "-"}</p>
                       <p><strong>Tanggal Lahir:</strong> {selectedItem.identitas?.tanggal_lahir || "-"}</p>
                     </div>
 
                     {selectedItem.identitas && (
-                      <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                      <div className="border border-black p-3.5 space-y-1.5" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                         <h3 className="font-bold uppercase text-purple-900 border-b border-gray-300 pb-1">1. Identitas Diri Anak & Keluarga</h3>
                         <p><strong>Alamat:</strong> {selectedItem.identitas.alamat || "-"}</p>
                         <p><strong>Nama Ayah / Ibu:</strong> {selectedItem.identitas.nama_ayah || "-"} / {selectedItem.identitas.nama_ibu || "-"}</p>
@@ -1484,13 +1484,13 @@ export default function AdminDashboard() {
                       </div>
                     )}
 
-                    <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                    <div className="border border-black p-3.5 space-y-1.5" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                       <h3 className="font-bold uppercase text-purple-900 border-b border-gray-300 pb-1">2. Permasalahan Anak</h3>
                       <p className="whitespace-pre-wrap">{selectedItem.permasalahan || "-"}</p>
                     </div>
 
                     {selectedItem.metode_hasil && (
-                      <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                      <div className="border border-black p-3.5 space-y-1.5" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                         <h3 className="font-bold uppercase text-purple-900 border-b border-gray-300 pb-1">3. Metode & Hasil Asesmen</h3>
                         <p><strong>Observasi:</strong> {selectedItem.metode_hasil.observasi || "-"}</p>
                         <p><strong>Wawancara:</strong> {selectedItem.metode_hasil.wawancara || "-"}</p>
@@ -1500,7 +1500,7 @@ export default function AdminDashboard() {
                     )}
 
                     {selectedItem.profiling && (
-                      <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                      <div className="border border-black p-3.5 space-y-1.5" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                         <h3 className="font-bold uppercase text-purple-900 border-b border-gray-300 pb-1">4. Profiling Anak</h3>
                         <p><strong>Kelebihan:</strong> {selectedItem.profiling.kelebihan || "-"}</p>
                         <p><strong>Kekurangan / Tantangan:</strong> {selectedItem.profiling.kekurangan || "-"}</p>
@@ -1509,7 +1509,7 @@ export default function AdminDashboard() {
                       </div>
                     )}
 
-                    <div className="border border-black p-3 space-y-2" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                    <div className="border border-black p-3.5 space-y-2" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                       <h3 className="font-bold uppercase text-purple-900 border-b border-gray-300 pb-1">5. Temuan Lapangan</h3>
                       <p><strong>Kognitif (Daya Tangkap / Fokus / Konsentrasi):</strong> {selectedItem.temuan_lapangan?.kognitif?.daya_tangkap || "-"} / {selectedItem.temuan_lapangan?.kognitif?.fokus || "-"} / {selectedItem.temuan_lapangan?.kognitif?.konsentrasi || "-"}</p>
                       <p><strong>Bahasa / Komunikasi (Reseptif / Ekspresif):</strong> {selectedItem.temuan_lapangan?.bahasa?.reseptif || "-"} / {selectedItem.temuan_lapangan?.bahasa?.ekspresif || "-"}</p>
@@ -1519,7 +1519,7 @@ export default function AdminDashboard() {
                     </div>
 
                     {selectedItem.catatan_psikolog && (
-                      <div className="border border-black p-3 space-y-1 bg-gray-50" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                      <div className="border border-black p-3.5 space-y-1.5 bg-gray-50" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                         <h3 className="font-bold uppercase text-purple-900 border-b border-gray-300 pb-1">Catatan Profesional Psikolog</h3>
                         <p className="italic whitespace-pre-wrap">"{selectedItem.catatan_psikolog}"</p>
                       </div>
@@ -1633,9 +1633,9 @@ export default function AdminDashboard() {
                  </button>
                </div>
 
-               {/* FORMAT CETAK PDF DOKUMEN PPI */}
+               {/* FORMAT CETAK PDF DOKUMEN PPI (DENGAN MARGIN AMAN) */}
                <div className="hidden">
-                 <div ref={ppiComponentRef} className="p-8 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact" }}>
+                 <div ref={ppiComponentRef} className="p-10 bg-white text-black font-sans text-xs space-y-4" style={{ printColorAdjust: "exact", width: "100%", boxSizing: "border-box" }}>
                    <div className="text-center border-b-2 border-black pb-4 mb-4" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                      <h2 className="text-xl font-bold uppercase">SD Islam Roushon Fikr Jombang</h2>
                      <p className="text-sm font-semibold">PROGRAM PEMBELAJARAN INDIVIDUAL (PPI)</p>
@@ -1644,14 +1644,14 @@ export default function AdminDashboard() {
                      </p>
                    </div>
 
-                   <div className="border border-black p-3 rounded space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                   <div className="border border-black p-3.5 rounded space-y-1.5" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                      <p><strong>Nama Siswa:</strong> {selectedItem.students?.full_name || "-"}</p>
                      <p><strong>Wali Kelas:</strong> {selectedItem.wali_kelas || "-"}</p>
                      <p><strong>Status Dokumen:</strong> {selectedItem.status || "-"}</p>
                    </div>
 
                    {selectedItem.profil_pdbk && (
-                     <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                     <div className="border border-black p-3.5 space-y-1.5" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                        <h3 className="font-bold uppercase text-blue-900 border-b border-gray-300 pb-1">1. Profil PDBK</h3>
                        <p><strong>Nama:</strong> {selectedItem.profil_pdbk.nama || "-"}</p>
                        <p><strong>Kelas/Usia:</strong> {selectedItem.profil_pdbk.kelas_usia || "-"}</p>
@@ -1660,7 +1660,7 @@ export default function AdminDashboard() {
                    )}
 
                    {selectedItem.kemampuan_saat_ini && (
-                     <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                     <div className="border border-black p-3.5 space-y-1.5" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                        <h3 className="font-bold uppercase text-purple-900 border-b border-gray-300 pb-1">2. Tingkat Kemampuan Saat Ini</h3>
                        <p><strong>Kekuatan / Potensi:</strong> {selectedItem.kemampuan_saat_ini.kekuatan || "-"}</p>
                        <p><strong>Area Pengembangan:</strong> {selectedItem.kemampuan_saat_ini.area_pengembangan || "-"}</p>
@@ -1668,7 +1668,7 @@ export default function AdminDashboard() {
                    )}
 
                    {selectedItem.tujuan_smart && (
-                     <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                     <div className="border border-black p-3.5 space-y-1.5" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                        <h3 className="font-bold uppercase text-emerald-900 border-b border-gray-300 pb-1">3. Tujuan SMART</h3>
                        <p><strong>Jangka Panjang:</strong> {selectedItem.tujuan_smart.jangka_panjang || "-"}</p>
                        <p className="mt-1 font-semibold">Jangka Pendek:</p>
@@ -1681,7 +1681,7 @@ export default function AdminDashboard() {
                    )}
 
                    {selectedItem.layanan_akomodasi && (
-                     <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                     <div className="border border-black p-3.5 space-y-1.5" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                        <h3 className="font-bold uppercase text-indigo-900 border-b border-gray-300 pb-1">4. Layanan & Akomodasi Pembelajaran</h3>
                        <p><strong>Modifikasi Kurikulum:</strong> {selectedItem.layanan_akomodasi.modifikasi || "-"}</p>
                        <p><strong>Media Belajar:</strong> {selectedItem.layanan_akomodasi.media || "-"}</p>
@@ -1693,7 +1693,7 @@ export default function AdminDashboard() {
                    )}
 
                    {selectedItem.rencana_evaluasi && selectedItem.rencana_evaluasi.length > 0 && (
-                     <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                     <div className="border border-black p-3.5 space-y-1.5" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                        <h3 className="font-bold uppercase text-amber-900 border-b border-gray-300 pb-1">5. Rencana Evaluasi Berkala</h3>
                        {selectedItem.rencana_evaluasi.map((ev: any, idx: number) => (
                          <p key={idx}><strong>{ev.periode}:</strong> {ev.kegiatan} ({ev.status})</p>
@@ -1702,13 +1702,13 @@ export default function AdminDashboard() {
                    )}
 
                    {selectedItem.catatan_psikolog && (
-                     <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                     <div className="border border-black p-3.5 space-y-1.5" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                        <h3 className="font-bold uppercase text-gray-900 border-b border-gray-300 pb-1">Catatan Psikolog</h3>
                        <p className="italic">"{selectedItem.catatan_psikolog}"</p>
                      </div>
                    )}
 
-                   <div className="border border-black p-3 space-y-1" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                   <div className="border border-black p-3.5 space-y-1.5" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                      <h3 className="font-bold uppercase border-b border-gray-300 pb-1">Status Tanda Tangan Digital</h3>
                      <p>GPK Pendamping: {selectedItem.ttd_gpk ? "✅ Disetujui" : "⏳ Menunggu"}</p>
                      <p>Psikolog Sekolah: {selectedItem.ttd_psikolog ? "✅ Disetujui" : "⏳ Menunggu"}</p>
