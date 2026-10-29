@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/app/utils/supabase/client";
 import { 
   ShieldCheck, LogOut, Users, BookOpen, FileText, 
-  UserCheck, Printer, Plus, Trash2, Edit3, X, Eye, Save, BrainCircuit, Calendar, Filter, MessageCircle, ClipboardCheck
+  UserCheck, Printer, Plus, Trash2, Edit3, X, Eye, Save, BrainCircuit, Calendar, Filter, MessageCircle, ClipboardCheck, Menu
 } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 
@@ -21,6 +21,7 @@ export default function AdminDashboard() {
   
   const [activeTab, setActiveTab] = useState("siswa");
   const [ppiSubTab, setPpiSubTab] = useState("asesmen");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State untuk toggle menu garis tiga
 
   const [filterNama, setFilterNama] = useState("");
   const [filterMapel, setFilterMapel] = useState("");
@@ -63,21 +64,10 @@ export default function AdminDashboard() {
 
   const [message, setMessage] = useState("");
 
-  const handlePrint = useReactToPrint({
-    contentRef: componentRef,
-  });
-
-  const handlePrintPpi = useReactToPrint({
-    contentRef: ppiComponentRef,
-  });
-
-  const handlePrintEvaluasi = useReactToPrint({
-    contentRef: evaluasiComponentRef,
-  });
-
-  const handlePrintAssessment = useReactToPrint({
-    contentRef: assessmentComponentRef,
-  });
+  const handlePrint = useReactToPrint({ contentRef: componentRef });
+  const handlePrintPpi = useReactToPrint({ contentRef: ppiComponentRef });
+  const handlePrintEvaluasi = useReactToPrint({ contentRef: evaluasiComponentRef });
+  const handlePrintAssessment = useReactToPrint({ contentRef: assessmentComponentRef });
 
   useEffect(() => {
     async function checkAdminAuth() {
@@ -354,21 +344,31 @@ export default function AdminDashboard() {
 
   const displayedReports = getFilteredReports();
 
+  const menuItems = [
+    { id: "siswa", label: "Manajemen Siswa & Plotting", icon: Users },
+    { id: "user", label: "Manajemen User & Role", icon: UserCheck },
+    { id: "laporan", label: "Rekapitulasi Laporan Harian", icon: BookOpen },
+    { id: "ppi", label: "Monitoring Asesmen & PPI", icon: FileText },
+    { id: "evaluasi", label: "Evaluasi 3 Bulanan", icon: ClipboardCheck },
+  ];
+
+  const currentActiveMenuLabel = menuItems.find(m => m.id === activeTab)?.label || "Menu";
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans">
-      <div className="max-w-7xl mx-auto flex flex-col gap-8">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 md:p-8 font-sans">
+      <div className="max-w-7xl mx-auto flex flex-col gap-6 md:gap-8">
         
-        {/* --- STICKY HEADER & NAVIGASI TAB (MENEMPEL SAAT SCROLL) --- */}
-        <div className="sticky top-4 z-40 bg-slate-950/90 backdrop-blur-xl border border-white/10 p-4 md:p-6 rounded-3xl shadow-2xl flex flex-col gap-6">
+        {/* --- STICKY HEADER & RINGKASAN MENU HAMBURGER (GARIS TIGA) --- */}
+        <div className="sticky top-4 z-40 bg-slate-950/90 backdrop-blur-xl border border-white/10 p-3 sm:p-4 md:p-6 rounded-3xl shadow-2xl flex flex-col gap-4">
           
-          {/* Header Identitas */}
+          {/* Header Identitas & Tombol Hamburger HP */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="flex items-center gap-4 w-full sm:w-auto">
-              <div className="p-2.5 bg-white rounded-2xl shadow-md flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 border border-white/20">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="p-2 bg-white rounded-2xl shadow-md flex items-center justify-center w-14 h-14 sm:w-20 sm:h-20 flex-shrink-0 border border-white/20">
                 <img 
                   src="/images/logo.png" 
                   alt="Logo SD Islam Roushon Fikr" 
-                  className="w-12 h-12 sm:w-16 sm:h-16 object-contain" 
+                  className="w-10 h-10 sm:w-16 sm:h-16 object-contain" 
                   onError={(e) => {
                     const target = e.currentTarget;
                     target.style.display = 'none';
@@ -379,53 +379,66 @@ export default function AdminDashboard() {
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 truncate">
+                <h1 className="text-lg sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 truncate">
                   Dashboard Admin
                 </h1>
-                <p className="text-[11px] sm:text-xs font-extrabold tracking-wider text-blue-400 uppercase mt-0.5 mb-1 truncate">
+                <p className="text-[10px] sm:text-xs font-extrabold tracking-wider text-blue-400 uppercase mt-0.5 mb-0.5 truncate">
                   Future Islamic Leadership School
                 </p>
-                <p className="text-slate-300 text-xs truncate">
-                  Bidang Inklusi & Layanan ABK • Kelola Sistem, Siswa & Pengguna
+                <p className="text-slate-300 text-[11px] sm:text-xs truncate">
+                  Bidang Inklusi & Layanan ABK
                 </p>
               </div>
             </div>
             
-            <button 
-              onClick={handleLogout}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 px-4 py-2.5 rounded-xl transition-all text-sm font-semibold flex-shrink-0 shadow-lg"
-            >
-              <LogOut className="w-4 h-4" /> Keluar
-            </button>
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+              {/* Tombol Menu Garis Tiga (Hamburger) khusus untuk ringkas menu di HP */}
+              <button 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="flex items-center gap-2 bg-blue-600/20 border border-blue-500/30 hover:bg-blue-600/30 text-blue-300 px-4 py-2.5 rounded-xl transition-all text-xs font-bold shadow-lg"
+              >
+                <Menu className="w-4 h-4" /> 
+                <span className="truncate max-w-[140px] sm:max-w-none">Menu: {currentActiveMenuLabel}</span>
+              </button>
+
+              <button 
+                onClick={handleLogout}
+                className="flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 px-3.5 py-2.5 rounded-xl transition-all text-xs font-semibold flex-shrink-0 shadow-lg"
+              >
+                <LogOut className="w-4 h-4" /> <span className="hidden sm:inline">Keluar</span>
+              </button>
+            </div>
           </div>
 
-          {/* Navigasi Tab Utama (Ikut Sticky di Bawah Header) */}
-          <div className="flex flex-wrap gap-2 border-t border-white/10 pt-4">
-            {[
-              { id: "siswa", label: "Manajemen Siswa & Plotting", icon: Users },
-              { id: "user", label: "Manajemen User & Role", icon: UserCheck },
-              { id: "laporan", label: "Rekapitulasi Laporan Harian", icon: BookOpen },
-              { id: "ppi", label: "Monitoring Asesmen & PPI", icon: FileText },
-              { id: "evaluasi", label: "Evaluasi 3 Bulanan", icon: ClipboardCheck },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-medium text-sm transition-all shadow-lg ${
-                    isActive 
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white border border-white/25 shadow-blue-500/20" 
-                    : "bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10 hover:text-white"
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
+          {/* DROPDOWN MENU KETIKA GARIS TIGA DIKLIK */}
+          {isMobileMenuOpen && (
+            <div className="border-t border-white/10 pt-4 flex flex-col gap-2 animate-fadeIn">
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1">Pilih Menu Navigasi:</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+                {menuItems.map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveTab(tab.id);
+                        setIsMobileMenuOpen(false); // Tutup menu setelah diklik
+                      }}
+                      className={`flex items-center gap-2.5 px-4 py-3 rounded-2xl font-medium text-xs transition-all shadow-lg text-left ${
+                        isActive 
+                        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white border border-white/25 shadow-blue-500/20 font-bold" 
+                        : "bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 hover:text-white"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      <span className="truncate">{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
         </div>
 
@@ -445,15 +458,15 @@ export default function AdminDashboard() {
                 </h3>
                 <button 
                   onClick={() => { closeStudentModal(); setShowStudentModal(true); }}
-                  className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-lg"
+                  className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-lg"
                 >
-                  <Plus className="w-4 h-4" /> Tambah Siswa Baru
+                  <Plus className="w-4 h-4" /> Tambah Siswa
                 </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {students.length === 0 ? (
-                  <p className="text-slate-400 text-sm italic col-span-full">Belum ada data siswa. Klik tombol "Tambah Siswa Baru" di atas.</p>
+                  <p className="text-slate-400 text-sm italic col-span-full">Belum ada data siswa.</p>
                 ) : (
                   students.map((s) => {
                     const assignedGpk = users.find(u => u.id === s.gpk_id);
