@@ -173,7 +173,6 @@ export default function GpkDashboard() {
 
     checkGpkAuth();
 
-    // Listener otomatis memperbarui/mempertahankan sesi aktif lintas tab & HP
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
         router.push("/login");
@@ -476,44 +475,40 @@ export default function GpkDashboard() {
           </div>
         )}
 
-        {/* TAB UTAMA */}
-        <div className="w-full overflow-x-auto scrollbar-none pb-2">
-          <div className="flex items-center gap-2.5 border-b border-white/10 pb-2 min-w-max">
-            {[
-              { id: "laporan-harian", label: "Laporan Harian PDBK", icon: BookOpen },
-              { id: "ppi-asesmen", label: "Asesmen & PPI Detail", icon: FileText },
-              { id: "evaluasi-aspek", label: "Evaluasi 3 Bulanan", icon: ClipboardCheck },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl font-semibold text-sm transition-all shadow-lg whitespace-nowrap flex-shrink-0 ${
-                    isActive 
-                      ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white border border-white/25 shadow-blue-500/20" 
-                      : "bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10 hover:text-white"
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
+        {/* TAB UTAMA (Menu Utama Ringkas ala Admin) */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white/5 p-2 rounded-2xl border border-white/10 backdrop-blur-xl">
+          {[
+            { id: "laporan-harian", label: "Laporan Harian PDBK", icon: BookOpen },
+            { id: "ppi-asesmen", label: "Asesmen & PPI Detail", icon: FileText },
+            { id: "evaluasi-aspek", label: "Evaluasi 3 Bulanan", icon: ClipboardCheck },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-md ${
+                  isActive 
+                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white border border-white/25 shadow-blue-500/20" 
+                    : "bg-transparent text-slate-400 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* === TAB 1: LAPORAN HARIAN === */}
         {activeTab === "laporan-harian" && (
           <div className="flex flex-col gap-6">
-            <div className="w-full overflow-x-auto scrollbar-none pb-1">
-              <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-max">
-                <button onClick={() => { setEditReportId(null); resetReportForm(); setLaporanSubTab("tambah"); }} className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${laporanSubTab === "tambah" ? "bg-blue-600 text-white" : "text-slate-400"}`}>
-                  {editReportId ? "✏️ Edit Laporan" : "+ Tambah Laporan"}
-                </button>
-                <button onClick={() => setLaporanSubTab("riwayat")} className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${laporanSubTab === "riwayat" ? "bg-blue-600 text-white" : "text-slate-400"}`}>📜 Riwayat ({myReports.length})</button>
-              </div>
+            <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-fit">
+              <button onClick={() => { setEditReportId(null); resetReportForm(); setLaporanSubTab("tambah"); }} className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${laporanSubTab === "tambah" ? "bg-blue-600 text-white shadow" : "text-slate-400 hover:text-white"}`}>
+                {editReportId ? "✏️ Edit Laporan" : "+ Tambah Laporan"}
+              </button>
+              <button onClick={() => setLaporanSubTab("riwayat")} className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${laporanSubTab === "riwayat" ? "bg-blue-600 text-white shadow" : "text-slate-400 hover:text-white"}`}>📜 Riwayat ({myReports.length})</button>
             </div>
 
             {laporanSubTab === "tambah" && (
@@ -663,13 +658,11 @@ export default function GpkDashboard() {
         {/* === TAB 2: ASESMEN & PPI DETAIL === */}
         {activeTab === "ppi-asesmen" && (
           <div className="flex flex-col gap-6">
-            <div className="w-full overflow-x-auto scrollbar-none pb-1">
-              <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-max">
-                <button onClick={() => setPpiSubTab("form-asesmen")} className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${ppiSubTab === "form-asesmen" ? "bg-purple-600 text-white" : "text-slate-400"}`}>📝 Form Asesmen</button>
-                <button onClick={() => setPpiSubTab("riwayat-asesmen")} className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${ppiSubTab === "riwayat-asesmen" ? "bg-purple-600 text-white" : "text-slate-400"}`}>📚 Riwayat Asesmen ({myAssessments.length})</button>
-                <button onClick={() => setPpiSubTab("form-ppi")} className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${ppiSubTab === "form-ppi" ? "bg-purple-600 text-white" : "text-slate-400"}`}>📋 Form PPI</button>
-                <button onClick={() => setPpiSubTab("riwayat-ppi")} className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${ppiSubTab === "riwayat-ppi" ? "bg-purple-600 text-white" : "text-slate-400"}`}>📑 Riwayat PPI ({myPpi.length})</button>
-              </div>
+            <div className="flex flex-wrap items-center gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-fit">
+              <button onClick={() => setPpiSubTab("form-asesmen")} className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${ppiSubTab === "form-asesmen" ? "bg-purple-600 text-white shadow" : "text-slate-400 hover:text-white"}`}>📝 Form Asesmen</button>
+              <button onClick={() => setPpiSubTab("riwayat-asesmen")} className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${ppiSubTab === "riwayat-asesmen" ? "bg-purple-600 text-white shadow" : "text-slate-400 hover:text-white"}`}>📚 Riwayat Asesmen ({myAssessments.length})</button>
+              <button onClick={() => setPpiSubTab("form-ppi")} className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${ppiSubTab === "form-ppi" ? "bg-purple-600 text-white shadow" : "text-slate-400 hover:text-white"}`}>📋 Form PPI</button>
+              <button onClick={() => setPpiSubTab("riwayat-ppi")} className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${ppiSubTab === "riwayat-ppi" ? "bg-purple-600 text-white shadow" : "text-slate-400 hover:text-white"}`}>📑 Riwayat PPI ({myPpi.length})</button>
             </div>
 
             {/* FORM ASESMEN AWAL */}
@@ -742,7 +735,7 @@ export default function GpkDashboard() {
 
                 <div className="border border-white/10 p-4 sm:p-5 rounded-2xl bg-white/5 space-y-6">
                   <h4 className="font-bold text-emerald-400 text-sm uppercase">Data Temuan di Lapangan (5 Aspek)</h4>
-                    
+                     
                   <div className="space-y-3">
                     <p className="text-xs font-bold text-blue-300">1. Kognitif</p>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -1050,15 +1043,13 @@ export default function GpkDashboard() {
         {/* === TAB 3: EVALUASI 3 BULANAN === */}
         {activeTab === "evaluasi-aspek" && (
           <div className="flex flex-col gap-6">
-            <div className="w-full overflow-x-auto scrollbar-none pb-1">
-              <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-max">
-                <button onClick={() => { setEditEvalId(null); resetEvalForm(); setEvalSubTab("form"); }} className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${evalSubTab === "form" ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white" : "text-slate-400"}`}>
-                  {editEvalId ? "✏️ Edit Evaluasi 3 Bulanan" : "+ Form Evaluasi 3 Bulanan"}
-                </button>
-                <button onClick={() => setEvalSubTab("riwayat")} className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap ${evalSubTab === "riwayat" ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white" : "text-slate-400"}`}>
-                  📊 Riwayat Evaluasi ({myEvaluations.length})
-                </button>
-              </div>
+            <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-fit">
+              <button onClick={() => { setEditEvalId(null); resetEvalForm(); setEvalSubTab("form"); }} className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${evalSubTab === "form" ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow" : "text-slate-400 hover:text-white"}`}>
+                {editEvalId ? "✏️ Edit Evaluasi 3 Bulanan" : "+ Form Evaluasi 3 Bulanan"}
+              </button>
+              <button onClick={() => setEvalSubTab("riwayat")} className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${evalSubTab === "riwayat" ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow" : "text-slate-400 hover:text-white"}`}>
+                📊 Riwayat Evaluasi ({myEvaluations.length})
+              </button>
             </div>
 
             {evalSubTab === "form" && (
@@ -1318,7 +1309,7 @@ export default function GpkDashboard() {
               <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 sm:top-6 sm:right-6 text-slate-400 hover:text-white bg-white/5 p-2 rounded-full hover:bg-red-500/20 hover:text-red-400 transition-all z-10">
                 <X className="w-5 h-5" />
               </button>
-                 
+                
               <h3 className="text-lg sm:text-xl font-bold text-white uppercase flex items-center gap-2 border-b border-white/10 pb-4 pr-8">
                 {modalType === "report" ? ( <><BookOpen className="text-blue-400 flex-shrink-0"/> Rincian Lengkap Laporan Harian PDBK</> ) : 
                  modalType === "assessment" ? ( <><BrainCircuit className="text-purple-400 flex-shrink-0"/> Rincian Lengkap Asesmen Awal PDBK</> ) : 
