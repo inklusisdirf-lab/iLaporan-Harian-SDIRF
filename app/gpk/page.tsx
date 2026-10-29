@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/app/utils/supabase/client";
 import { 
   BookOpen, FileText, PlusCircle, LogOut, 
-  BrainCircuit, Save, Edit3, Trash2, X, Eye, Plus, Minus, Users, MessageCircle, ClipboardCheck
+  BrainCircuit, Save, Edit3, Trash2, X, Eye, Plus, Minus, Users, MessageCircle, ClipboardCheck, Menu
 } from "lucide-react";
 
 export default function GpkDashboard() {
@@ -18,6 +18,9 @@ export default function GpkDashboard() {
   const [laporanSubTab, setLaporanSubTab] = useState("tambah");
   const [ppiSubTab, setPpiSubTab] = useState("form-asesmen");
   const [evalSubTab, setEvalSubTab] = useState("form");
+
+  // State Mobile Menu / Hamburger
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // State Modal Detail
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -114,7 +117,6 @@ export default function GpkDashboard() {
   const [myEvaluations, setMyEvaluations] = useState<any[]>([]);
   const [message, setMessage] = useState("");
 
-  // URUTAN PATEN UNTUK RENDER EVALUASI
   const aspekOrder = [
     { key: "sensori_motorik", label: "Sensori Motorik" },
     { key: "kognitif", label: "Kognitif" },
@@ -126,14 +128,12 @@ export default function GpkDashboard() {
     { key: "berhitung", label: "Berhitung" }
   ];
 
-  // STABILISASI SESI & REMEMBER ME PADA HP
   useEffect(() => {
     let isMounted = true;
 
     async function checkGpkAuth() {
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
         if (sessionError || !session) {
           if (isMounted) router.push("/login");
           return;
@@ -432,74 +432,101 @@ export default function GpkDashboard() {
   const studentOptionsList = isRollingMode ? allStudents : assignedStudents;
 
   return (
-    <div translate="no" className="notranslate min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 md:p-8 font-sans pb-24 overflow-x-hidden">
-      <div className="max-w-7xl mx-auto flex flex-col gap-6 w-full">
-        
-        {/* HEADER */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white/5 border border-white/10 p-5 rounded-3xl backdrop-blur-xl gap-4 shadow-2xl">
-          <div className="flex items-center gap-4 w-full sm:w-auto">
-            <div className="p-2.5 bg-white rounded-2xl shadow-md flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 border border-white/20">
+    <div translate="no" className="notranslate min-h-screen bg-slate-950 text-slate-100 font-sans pb-24 overflow-x-hidden">
+      
+      {/* HEADER STICKY (Selalu menempel di atas saat di-scroll) */}
+      <header className="sticky top-0 z-40 bg-slate-900/80 border-b border-white/10 backdrop-blur-xl px-3 sm:px-6 py-3.5 shadow-xl">
+        <div className="max-w-7xl mx-auto flex justify-between items-center gap-4">
+          
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white rounded-xl shadow-md flex items-center justify-center w-11 h-11 sm:w-14 sm:h-14 flex-shrink-0 border border-white/20">
               <img 
                 src="/images/logo.png" 
                 alt="Logo SD Islam Roushon Fikr" 
-                className="w-12 h-12 sm:w-16 sm:h-16 object-contain" 
+                className="w-8 h-8 sm:w-10 sm:h-10 object-contain" 
                 onError={(e) => {
                   const target = e.currentTarget;
                   target.style.display = 'none';
                   if (target.parentElement) {
-                    target.parentElement.innerHTML = '<span class="text-xs font-bold text-slate-900 text-center">SD IRF</span>';
+                    target.parentElement.innerHTML = '<span class="text-[10px] font-bold text-slate-900 text-center">SD IRF</span>';
                   }
                 }}
               />
             </div>
-            <div className="min-w-0 flex-1">
-              <h1 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 truncate">
+            <div>
+              <h1 className="text-base sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
                 Dashboard GPK
               </h1>
-              <p className="text-[11px] sm:text-xs font-extrabold tracking-wider text-emerald-400 uppercase mt-0.5 mb-1 truncate">
-                Future Islamic Leadership School
-              </p>
-              <p className="text-slate-300 text-xs truncate">
-                Pendamping: <strong className="text-white">{gpkName}</strong> • Inklusi & ABK
+              <p className="text-[10px] sm:text-xs font-semibold text-slate-300 truncate">
+                {gpkName} • <span className="text-emerald-400 font-bold">Inklusi & ABK</span>
               </p>
             </div>
           </div>
-          <button onClick={handleLogout} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 px-4 py-2.5 rounded-xl transition-all text-sm font-semibold flex-shrink-0">
-            <LogOut className="w-4 h-4" /> Keluar
-          </button>
-        </div>
 
+          <div className="flex items-center gap-2">
+            {/* TOMBOL LOGOUT */}
+            <button onClick={handleLogout} className="hidden sm:flex items-center gap-1.5 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 px-3 py-2 rounded-xl text-xs font-semibold transition-all">
+              <LogOut className="w-4 h-4" /> Keluar
+            </button>
+
+            {/* HAMBURGER MENU BUTTON (Tiga Garis) */}
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2.5 bg-white/10 hover:bg-white/20 border border-white/15 rounded-xl text-white transition-all flex items-center justify-center shadow-md"
+              title="Menu Navigasi"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5 text-red-400" /> : <Menu className="w-5 h-5 text-blue-400" />}
+            </button>
+          </div>
+
+        </div>
+      </header>
+
+      {/* DROPDOWN MENU HAMBURGER (Muncul saat ikon 3 garis diklik) */}
+      {mobileMenuOpen && (
+        <div className="sticky top-[69px] z-30 bg-slate-950/95 border-b border-white/10 backdrop-blur-2xl shadow-2xl p-4 transition-all animate-fadeIn">
+          <div className="max-w-7xl mx-auto flex flex-col gap-2">
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1">Pilih Menu Utama:</p>
+            {[
+              { id: "laporan-harian", label: "Laporan Harian PDBK", icon: BookOpen },
+              { id: "ppi-asesmen", label: "Asesmen & PPI Detail", icon: FileText },
+              { id: "evaluasi-aspek", label: "Evaluasi 3 Bulanan", icon: ClipboardCheck },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => { setActiveTab(tab.id); setMobileMenuOpen(false); }}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all ${
+                    isActive 
+                      ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg border border-white/20" 
+                      : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+
+            <div className="pt-2 border-t border-white/10 mt-2 sm:hidden">
+              <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 py-3 rounded-xl text-sm font-semibold">
+                <LogOut className="w-4 h-4" /> Keluar Akun
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* KONTEN UTAMA */}
+      <div className="max-w-7xl mx-auto flex flex-col gap-6 w-full p-3 sm:p-4 md:p-8 mt-2">
+        
         {message && (
-          <div className="p-4 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl text-emerald-200 text-sm font-semibold text-center">
+          <div className="p-4 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl text-emerald-200 text-sm font-semibold text-center shadow-lg">
             {message}
           </div>
         )}
-
-        {/* TAB UTAMA (Menu Utama Ringkas ala Admin) */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white/5 p-2 rounded-2xl border border-white/10 backdrop-blur-xl">
-          {[
-            { id: "laporan-harian", label: "Laporan Harian PDBK", icon: BookOpen },
-            { id: "ppi-asesmen", label: "Asesmen & PPI Detail", icon: FileText },
-            { id: "evaluasi-aspek", label: "Evaluasi 3 Bulanan", icon: ClipboardCheck },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-md ${
-                  isActive 
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white border border-white/25 shadow-blue-500/20" 
-                    : "bg-transparent text-slate-400 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
 
         {/* === TAB 1: LAPORAN HARIAN === */}
         {activeTab === "laporan-harian" && (
