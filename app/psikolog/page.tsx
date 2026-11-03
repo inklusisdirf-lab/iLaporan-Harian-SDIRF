@@ -55,7 +55,7 @@ export default function PsikologDashboard() {
     checkPsikologAuth();
   }, [router]);
 
-  // PENGAMBILAN DATA (Tanpa batasan limit agar tampil penuh)
+  // PENGAMBILAN DATA
   const fetchPsikologData = async () => {
     const { data: assessData } = await supabase
       .from("assessments")
