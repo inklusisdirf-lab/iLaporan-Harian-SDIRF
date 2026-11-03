@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/app/utils/supabase/client";
 import { 
   FileText, BrainCircuit, CheckCircle2, XCircle, 
-  X, Eye, Save, LogOut, BookOpen, Calendar, MessageCircle, ClipboardCheck, AlertCircle, CheckSquare
+  X, Eye, Save, LogOut, BookOpen, Calendar, MessageCircle, ClipboardCheck, AlertCircle, CheckSquare, Activity, UserCheck
 } from "lucide-react";
 
 export default function PsikologDashboard() {
@@ -509,8 +509,8 @@ export default function PsikologDashboard() {
                         <p><strong className="text-blue-400">Materi:</strong> {r.materi_pembelajaran || "-"}</p>
                         <p><strong className="text-purple-400">Target:</strong> {r.target_capaian || "-"}</p>
                         <p><strong className="text-emerald-400">Hasil:</strong> {r.hasil_pembelajaran || "-"}</p>
-                        {r.kendala && <p><strong className="text-amber-400">Kendala:</strong> {r.kendala}</p>}
-                        {r.solusi && <p><strong className="text-teal-400">Solusi:</strong> {r.solusi}</p>}
+                        <p><strong className="text-amber-400">Catatan Perilaku:</strong> {r.catatan_perilaku || r.perilaku || "-"}</p>
+                        <p><strong className="text-teal-400">Intervensi:</strong> {r.intervensi || r.tindakan_intervensi || "-"}</p>
                         {r.kondisi_mood && <p><strong className="text-pink-400">Mood:</strong> {r.kondisi_mood}</p>}
                       </div>
 
@@ -565,7 +565,7 @@ export default function PsikologDashboard() {
 
             <div className="space-y-6 text-sm text-slate-300">
               
-              {/* LAPORAN HARIAN (DILENGKAPI SEMUA FIELD) */}
+              {/* LAPORAN HARIAN (DENGAN CATATAN PERILAKU & INTERVENSI) */}
               {modalType === "report" && (
                 <div className="space-y-4">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -595,12 +595,12 @@ export default function PsikologDashboard() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="bg-amber-950/20 p-4 rounded-2xl border border-amber-900/40 space-y-2">
-                      <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5"><AlertCircle className="w-3.5 h-3.5"/> Hambatan / Kendala</h4>
-                      <p className="text-amber-100 whitespace-pre-wrap">{selectedItem.kendala || selectedItem.hambatan || "Tidak ada kendala tercatat."}</p>
+                      <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5"><Activity className="w-3.5 h-3.5"/> Catatan Perilaku</h4>
+                      <p className="text-amber-100 whitespace-pre-wrap">{selectedItem.catatan_perilaku || selectedItem.perilaku || "Tidak ada catatan perilaku khusus."}</p>
                     </div>
                     <div className="bg-teal-950/20 p-4 rounded-2xl border border-teal-900/40 space-y-2">
-                      <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5"/> Solusi / Tindak Lanjut</h4>
-                      <p className="text-teal-100 whitespace-pre-wrap">{selectedItem.solusi || selectedItem.tindak_lanjut || "-"}</p>
+                      <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider flex items-center gap-1.5"><UserCheck className="w-3.5 h-3.5"/> Intervensi yang Diberikan</h4>
+                      <p className="text-teal-100 whitespace-pre-wrap">{selectedItem.intervensi || selectedItem.tindakan_intervensi || "-"}</p>
                     </div>
                   </div>
 
