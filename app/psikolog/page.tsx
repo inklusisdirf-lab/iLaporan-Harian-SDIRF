@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/app/utils/supabase/client";
 import { 
   FileText, BrainCircuit, CheckCircle2, XCircle, 
-  X, Eye, Save, LogOut, BookOpen, Calendar, MessageCircle, ClipboardCheck, AlertCircle, CheckSquare, Activity, UserCheck
+  X, Eye, Save, LogOut, BookOpen, Calendar, MessageCircle, ClipboardCheck, Activity, UserCheck
 } from "lucide-react";
 
 export default function PsikologDashboard() {
@@ -55,7 +55,7 @@ export default function PsikologDashboard() {
     checkPsikologAuth();
   }, [router]);
 
-  // PENGAMBILAN DATA
+  // PENGAMBILAN DATA (MENGAMBIL SEMUA KOLOM PPI SECARA UTUH)
   const fetchPsikologData = async () => {
     const { data: assessData } = await supabase
       .from("assessments")
@@ -64,6 +64,7 @@ export default function PsikologDashboard() {
       .range(0, 4999);
     if (assessData) setAssessments(assessData);
 
+    // Mengambil seluruh kolom pada tabel ppi (termasuk isi tabel matriks/kurikulum dari GPK)
     const { data: ppiData } = await supabase
       .from("ppi")
       .select("*, students(full_name)")
@@ -336,12 +337,13 @@ export default function PsikologDashboard() {
                     <div key={p.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
                       <div>
                         <div className="flex justify-between items-center mb-3">
-                          <span className="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 font-semibold uppercase">{p.status}</span>
-                          <span className="text-xs text-slate-400">{p.periode_ppi}</span>
+                          <span className="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 font-semibold uppercase">{p.status || "Draft"}</span>
+                          <span className="text-xs text-slate-400">{p.periode_ppi || p.tanggal_pembuatan || "-"}</span>
                         </div>
                         <h4 className="text-lg font-bold text-white mb-1">{p.students?.full_name || "Siswa"}</h4>
                         
                         <div className="space-y-1.5 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5 mt-3">
+                          <p>GPK: <strong className="text-white">{p.gpk_name || "-"}</strong></p>
                           <p>TTD GPK: {p.ttd_gpk ? "✅ Selesai" : "⏳ Menunggu"}</p>
                           <p>TTD Psikolog: {p.ttd_psikolog ? "✅ Disetujui" : "⏳ Menunggu"}</p>
                           <p>TTD Orang Tua: {p.ttd_orangtua ? "✅ Selesai" : "⏳ Menunggu"}</p>
@@ -357,7 +359,7 @@ export default function PsikologDashboard() {
                         )}
 
                         {p.catatan_psikolog && (
-                          <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 mt-3 shadow-inner">
+                          <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 shadow-inner">
                             <p className="font-bold flex items-center gap-1 text-purple-300">
                               <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Anda:
                             </p>
@@ -511,7 +513,6 @@ export default function PsikologDashboard() {
                         <p><strong className="text-emerald-400">Hasil:</strong> {r.hasil_pembelajaran || "-"}</p>
                         <p><strong className="text-amber-400">Catatan Perilaku:</strong> {r.catatan_perilaku || r.perilaku || "-"}</p>
                         <p><strong className="text-teal-400">Intervensi:</strong> {r.intervensi || r.tindakan_intervensi || "-"}</p>
-                        {r.kondisi_mood && <p><strong className="text-pink-400">Mood:</strong> {r.kondisi_mood}</p>}
                       </div>
 
                       {r.catatan_psikolog && (
@@ -520,15 +521,6 @@ export default function PsikologDashboard() {
                             <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Anda:
                           </p>
                           <p className="italic text-slate-200">"{r.catatan_psikolog}"</p>
-                        </div>
-                      )}
-
-                      {r.feedback_wali && (
-                        <div className="bg-blue-500/15 border border-blue-500/40 p-3 rounded-xl text-blue-200 text-xs space-y-1 shadow-inner">
-                          <p className="font-bold flex items-center gap-1 text-blue-300">
-                            <MessageCircle className="w-3.5 h-3.5 text-blue-400" /> Tanggapan Wali:
-                          </p>
-                          <p className="italic text-slate-200">"{r.feedback_wali}"</p>
                         </div>
                       )}
                     </div>
@@ -565,7 +557,7 @@ export default function PsikologDashboard() {
 
             <div className="space-y-6 text-sm text-slate-300">
               
-              {/* LAPORAN HARIAN (DENGAN CATATAN PERILAKU & INTERVENSI) */}
+              {/* LAPORAN HARIAN */}
               {modalType === "report" && (
                 <div className="space-y-4">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -573,45 +565,34 @@ export default function PsikologDashboard() {
                     <div><span className="block text-xs text-slate-500">Mata Pelajaran</span><strong className="text-blue-400 text-base">{selectedItem.mata_pelajaran || "-"}</strong></div>
                     <div><span className="block text-xs text-slate-500">Tanggal Laporan</span><span className="text-white">{selectedItem.tanggal || "-"}</span></div>
                     <div><span className="block text-xs text-slate-500">Pendamping (GPK)</span><span className="text-purple-400 font-semibold">{selectedItem.gpk_name || "-"}</span></div>
-                    <div><span className="block text-xs text-slate-500">Kondisi Mood Siswa</span><span className="px-3 py-1 bg-white/10 rounded-full text-xs mt-1 inline-block text-amber-300 font-semibold">{selectedItem.kondisi_mood || "-"}</span></div>
-                    <div><span className="block text-xs text-slate-500">Waktu / Durasi</span><span className="text-white">{selectedItem.waktu || selectedItem.jam_pelajaran || "-"}</span></div>
                   </div>
                     
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
-                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5"/> Materi Pembelajaran</h4>
+                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">Materi Pembelajaran</h4>
                       <p className="text-white whitespace-pre-wrap">{selectedItem.materi_pembelajaran || "-"}</p>
                     </div>
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
-                      <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5"><CheckSquare className="w-3.5 h-3.5"/> Target Capaian</h4>
+                      <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider">Target Capaian</h4>
                       <p className="text-white whitespace-pre-wrap">{selectedItem.target_capaian || "-"}</p>
                     </div>
                   </div>
 
                   <div className="bg-emerald-950/20 p-4 rounded-2xl border border-emerald-900/40 space-y-2">
-                    <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5"/> Hasil Pembelajaran</h4>
+                    <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Hasil Pembelajaran</h4>
                     <p className="text-emerald-100 whitespace-pre-wrap">{selectedItem.hasil_pembelajaran || "-"}</p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="bg-amber-950/20 p-4 rounded-2xl border border-amber-900/40 space-y-2">
-                      <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5"><Activity className="w-3.5 h-3.5"/> Catatan Perilaku</h4>
-                      <p className="text-amber-100 whitespace-pre-wrap">{selectedItem.catatan_perilaku || selectedItem.perilaku || "Tidak ada catatan perilaku khusus."}</p>
+                      <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Catatan Perilaku</h4>
+                      <p className="text-amber-100 whitespace-pre-wrap">{selectedItem.catatan_perilaku || selectedItem.perilaku || "-"}</p>
                     </div>
                     <div className="bg-teal-950/20 p-4 rounded-2xl border border-teal-900/40 space-y-2">
-                      <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider flex items-center gap-1.5"><UserCheck className="w-3.5 h-3.5"/> Intervensi yang Diberikan</h4>
+                      <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider">Intervensi</h4>
                       <p className="text-teal-100 whitespace-pre-wrap">{selectedItem.intervensi || selectedItem.tindakan_intervensi || "-"}</p>
                     </div>
                   </div>
-
-                  {selectedItem.feedback_wali && (
-                    <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-2xl space-y-2">
-                      <h4 className="text-xs font-bold text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
-                        <MessageCircle className="w-4 h-4 text-blue-400" /> Tanggapan / Feedback Wali Siswa
-                      </h4>
-                      <p className="italic text-slate-100">"{selectedItem.feedback_wali}"</p>
-                    </div>
-                  )}
 
                   <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-2xl space-y-3">
                     <h4 className="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -779,25 +760,87 @@ export default function PsikologDashboard() {
                 </div>
               )}
 
-              {/* DOKUMEN PPI */}
+              {/* DOKUMEN PPI (DIUBAH AGAR MENAMPILKAN SELURUH MATRIKS / TABEL DARI GPK SECARA UTUH) */}
               {modalType === "ppi" && (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                    <div><span className="block text-xs text-slate-500">Nama Siswa</span><strong className="text-white text-base">{selectedItem.students?.full_name}</strong></div>
-                    <div className="text-left sm:text-right"><span className="block text-xs text-slate-500">Status Validasi</span><span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 font-bold rounded-full text-xs uppercase mt-1 inline-block">{selectedItem.status}</span></div>
+                    <div>
+                      <span className="block text-xs text-slate-500">Nama Siswa</span>
+                      <strong className="text-white text-base">{selectedItem.students?.full_name}</strong>
+                    </div>
+                    <div className="text-left sm:text-right">
+                      <span className="block text-xs text-slate-500">Status Validasi</span>
+                      <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 font-bold rounded-full text-xs uppercase mt-1 inline-block">{selectedItem.status || "Draft"}</span>
+                    </div>
                   </div>
 
-                  {selectedItem.profil_pdbk && (
+                  {/* Informasi Umum & Profil PDBK */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 text-xs">
-                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">Profil PDBK</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <div><span className="text-slate-500">Nama:</span> {selectedItem.profil_pdbk.nama || "-"}</div>
-                        <div><span className="text-slate-500">Kelas/Usia:</span> {selectedItem.profil_pdbk.kelas_usia || "-"}</div>
-                        <div><span className="text-slate-500">Jenis Kebutuhan:</span> {selectedItem.profil_pdbk.jenis_kebutuhan || "-"}</div>
-                      </div>
+                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">Informasi Dokumen</h4>
+                      <p><span className="text-slate-500">Periode PPI:</span> <span className="text-white font-medium">{selectedItem.periode_ppi || "-"}</span></p>
+                      <p><span className="text-slate-500">Guru Pendamping (GPK):</span> <span className="text-white font-medium">{selectedItem.gpk_name || "-"}</span></p>
                     </div>
-                  )}
 
+                    {selectedItem.profil_pdbk && (
+                      <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 text-xs">
+                        <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">Profil PDBK</h4>
+                        <p><span className="text-slate-500">Jenis Kebutuhan:</span> <span className="text-white font-medium">{selectedItem.profil_pdbk.jenis_kebutuhan || selectedItem.profil_pdbk.kebutuhan || "-"}</span></p>
+                        <p><span className="text-slate-500">Kelas/Usia:</span> <span className="text-white font-medium">{selectedItem.profil_pdbk.kelas_usia || selectedItem.profil_pdbk.kelas || "-"}</span></p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Rincian Matriks / Tabel Aspek PPI dari GPK */}
+                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-4">
+                    <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider border-b border-slate-800 pb-2">
+                      Matriks Aspek Perkembangan & Target Pembelajaran (PPI GPK)
+                    </h4>
+
+                    {selectedItem.matriks_ppi || selectedItem.aspek_ppi || selectedItem.tabel_ppi || selectedItem.data_matriks ? (
+                      <div className="space-y-3 text-xs">
+                        {/* Jika data disimpan dalam bentuk objek/array matriks */}
+                        {Object.entries(selectedItem.matriks_ppi || selectedItem.aspek_ppi || selectedItem.tabel_ppi || selectedItem.data_matriks || {}).map(([key, value]: [string, any]) => (
+                          <div key={key} className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1.5">
+                            <span className="font-bold text-purple-300 block uppercase tracking-wide">{key.replace(/_/g, " ")}</span>
+                            {typeof value === 'object' && value !== null ? (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-slate-300">
+                                {Object.entries(value).map(([subKey, subVal]: [string, any]) => (
+                                  <div key={subKey} className="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
+                                    <span className="text-slate-400 text-[10px] block uppercase">{subKey.replace(/_/g, " ")}</span>
+                                    <p className="text-white font-normal mt-0.5">{String(subVal || "-")}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-white">{String(value)}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      // Fallback jika GPK menyimpan dalam bentuk kolom teks biasa atau JSON mentah
+                      <div className="space-y-3 text-xs text-slate-300">
+                        {selectedItem.kurikulum_adaptasi && (
+                          <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                            <strong className="text-blue-300 block mb-1">Adaptasi Kurikulum / Materi:</strong>
+                            <p>{selectedItem.kurikulum_adaptasi}</p>
+                          </div>
+                        )}
+                        {selectedItem.strategi_intervensi && (
+                          <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                            <strong className="text-teal-300 block mb-1">Strategi & Metode Intervensi:</strong>
+                            <p>{selectedItem.strategi_intervensi}</p>
+                          </div>
+                        )}
+                        {!selectedItem.kurikulum_adaptasi && !selectedItem.strategi_intervensi && (
+                          <p className="text-slate-400 italic">Data rincian matriks tersimpan langsung di database. Silakan pastikan kolom tabel `ppi` di Supabase sudah sesuai dengan input GPK.</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Validasi & Catatan Psikolog */}
                   <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-2xl space-y-3">
                     <h4 className="text-xs font-bold text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
                       <FileText className="w-4 h-4 text-blue-400" /> Validasi & Catatan Psikolog untuk PPI
