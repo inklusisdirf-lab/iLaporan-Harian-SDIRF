@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/app/utils/supabase/client";
 import { 
   FileText, BrainCircuit, CheckCircle2, XCircle, 
-  X, Eye, Save, LogOut, BookOpen, Calendar, MessageCircle, ClipboardCheck
+  X, Eye, Save, LogOut, BookOpen, Calendar, MessageCircle, ClipboardCheck, AlertCircle, CheckSquare
 } from "lucide-react";
 
 export default function PsikologDashboard() {
@@ -500,14 +500,18 @@ export default function PsikologDashboard() {
                   <div key={r.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-xs px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-semibold">{r.mata_pelajaran}</span>
+                        <span className="text-xs px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-semibold">{r.mata_pelajaran || "Umum"}</span>
                         <span className="text-xs text-slate-400">{r.tanggal}</span>
                       </div>
                       <h4 className="text-lg font-bold text-white mb-1">{r.students?.full_name || "Siswa"}</h4>
                       
                       <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
-                        <p><strong className="text-blue-400">Materi:</strong> {r.materi_pembelajaran}</p>
-                        <p className="line-clamp-2"><strong className="text-purple-400">Hasil:</strong> {r.hasil_pembelajaran}</p>
+                        <p><strong className="text-blue-400">Materi:</strong> {r.materi_pembelajaran || "-"}</p>
+                        <p><strong className="text-purple-400">Target:</strong> {r.target_capaian || "-"}</p>
+                        <p><strong className="text-emerald-400">Hasil:</strong> {r.hasil_pembelajaran || "-"}</p>
+                        {r.kendala && <p><strong className="text-amber-400">Kendala:</strong> {r.kendala}</p>}
+                        {r.solusi && <p><strong className="text-teal-400">Solusi:</strong> {r.solusi}</p>}
+                        {r.kondisi_mood && <p><strong className="text-pink-400">Mood:</strong> {r.kondisi_mood}</p>}
                       </div>
 
                       {r.catatan_psikolog && (
@@ -561,31 +565,43 @@ export default function PsikologDashboard() {
 
             <div className="space-y-6 text-sm text-slate-300">
               
-              {/* LAPORAN HARIAN */}
+              {/* LAPORAN HARIAN (DILENGKAPI SEMUA FIELD) */}
               {modalType === "report" && (
                 <div className="space-y-4">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div><span className="block text-xs text-slate-500">Nama Siswa</span><strong className="text-white text-base">{selectedItem.students?.full_name}</strong></div>
-                    <div><span className="block text-xs text-slate-500">Mata Pelajaran</span><strong className="text-blue-400 text-base">{selectedItem.mata_pelajaran}</strong></div>
-                    <div><span className="block text-xs text-slate-500">Tanggal Laporan</span><span className="text-white">{selectedItem.tanggal}</span></div>
+                    <div><span className="block text-xs text-slate-500">Mata Pelajaran</span><strong className="text-blue-400 text-base">{selectedItem.mata_pelajaran || "-"}</strong></div>
+                    <div><span className="block text-xs text-slate-500">Tanggal Laporan</span><span className="text-white">{selectedItem.tanggal || "-"}</span></div>
                     <div><span className="block text-xs text-slate-500">Pendamping (GPK)</span><span className="text-purple-400 font-semibold">{selectedItem.gpk_name || "-"}</span></div>
-                    <div><span className="block text-xs text-slate-500">Kondisi Mood Siswa</span><span className="px-3 py-1 bg-white/10 rounded-full text-xs mt-1 inline-block text-amber-300 font-semibold">{selectedItem.kondisi_mood}</span></div>
+                    <div><span className="block text-xs text-slate-500">Kondisi Mood Siswa</span><span className="px-3 py-1 bg-white/10 rounded-full text-xs mt-1 inline-block text-amber-300 font-semibold">{selectedItem.kondisi_mood || "-"}</span></div>
+                    <div><span className="block text-xs text-slate-500">Waktu / Durasi</span><span className="text-white">{selectedItem.waktu || selectedItem.jam_pelajaran || "-"}</span></div>
                   </div>
                     
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
-                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">Materi Pembelajaran</h4>
+                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5"/> Materi Pembelajaran</h4>
                       <p className="text-white whitespace-pre-wrap">{selectedItem.materi_pembelajaran || "-"}</p>
                     </div>
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
-                      <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider">Target Capaian</h4>
+                      <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5"><CheckSquare className="w-3.5 h-3.5"/> Target Capaian</h4>
                       <p className="text-white whitespace-pre-wrap">{selectedItem.target_capaian || "-"}</p>
                     </div>
                   </div>
 
                   <div className="bg-emerald-950/20 p-4 rounded-2xl border border-emerald-900/40 space-y-2">
-                    <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Hasil Pembelajaran</h4>
+                    <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5"/> Hasil Pembelajaran</h4>
                     <p className="text-emerald-100 whitespace-pre-wrap">{selectedItem.hasil_pembelajaran || "-"}</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-amber-950/20 p-4 rounded-2xl border border-amber-900/40 space-y-2">
+                      <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5"><AlertCircle className="w-3.5 h-3.5"/> Hambatan / Kendala</h4>
+                      <p className="text-amber-100 whitespace-pre-wrap">{selectedItem.kendala || selectedItem.hambatan || "Tidak ada kendala tercatat."}</p>
+                    </div>
+                    <div className="bg-teal-950/20 p-4 rounded-2xl border border-teal-900/40 space-y-2">
+                      <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5"/> Solusi / Tindak Lanjut</h4>
+                      <p className="text-teal-100 whitespace-pre-wrap">{selectedItem.solusi || selectedItem.tindak_lanjut || "-"}</p>
+                    </div>
                   </div>
 
                   {selectedItem.feedback_wali && (
