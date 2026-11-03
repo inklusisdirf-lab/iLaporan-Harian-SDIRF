@@ -14,7 +14,7 @@ export default function PsikologDashboard() {
   const [psikologName, setPsikologName] = useState("");
   const [psikologId, setPsikologId] = useState("");
 
-  const [activeTab, setActiveTab] = useState("asesmen"); // asesmen | ppi | evaluasi | laporan | temuan
+  const [activeTab, setActiveTab] = useState("asesmen"); // asesmen | ppi | evaluasi | laporan
   
   // State Data
   const [reports, setReports] = useState<any[]>([]);
@@ -24,7 +24,7 @@ export default function PsikologDashboard() {
   const [assessments, setAssessments] = useState<any[]>([]);
   const [ppiList, setPpiList] = useState<any[]>([]);
   const [evaluations, setEvaluations] = useState<any[]>([]);
-  const [fieldReports, setFieldReports] = useState<any[]>([]); // State khusus Temuan Lapangan
+  const [fieldReports, setFieldReports] = useState<any[]>([]); // Temuan Lapangan
 
   // State Modal Detail & Aksi
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -56,7 +56,7 @@ export default function PsikologDashboard() {
     checkPsikologAuth();
   }, [router]);
 
-  // PENGAMBILAN DATA (Termasuk Tabel Temuan Lapangan / field_reports)
+  // PENGAMBILAN DATA
   const fetchPsikologData = async () => {
     const { data: assessData } = await supabase
       .from("assessments")
@@ -78,7 +78,6 @@ export default function PsikologDashboard() {
       .order("created_at", { ascending: false });
     if (evalData) setEvaluations(evalData);
 
-    // Mengambil data Temuan Lapangan (pastikan nama tabel sesuai, misal: field_reports)
     const { data: fieldData } = await supabase
       .from("field_reports")
       .select("*, students(full_name)")
@@ -197,9 +196,9 @@ export default function PsikologDashboard() {
 
   const displayedReports = getFilteredReports();
   const filteredAssessments = assessments.filter(a => filterNama ? a.students?.full_name?.toLowerCase().includes(filterNama.toLowerCase()) : true);
+  const filteredFieldReports = fieldReports.filter(f => filterNama ? f.students?.full_name?.toLowerCase().includes(filterNama.toLowerCase()) : true);
   const filteredPpi = ppiList.filter(p => filterNama ? p.students?.full_name?.toLowerCase().includes(filterNama.toLowerCase()) : true);
   const filteredEvaluations = evaluations.filter(e => filterNama ? e.students?.full_name?.toLowerCase().includes(filterNama.toLowerCase()) : true);
-  const filteredFieldReports = fieldReports.filter(f => filterNama ? f.students?.full_name?.toLowerCase().includes(filterNama.toLowerCase()) : true);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans pb-24">
@@ -230,7 +229,7 @@ export default function PsikologDashboard() {
                 Future Islamic Leadership School
               </p>
               <p className="text-slate-300 text-xs truncate">
-                Psikolog: <strong className="text-white">{psikologName}</strong> | Asesmen, PPI, Evaluasi, Temuan & Layanan PDBK
+                Psikolog: <strong className="text-white">{psikologName}</strong> | Asesmen, Temuan Lapangan, PPI, Evaluasi & Layanan PDBK
               </p>
             </div>
           </div>
@@ -245,7 +244,7 @@ export default function PsikologDashboard() {
           </div>
         )}
 
-        {/* TAB UTAMA (Termasuk Tab Temuan Lapangan) */}
+        {/* TAB UTAMA (Tanpa Tab Temuan Lapangan Terpisah) */}
         <div className="flex flex-wrap gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-fit">
           <button 
             onClick={() => setActiveTab("asesmen")} 
@@ -253,7 +252,7 @@ export default function PsikologDashboard() {
               activeTab === "asesmen" ? "bg-purple-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
             }`}
           >
-            <BrainCircuit className="w-4 h-4" /> Asesmen Awal ({assessments.length})
+            <BrainCircuit className="w-4 h-4" /> Asesmen & Temuan Lapangan ({assessments.length + fieldReports.length})
           </button>
           <button 
             onClick={() => setActiveTab("ppi")} 
@@ -279,72 +278,114 @@ export default function PsikologDashboard() {
           >
             <BookOpen className="w-4 h-4" /> Laporan Harian GPK ({reports.length})
           </button>
-          <button 
-            onClick={() => setActiveTab("temuan")} 
-            className={`px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
-              activeTab === "temuan" ? "bg-amber-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
-            }`}
-          >
-            <FileText className="w-4 h-4" /> Temuan Lapangan ({fieldReports.length})
-          </button>
         </div>
 
-        {/* === TAB 1: ASESMEN AWAL === */}
+        {/* === TAB 1: ASESMEN AWAL & TEMUAN LAPANGAN === */}
         {activeTab === "asesmen" && (
-          <div className="flex flex-col gap-6">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <BrainCircuit className="w-5 h-5 text-purple-400" /> Monitoring Asesmen Awal PDBK ({filteredAssessments.length})
-            </h3>
+          <div className="flex flex-col gap-8">
+            
+            {/* Bagian A: Asesmen Awal */}
+            <div className="flex flex-col gap-4">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <BrainCircuit className="w-5 h-5 text-purple-400" /> Monitoring Asesmen Awal PDBK ({filteredAssessments.length})
+              </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredAssessments.length === 0 ? (
-                <p className="text-slate-400 text-sm italic col-span-full">Belum ada data asesmen awal.</p>
-              ) : (
-                filteredAssessments.map((a) => (
-                  <div key={a.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 font-semibold">Asesmen Awal</span>
-                        <span className="text-xs text-slate-400">{a.tanggal_assessment || "-"}</span>
-                      </div>
-                      <h4 className="text-lg font-bold text-white mb-1">{a.students?.full_name || "Siswa PDBK"}</h4>
-                      
-                      <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
-                        <p className="line-clamp-2"><strong>Permasalahan:</strong> {a.permasalahan || "-"}</p>
-                        {a.identitas?.kelas && <p><strong>Kelas:</strong> {a.identitas.kelas}</p>}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredAssessments.length === 0 ? (
+                  <p className="text-slate-400 text-sm italic col-span-full">Belum ada data asesmen awal.</p>
+                ) : (
+                  filteredAssessments.map((a) => (
+                    <div key={a.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 font-semibold">Asesmen Awal</span>
+                          <span className="text-xs text-slate-400">{a.tanggal_assessment || "-"}</span>
+                        </div>
+                        <h4 className="text-lg font-bold text-white mb-1">{a.students?.full_name || "Siswa PDBK"}</h4>
+                        
+                        <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
+                          <p className="line-clamp-2"><strong>Permasalahan:</strong> {a.permasalahan || "-"}</p>
+                          {a.identitas?.kelas && <p><strong>Kelas:</strong> {a.identitas.kelas}</p>}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-400 pt-1">
+                          <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                            <span className="text-emerald-400 font-bold block">Kelebihan:</span>
+                            <span className="line-clamp-1">{a.profiling?.kelebihan || "-"}</span>
+                          </div>
+                          <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                            <span className="text-red-400 font-bold block">Kekurangan:</span>
+                            <span className="line-clamp-1">{a.profiling?.kekurangan || "-"}</span>
+                          </div>
+                        </div>
+
+                        {a.catatan_psikolog && (
+                          <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 shadow-inner">
+                            <p className="font-bold flex items-center gap-1 text-purple-300">
+                              <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Anda:
+                            </p>
+                            <p className="italic text-slate-200">"{a.catatan_psikolog}"</p>
+                          </div>
+                        )}
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-400 pt-1">
-                        <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
-                          <span className="text-emerald-400 font-bold block">Kelebihan:</span>
-                          <span className="line-clamp-1">{a.profiling?.kelebihan || "-"}</span>
-                        </div>
-                        <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
-                          <span className="text-red-400 font-bold block">Kekurangan:</span>
-                          <span className="line-clamp-1">{a.profiling?.kekurangan || "-"}</span>
-                        </div>
-                      </div>
-
-                      {a.catatan_psikolog && (
-                        <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 shadow-inner">
-                          <p className="font-bold flex items-center gap-1 text-purple-300">
-                            <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Anda:
-                          </p>
-                          <p className="italic text-slate-200">"{a.catatan_psikolog}"</p>
-                        </div>
-                      )}
+                      <button 
+                        onClick={() => { setSelectedItem(a); setModalType("assessment"); setCatatanPsikologInput(a.catatan_psikolog || ""); }}
+                        className="w-full bg-purple-600/20 border border-purple-500/30 hover:bg-purple-600/30 text-purple-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-4"
+                      >
+                        <Eye className="w-4 h-4" /> Periksa Asesmen Lengkap
+                      </button>
                     </div>
-
-                    <button 
-                      onClick={() => { setSelectedItem(a); setModalType("assessment"); setCatatanPsikologInput(a.catatan_psikolog || ""); }}
-                      className="w-full bg-purple-600/20 border border-purple-500/30 hover:bg-purple-600/30 text-purple-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-4"
-                    >
-                      <Eye className="w-4 h-4" /> Periksa Asesmen Lengkap
-                    </button>
-                  </div>
-                ))
-              )}
+                  ))
+                )}
+              </div>
             </div>
+
+            {/* Bagian B: Temuan Lapangan */}
+            <div className="flex flex-col gap-4 pt-4 border-t border-white/10">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <FileText className="w-5 h-5 text-amber-400" /> Laporan Temuan di Lapangan ({filteredFieldReports.length})
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredFieldReports.length === 0 ? (
+                  <p className="text-slate-400 text-sm italic col-span-full">Belum ada laporan temuan di lapangan.</p>
+                ) : (
+                  filteredFieldReports.map((item) => (
+                    <div key={item.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-semibold">Temuan Lapangan</span>
+                          <span className="text-xs text-slate-400">{item.tanggal || item.created_at?.split('T')[0]}</span>
+                        </div>
+                        <h4 className="text-lg font-bold text-white mb-1">{item.students?.full_name || "Siswa PDBK"}</h4>
+                        
+                        <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
+                          <p className="line-clamp-3"><strong>Deskripsi Temuan:</strong> {item.deskripsi || item.catatan_lapangan || item.isi_temuan || "-"}</p>
+                        </div>
+
+                        {item.catatan_psikolog && (
+                          <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 shadow-inner">
+                            <p className="font-bold flex items-center gap-1 text-purple-300">
+                              <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Anda:
+                            </p>
+                            <p className="italic text-slate-200">"{item.catatan_psikolog}"</p>
+                          </div>
+                        )}
+                      </div>
+
+                      <button 
+                        onClick={() => { setSelectedItem(item); setModalType("temuan_lapangan"); setCatatanPsikologInput(item.catatan_psikolog || ""); }}
+                        className="w-full bg-amber-600/20 border border-amber-500/30 hover:bg-amber-600/30 text-amber-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-4"
+                      >
+                        <Eye className="w-4 h-4" /> Periksa Temuan Lengkap
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
           </div>
         )}
 
@@ -563,53 +604,6 @@ export default function PsikologDashboard() {
                       className="w-full bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all"
                     >
                       <Eye className="w-4 h-4 text-emerald-400" /> Periksa & Beri Catatan Laporan
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* === TAB 5: TEMUAN LAPANGAN === */}
-        {activeTab === "temuan" && (
-          <div className="flex flex-col gap-6">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <FileText className="w-5 h-5 text-amber-400" /> Laporan Temuan di Lapangan ({filteredFieldReports.length})
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredFieldReports.length === 0 ? (
-                <p className="text-slate-400 text-sm italic col-span-full">Belum ada laporan temuan di lapangan.</p>
-              ) : (
-                filteredFieldReports.map((item) => (
-                  <div key={item.id} className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-semibold">Temuan Lapangan</span>
-                        <span className="text-xs text-slate-400">{item.tanggal || item.created_at?.split('T')[0]}</span>
-                      </div>
-                      <h4 className="text-lg font-bold text-white mb-1">{item.students?.full_name || "Siswa PDBK"}</h4>
-                      
-                      <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
-                        <p className="line-clamp-3"><strong>Deskripsi Temuan:</strong> {item.deskripsi || item.catatan_lapangan || item.isi_temuan || "-"}</p>
-                      </div>
-
-                      {item.catatan_psikolog && (
-                        <div className="bg-purple-500/15 border border-purple-500/40 p-3 rounded-xl text-purple-200 text-xs space-y-1 shadow-inner">
-                          <p className="font-bold flex items-center gap-1 text-purple-300">
-                            <BrainCircuit className="w-3.5 h-3.5 text-purple-400" /> Catatan Anda:
-                          </p>
-                          <p className="italic text-slate-200">"{item.catatan_psikolog}"</p>
-                        </div>
-                      )}
-                    </div>
-
-                    <button 
-                      onClick={() => { setSelectedItem(item); setModalType("temuan_lapangan"); setCatatanPsikologInput(item.catatan_psikolog || ""); }}
-                      className="w-full bg-amber-600/20 border border-amber-500/30 hover:bg-amber-600/30 text-amber-300 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-4"
-                    >
-                      <Eye className="w-4 h-4" /> Periksa Temuan Lengkap
                     </button>
                   </div>
                 ))
