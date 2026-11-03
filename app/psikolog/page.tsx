@@ -14,8 +14,7 @@ export default function PsikologDashboard() {
   const [psikologName, setPsikologName] = useState("");
   const [psikologId, setPsikologId] = useState("");
 
-  const [activeTab, setActiveTab] = useState("asesmen"); // asesmen | ppi | laporan | evaluasi
-  const [ppiSubTab, setPpiSubTab] = useState("asesmen"); // asesmen | ppi (jika ingin sub-tab seperti admin)
+  const [activeTab, setActiveTab] = useState("asesmen"); // asesmen | ppi | evaluasi | laporan
   
   // State Data
   const [reports, setReports] = useState<any[]>([]);
@@ -56,7 +55,7 @@ export default function PsikologDashboard() {
     checkPsikologAuth();
   }, [router]);
 
-  // DIPERBARUI: Mengambil data tanpa batasan baris bawaan (range besar) agar tampil penuh seperti admin
+  // PENGAMBILAN DATA (Dihilangkan batasan limit baris agar data tampil penuh seperti di panel admin)
   const fetchPsikologData = async () => {
     const { data: assessData } = await supabase
       .from("assessments")
@@ -545,7 +544,7 @@ export default function PsikologDashboard() {
 
       </div>
 
-      {/* ================= MODAL DETAIL LENGKAP + FEEDBACK PSIKOLOG ================= */}
+      {/* ================= MODAL DETAIL LENGKAP ================= */}
       {selectedItem && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-slate-900 border border-white/20 rounded-3xl p-6 md:p-8 max-w-4xl w-full max-h-[85vh] overflow-y-auto relative shadow-2xl my-auto space-y-6">
@@ -562,7 +561,7 @@ export default function PsikologDashboard() {
 
             <div className="space-y-6 text-sm text-slate-300">
               
-              {/* LAPORAN HARIAN + FORM CATATAN PSIKOLOG */}
+              {/* LAPORAN HARIAN */}
               {modalType === "report" && (
                 <div className="space-y-4">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -598,7 +597,6 @@ export default function PsikologDashboard() {
                     </div>
                   )}
 
-                  {/* FORM CATATAN PSIKOLOG UNTUK LAPORAN HARIAN */}
                   <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-2xl space-y-3">
                     <h4 className="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
                       <BrainCircuit className="w-4 h-4 text-purple-400" /> Catatan Profesional Psikolog
@@ -620,7 +618,7 @@ export default function PsikologDashboard() {
                 </div>
               )}
 
-              {/* ASESMEN AWAL LENGKAP + FORM CATATAN PSIKOLOG (DIPERLENGKAP SEPERTI ADMIN) */}
+              {/* ASESMEN AWAL */}
               {modalType === "assessment" && (
                 <div className="space-y-4">
                    <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -672,7 +670,6 @@ export default function PsikologDashboard() {
                     </div>
                   )}
 
-                  {/* FORM CATATAN PSIKOLOG */}
                   <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-2xl space-y-3">
                     <h4 className="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
                       <BrainCircuit className="w-4 h-4 text-purple-400" /> Catatan Profesional Psikolog
@@ -694,7 +691,7 @@ export default function PsikologDashboard() {
                 </div>
               )}
 
-              {/* EVALUASI 3 BULANAN KOMPARASI + FORM FEEDBACK PSIKOLOG */}
+              {/* EVALUASI 3 BULANAN */}
               {modalType === "evaluation" && (
                 <div className="space-y-4">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
@@ -745,12 +742,10 @@ export default function PsikologDashboard() {
                     </div>
                   )}
 
-                  {/* FORM FEEDBACK PSIKOLOG UNTUK EVALUASI 3 BULANAN */}
                   <div className="bg-teal-500/10 border border-teal-500/30 p-4 rounded-2xl space-y-3">
                     <h4 className="text-xs font-bold text-teal-300 uppercase tracking-wider flex items-center gap-1.5">
                       <ClipboardCheck className="w-4 h-4 text-teal-400" /> Feedback & Masukan Profesional Psikolog
                     </h4>
-                    <p className="text-[11px] text-slate-400">Feedback ini wajib diisi agar laporan evaluasi dapat dikonfirmasi dan dikirimkan kepada orang tua oleh Admin.</p>
                     <textarea 
                       rows={3} 
                       placeholder="Tuliskan feedback psikolog terhadap perkembangan 3 bulanan siswa..." 
@@ -768,7 +763,7 @@ export default function PsikologDashboard() {
                 </div>
               )}
 
-              {/* DOKUMEN PPI LENGKAP + VALIDASI */}
+              {/* DOKUMEN PPI */}
               {modalType === "ppi" && (
                 <div className="space-y-4">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -787,7 +782,6 @@ export default function PsikologDashboard() {
                     </div>
                   )}
 
-                  {/* FORM VALIDASI & CATATAN PPI PSIKOLOG */}
                   <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-2xl space-y-3">
                     <h4 className="text-xs font-bold text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
                       <FileText className="w-4 h-4 text-blue-400" /> Validasi & Catatan Psikolog untuk PPI
