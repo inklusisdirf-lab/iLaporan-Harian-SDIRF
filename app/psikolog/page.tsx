@@ -15,6 +15,7 @@ export default function PsikologDashboard() {
   const [psikologId, setPsikologId] = useState("");
 
   const [activeTab, setActiveTab] = useState("asesmen"); // asesmen | ppi | laporan | evaluasi
+  const [ppiSubTab, setPpiSubTab] = useState("asesmen"); // asesmen | ppi (jika ingin sub-tab seperti admin)
   
   // State Data
   const [reports, setReports] = useState<any[]>([]);
@@ -55,20 +56,33 @@ export default function PsikologDashboard() {
     checkPsikologAuth();
   }, [router]);
 
+  // DIPERBARUI: Mengambil data tanpa batasan baris bawaan (range besar) agar tampil penuh seperti admin
   const fetchPsikologData = async () => {
-    const { data: assessData } = await supabase.from("assessments").select("*, students(full_name)").order("created_at", { ascending: false });
+    const { data: assessData } = await supabase
+      .from("assessments")
+      .select("*, students(full_name)")
+      .order("created_at", { ascending: false })
+      .range(0, 4999);
     if (assessData) setAssessments(assessData);
 
-    const { data: ppiData } = await supabase.from("ppi").select("*, students(full_name)").order("created_at", { ascending: false });
+    const { data: ppiData } = await supabase
+      .from("ppi")
+      .select("*, students(full_name)")
+      .order("created_at", { ascending: false })
+      .range(0, 4999);
     if (ppiData) setPpiList(ppiData);
 
-    const { data: evalData } = await supabase.from("evaluation_reports").select("*, students(full_name)").order("created_at", { ascending: false });
+    const { data: evalData } = await supabase
+      .from("evaluation_reports")
+      .select("*, students(full_name)")
+      .order("created_at", { ascending: false });
     if (evalData) setEvaluations(evalData);
 
     const { data: reportData } = await supabase
       .from("daily_reports")
       .select("*, students(full_name)")
-      .order("tanggal", { ascending: false });
+      .order("tanggal", { ascending: false })
+      .range(0, 999999);
     
     if (reportData) {
       setReports(reportData);
@@ -107,7 +121,6 @@ export default function PsikologDashboard() {
     });
   };
 
-  // Aksi Psikolog: Beri/Edit Catatan pada Laporan Harian
   const handleSaveReportNotes = async (reportId: string) => {
     const { error } = await supabase.from("daily_reports").update({ catatan_psikolog: catatanPsikologInput }).eq("id", reportId);
     if (error) alert("Gagal menyimpan catatan: " + error.message);
@@ -119,7 +132,6 @@ export default function PsikologDashboard() {
     }
   };
 
-  // Aksi Psikolog: Beri/Edit Catatan pada Asesmen
   const handleSaveAssessmentNotes = async (assessmentId: string) => {
     const { error } = await supabase.from("assessments").update({ catatan_psikolog: catatanPsikologInput }).eq("id", assessmentId);
     if (error) alert("Gagal menyimpan catatan: " + error.message);
@@ -131,7 +143,6 @@ export default function PsikologDashboard() {
     }
   };
 
-  // Aksi Psikolog: Validasi TTD & Catatan pada PPI
   const handleValidatePpi = async (ppiId: string, approve: boolean) => {
     const payload = {
       ttd_psikolog: approve,
@@ -148,7 +159,6 @@ export default function PsikologDashboard() {
     }
   };
 
-  // Aksi Psikolog: Beri/Edit Feedback pada Evaluasi 3 Bulanan
   const handleSaveEvaluationFeedback = async (evalId: string) => {
     const { error } = await supabase.from("evaluation_reports").update({ feedback_psikolog: catatanPsikologInput }).eq("id", evalId);
     if (error) alert("Gagal menyimpan feedback evaluasi: " + error.message);
@@ -200,7 +210,7 @@ export default function PsikologDashboard() {
                 Future Islamic Leadership School
               </p>
               <p className="text-slate-300 text-xs truncate">
-                Psikolog: <strong className="text-white">{psikologName}</strong> • Asesmen, PPI, Evaluasi & Layanan PDBK
+                Psikolog: <strong className="text-white">{psikologName}</strong> | Asesmen, PPI, Evaluasi & Layanan PDBK
               </p>
             </div>
           </div>
@@ -223,7 +233,7 @@ export default function PsikologDashboard() {
               activeTab === "asesmen" ? "bg-purple-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
             }`}
           >
-            <BrainCircuit className="w-4 h-4" /> Asesmen Awal
+            <BrainCircuit className="w-4 h-4" /> Asesmen Awal ({assessments.length})
           </button>
           <button 
             onClick={() => setActiveTab("ppi")} 
@@ -231,7 +241,7 @@ export default function PsikologDashboard() {
               activeTab === "ppi" ? "bg-blue-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
             }`}
           >
-            <FileText className="w-4 h-4" /> Dokumen PPI
+            <FileText className="w-4 h-4" /> Dokumen PPI ({ppiList.length})
           </button>
           <button 
             onClick={() => setActiveTab("evaluasi")} 
@@ -247,7 +257,7 @@ export default function PsikologDashboard() {
               activeTab === "laporan" ? "bg-emerald-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
             }`}
           >
-            <BookOpen className="w-4 h-4" /> Laporan Harian GPK
+            <BookOpen className="w-4 h-4" /> Laporan Harian GPK ({reports.length})
           </button>
         </div>
 
@@ -255,7 +265,7 @@ export default function PsikologDashboard() {
         {activeTab === "asesmen" && (
           <div className="flex flex-col gap-6">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <BrainCircuit className="w-5 h-5 text-purple-400" /> Monitoring Asesmen Awal PDBK
+              <BrainCircuit className="w-5 h-5 text-purple-400" /> Monitoring Asesmen Awal PDBK ({filteredAssessments.length})
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -274,6 +284,17 @@ export default function PsikologDashboard() {
                       <div className="space-y-2 text-xs text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
                         <p className="line-clamp-2"><strong>Permasalahan:</strong> {a.permasalahan || "-"}</p>
                         {a.identitas?.kelas && <p><strong>Kelas:</strong> {a.identitas.kelas}</p>}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-400 pt-1">
+                        <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                          <span className="text-emerald-400 font-bold block">Kelebihan:</span>
+                          <span className="line-clamp-1">{a.profiling?.kelebihan || "-"}</span>
+                        </div>
+                        <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                          <span className="text-red-400 font-bold block">Kekurangan:</span>
+                          <span className="line-clamp-1">{a.profiling?.kekurangan || "-"}</span>
+                        </div>
                       </div>
 
                       {a.catatan_psikolog && (
@@ -303,7 +324,7 @@ export default function PsikologDashboard() {
         {activeTab === "ppi" && (
           <div className="flex flex-col gap-6">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <FileText className="w-5 h-5 text-blue-400" /> Monitoring Program Pembelajaran Individual (PPI)
+              <FileText className="w-5 h-5 text-blue-400" /> Monitoring Program Pembelajaran Individual (PPI) ({filteredPpi.length})
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -423,7 +444,7 @@ export default function PsikologDashboard() {
         {activeTab === "laporan" && (
           <div className="flex flex-col gap-6">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-emerald-400" /> Rekapitulasi Laporan Harian GPK
+              <BookOpen className="w-5 h-5 text-emerald-400" /> Rekapitulasi Laporan Harian GPK ({displayedReports.length})
             </h3>
 
             <div className="bg-white/5 p-5 rounded-2xl border border-white/10 space-y-4 shadow-xl">
@@ -599,7 +620,7 @@ export default function PsikologDashboard() {
                 </div>
               )}
 
-              {/* ASESMEN AWAL LENGKAP + FORM CATATAN PSIKOLOG */}
+              {/* ASESMEN AWAL LENGKAP + FORM CATATAN PSIKOLOG (DIPERLENGKAP SEPERTI ADMIN) */}
               {modalType === "assessment" && (
                 <div className="space-y-4">
                    <div className="bg-white/5 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -609,7 +630,7 @@ export default function PsikologDashboard() {
 
                   {selectedItem.identitas && (
                     <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">Identitas Diri Anak</h4>
+                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">1. Identitas Diri Anak</h4>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                         <div><span className="text-slate-500 block">Nama Anak:</span> <span className="text-white font-medium">{selectedItem.identitas.nama_anak || "-"}</span></div>
                         <div><span className="text-slate-500 block">Tanggal Lahir:</span> <span className="text-white font-medium">{selectedItem.identitas.tanggal_lahir || "-"}</span></div>
@@ -623,9 +644,33 @@ export default function PsikologDashboard() {
                   )}
 
                   <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Permasalahan yang Dihadapi Anak</h4>
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">2. Permasalahan yang Dihadapi Anak</h4>
                     <p className="text-white whitespace-pre-wrap">{selectedItem.permasalahan || "-"}</p>
                   </div>
+
+                  {selectedItem.metode_hasil && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                      <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider">3. Metode & Hasil Assessment</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div><span className="text-slate-500 block">Observasi:</span> <span className="text-white">{selectedItem.metode_hasil.observasi || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Wawancara:</span> <span className="text-white">{selectedItem.metode_hasil.wawancara || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Psikotes:</span> <span className="text-white">{selectedItem.metode_hasil.psikotes || "-"}</span></div>
+                        <div><span className="text-slate-500 block">Data Pendukung:</span> <span className="text-white">{selectedItem.metode_hasil.data_pendukung || "-"}</span></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedItem.profiling && (
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                      <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider">4. Profiling Anak</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div><span className="text-emerald-400 font-bold block">Kelebihan:</span> <span className="text-white whitespace-pre-wrap">{selectedItem.profiling.kelebihan || "-"}</span></div>
+                        <div><span className="text-red-400 font-bold block">Kekurangan / Tantangan:</span> <span className="text-white whitespace-pre-wrap">{selectedItem.profiling.kekurangan || "-"}</span></div>
+                        <div><span className="text-blue-400 font-bold block">Hal yang Disukai:</span> <span className="text-white whitespace-pre-wrap">{selectedItem.profiling.disukai || "-"}</span></div>
+                        <div><span className="text-amber-400 font-bold block">Hal yang Tidak Disukai:</span> <span className="text-white whitespace-pre-wrap">{selectedItem.profiling.tidak_disukai || "-"}</span></div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* FORM CATATAN PSIKOLOG */}
                   <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-2xl space-y-3">
